@@ -7,8 +7,17 @@
     flex-wrap: wrap;
   }
   #contact,
-  #projects {
+  #projects,
+  #recipes,
+  #chat,
+  #blogs {
     height: fit-content;
+  }
+  .chat-container {
+    flex-direction: column;
+  }
+  .chat-info {
+    width: auto;
   }
 }
 
@@ -18,6 +27,16 @@
   }
   #hamburger-nav {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+  }
+  .mode-toggle {
+    display: none;
+  }
+  .mode-toggle-mobile {
+    display: flex;
+    margin-right: 1rem;
   }
   #experience,
   .experience-details-container {
@@ -45,9 +64,18 @@
   .about-containers {
     margin-top: 0;
   }
+  .chat-container {
+    gap: 1rem;
+  }
+  .chat-box {
+    height: 350px;
+  }
 }
 
 @media screen and (max-width: 600px) {
+  .mode-toggle-mobile {
+    display: none;
+  }
   #contact,
   footer {
     height: 40vh;
@@ -99,5 +127,16 @@
   }
   .text-container {
     text-align: justify;
+  }
+  .chat-box {
+    height: 300px;
+  }
+  .blog-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .blog-date {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
   }
 }

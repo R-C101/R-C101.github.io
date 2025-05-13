@@ -11,28 +11,59 @@
   <body>
     <nav id="desktop-nav">
       <div class="logo">Rishit Chugh</div>
-      <div>
-        <ul class="nav-links">
+      <div class="nav-items">
+        <ul class="nav-links professional-links">
           <li><a href="#about">About</a></li>
           <li><a href="#experience">Experience</a></li>
           <li><a href="#projects">Projects</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
+        <ul class="nav-links fun-links">
+          <li><a href="#recipes">Recipes</a></li>
+          <li><a href="#chat">Chat with Me</a></li>
+          <li><a href="#blogs">Blogs</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="mode-toggle">
+        <span class="toggle-label">Fun Mode</span>
+        <label class="switch">
+          <input type="checkbox" id="modeToggle">
+          <span class="slider round"></span>
+        </label>
       </div>
     </nav>
+    
     <nav id="hamburger-nav">
       <div class="logo">Rishit Chugh</div>
-      <div class="hamburger-menu">
-        <div class="hamburger-icon" onclick="toggleMenu()">
-          <span></span>
-          <span></span>
-          <span></span>
+      <div class="nav-right-mobile">
+        <div class="mode-toggle-mobile">
+          <span class="toggle-label">Fun Mode</span>
+          <label class="switch">
+            <input type="checkbox" id="modeToggleMobile">
+            <span class="slider round"></span>
+          </label>
         </div>
-        <div class="menu-links">
-          <li><a href="#about" onclick="toggleMenu()">About</a></li>
-          <li><a href="#experience" onclick="toggleMenu()">Experience</a></li>
-          <li><a href="#projects" onclick="toggleMenu()">Projects</a></li>
-          <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
+        <div class="hamburger-menu">
+          <div class="hamburger-icon" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="menu-links-container">
+            <div class="menu-links professional-links">
+              <li><a href="#about" onclick="toggleMenu()">About</a></li>
+              <li><a href="#experience" onclick="toggleMenu()">Experience</a></li>
+              <li><a href="#projects" onclick="toggleMenu()">Projects</a></li>
+              <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
+            </div>
+            <div class="menu-links fun-links">
+              <li><a href="#recipes" onclick="toggleMenu()">Recipes</a></li>
+              <li><a href="#chat" onclick="toggleMenu()">Chat with Me</a></li>
+              <li><a href="#blogs" onclick="toggleMenu()">Blogs</a></li>
+              <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
@@ -383,15 +414,155 @@
         </div>
       </div>
     </section>
+    
+    <!-- Fun Mode Sections - Hidden by default -->
+    <section id="recipes" class="fun-mode-section">
+      <p class="section__text__p1">Try My Favorite</p>
+      <h1 class="title">Recipes</h1>
+      <div class="experience-details-container">
+        <div class="about-containers">
+          <div class="details-container color-container">
+            <div class="article-container">
+              <img
+                src="./assets/recipe-placeholder.jpg"
+                alt="Recipe 1"
+                class="project-img"
+              />
+            </div>
+            <h2 class="experience-sub-title project-title">Midnight Pasta</h2>
+            <p class="recipe-description">A quick, delicious pasta dish perfect for late-night coding sessions.</p>
+            <div class="btn-container">
+              <button
+                class="btn btn-color-2 project-btn"
+                onclick="location.href='#recipe1'"
+              >
+                View Recipe
+              </button>
+            </div>
+          </div>
+          
+          <div class="details-container color-container">
+            <div class="article-container">
+              <img
+                src="./assets/recipe-placeholder.jpg"
+                alt="Recipe 2"
+                class="project-img"
+              />
+            </div>
+            <h2 class="experience-sub-title project-title">AI-Inspired Smoothie</h2>
+            <p class="recipe-description">The perfect brain food for ML engineers - loaded with nutrients.</p>
+            <div class="btn-container">
+              <button
+                class="btn btn-color-2 project-btn"
+                onclick="location.href='#recipe2'"
+              >
+                View Recipe
+              </button>
+            </div>
+          </div>
+          
+          <div class="details-container color-container">
+            <div class="article-container">
+              <img
+                src="./assets/recipe-placeholder.jpg"
+                alt="Recipe 3"
+                class="project-img"
+              />
+            </div>
+            <h2 class="experience-sub-title project-title">Code Break Cookies</h2>
+            <p class="recipe-description">The perfect sweet treat to enjoy during debugging sessions.</p>
+            <div class="btn-container">
+              <button
+                class="btn btn-color-2 project-btn"
+                onclick="location.href='#recipe3'"
+              >
+                View Recipe
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section id="chat" class="fun-mode-section">
+      <p class="section__text__p1">Have a Conversation</p>
+      <h1 class="title">Chat with Me</h1>
+      <div class="chat-container">
+        <div class="chat-box">
+          <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+              <p>Hey there! I'm Virtual Rishit. What would you like to chat about?</p>
+            </div>
+          </div>
+          <div class="chat-input-container">
+            <input type="text" id="chatInput" placeholder="Type your message..." />
+            <button class="btn btn-color-1" id="sendMessage">Send</button>
+          </div>
+        </div>
+        <div class="chat-info">
+          <h3>About this chatbot</h3>
+          <p>This is a fun AI assistant that tries to mimic my conversational style. It knows about my work, interests, and can answer questions about AI/ML topics. Give it a try!</p>
+          <p><em>Note: This is just a template. The actual chatbot will be implemented later.</em></p>
+        </div>
+      </div>
+    </section>
+    
+    <section id="blogs" class="fun-mode-section">
+      <p class="section__text__p1">Read My</p>
+      <h1 class="title">Blogs</h1>
+      <div class="blogs-container">
+        <div class="blog-post">
+          <div class="blog-header">
+            <h2>Getting Started with LLMs</h2>
+            <span class="blog-date">March 15, 2024</span>
+          </div>
+          <p class="blog-excerpt">
+            Large Language Models (LLMs) have revolutionized natural language processing. In this post, I share my journey with implementing and fine-tuning these models...
+          </p>
+          <button class="btn btn-color-2">Read More</button>
+        </div>
+        
+        <div class="blog-post">
+          <div class="blog-header">
+            <h2>My Recipe for Work-Life Balance</h2>
+            <span class="blog-date">February 28, 2024</span>
+          </div>
+          <p class="blog-excerpt">
+            Balancing a career in AI with personal life can be challenging. Here are some practical strategies I've developed to maintain productivity while avoiding burnout...
+          </p>
+          <button class="btn btn-color-2">Read More</button>
+        </div>
+        
+        <div class="blog-post">
+          <div class="blog-header">
+            <h2>Cooking and Coding: More Similar Than You Think</h2>
+            <span class="blog-date">January 10, 2024</span>
+          </div>
+          <p class="blog-excerpt">
+            My two passions - cooking and programming - share surprising similarities. Both require creativity, precision, and iteration. In this post, I explore these connections...
+          </p>
+          <button class="btn btn-color-2">Read More</button>
+        </div>
+      </div>
+    </section>
+    
     <footer>
       <nav>
         <div class="nav-links-container">
-          <ul class="nav-links">
-            <li><a href="#about">About</a></li>
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
+          <div class="nav-menu-container">
+            <ul class="nav-links professional-links">
+              <li><a href="#about">About</a></li>
+              <li><a href="#experience">Experience</a></li>
+              <li><a href="#projects">Projects</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+            <ul class="nav-links fun-links">
+              <li><a href="#recipes">Recipes</a></li>
+              <li><a href="#chat">Chat with Me</a></li>
+              <li><a href="#blogs">Blogs</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div>
         </div>
       </nav>
       <p>Copyright &#169; 2024 Rishit Chugh. All Rights Reserved.</p>
