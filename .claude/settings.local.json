@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(osascript:*)",
+      "Bash(open:*)",
+      "Bash(lsof:*)",
+      "mcp__ide__getDiagnostics"
+    ]
+  }
+}
