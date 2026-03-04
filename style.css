@@ -1265,7 +1265,7 @@ img { display: block; max-width: 100%; }
   }
 
   .hero-name {
-    font-size: clamp(2.8rem, 13vw, 5rem);
+    font-size: clamp(2.2rem, 11vw, 5rem);
   }
 
   .hero-meta {
@@ -1330,7 +1330,7 @@ img { display: block; max-width: 100%; }
 
   /* Collaborate text clipping fix */
   .collab-heading {
-    font-size: clamp(2rem, 10vw, 4rem);
+    font-size: clamp(1.6rem, 8vw, 4rem);
     padding: 0 0.5rem;
   }
 
