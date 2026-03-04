@@ -250,6 +250,7 @@ img { display: block; max-width: 100%; }
   display: block;
   overflow: hidden;
   padding-bottom: 0.15em;
+  white-space: nowrap;
 }
 
 .hero-char-wrap {
@@ -1265,7 +1266,7 @@ img { display: block; max-width: 100%; }
   }
 
   :root {
-    --hero-size: clamp(2.2rem, 11vw, 5rem);
+    --hero-size: clamp(1.8rem, 8.5vw, 5rem);
   }
 
   .hero-meta {
@@ -1386,6 +1387,7 @@ img { display: block; max-width: 100%; }
 @media (max-width: 480px) {
   :root {
     --pad-x: 1.25rem;
+    --hero-size: clamp(1.6rem, 8vw, 3.5rem);
   }
 
   .nav-links {
