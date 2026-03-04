@@ -1,572 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rishit Chugh</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="mediaqueries.css" />
-  </head>
-  <body>
-    <nav id="desktop-nav">
-      <div class="logo">Rishit Chugh</div>
-      <div class="nav-items">
-        <ul class="nav-links professional-links">
-          <li><a href="#about">About</a></li>
-          <li><a href="#experience">Experience</a></li>
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-        <ul class="nav-links fun-links">
-          <li><a href="#recipes">Recipes</a></li>
-          <li><a href="#chat">Chat with Me</a></li>
-          <li><a href="#blogs">Blogs</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rishit Chugh — ML Engineer</title>
+  <meta name="description" content="Portfolio of Rishit Chugh, ML Engineer building intelligent systems.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+  <!-- Three.js (WebGL shader background) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- WebGL shader background (fixed behind hero) -->
+  <div id="shader-bg" aria-hidden="true"></div>
+
+  <!-- Grain / noise texture overlay -->
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- ============ NAVIGATION ============ -->
+  <nav class="nav" id="nav">
+    <a href="#" class="nav-logo">RC<span class="nav-logo-dot">.</span></a>
+    <div class="nav-links">
+      <a href="#experience" class="nav-link">Experience</a>
+      <a href="#projects" class="nav-link">Projects</a>
+      <a href="#research" class="nav-link">Research</a>
+      <a href="#connect" class="nav-link">Connect</a>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <section id="hero" class="section hero">
+    <div class="hero-content">
+      <div class="hero-overline">
+        <span class="hero-overline-line"></span>
+        <span class="hero-overline-text">PORTFOLIO &mdash; 2026</span>
       </div>
-      <div class="mode-toggle">
-        <span class="toggle-label">Fun Mode</span>
-        <label class="switch">
-          <input type="checkbox" id="modeToggle">
-          <span class="slider round"></span>
-        </label>
+      <h1 class="hero-name" aria-label="Rishit Chugh">
+        <span class="hero-name-row" data-swap-label="RISHIT"><span class="hero-char-wrap">R</span><span class="hero-char-wrap">I</span><span class="hero-char-wrap">S</span><span class="hero-char-wrap">H</span><span class="hero-char-wrap">I</span><span class="hero-char-wrap">T</span></span>
+        <span class="hero-name-row" data-swap-label="CHUGH"><span class="hero-char-wrap">C</span><span class="hero-char-wrap">H</span><span class="hero-char-wrap">U</span><span class="hero-char-wrap">G</span><span class="hero-char-wrap">H</span></span>
+      </h1>
+      <div class="hero-meta">
+        <p class="hero-role letter-swap-pingpong" data-label="ML Engineer">ML Engineer</p>
+        <p class="typewriter">
+          <span id="typewriter-text"></span><span class="typewriter-cursor">|</span>
+        </p>
       </div>
-    </nav>
-    
-    <nav id="hamburger-nav">
-      <div class="logo">Rishit Chugh</div>
-      <div class="nav-right-mobile">
-        <div class="mode-toggle-mobile">
-          <span class="toggle-label">Fun Mode</span>
-          <label class="switch">
-            <input type="checkbox" id="modeToggleMobile">
-            <span class="slider round"></span>
-          </label>
-        </div>
-        <div class="hamburger-menu">
-          <div class="hamburger-icon" onclick="toggleMenu()">
-            <span></span>
-            <span></span>
-            <span></span>
+    </div>
+    <div class="scroll-indicator" aria-hidden="true">
+      <span class="scroll-text">SCROLL</span>
+      <div class="scroll-line-track">
+        <div class="scroll-line-fill"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXPERIENCE (Aceternity-style scroll timeline) ============ -->
+  <section id="experience" class="section section--experience">
+    <div class="section-container">
+      <header class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">EXPERIENCE</h2>
+        <div class="section-rule"></div>
+      </header>
+    </div>
+
+    <div class="ac-timeline" id="ac-timeline">
+      <div class="ac-timeline-inner">
+
+        <div class="ac-entry">
+          <div class="ac-entry-left">
+            <div class="ac-dot-wrap">
+              <div class="ac-dot-outer"><div class="ac-dot-inner"></div></div>
+            </div>
+            <h3 class="ac-year">2025</h3>
           </div>
-          <div class="menu-links-container">
-            <div class="menu-links professional-links">
-              <li><a href="#about" onclick="toggleMenu()">About</a></li>
-              <li><a href="#experience" onclick="toggleMenu()">Experience</a></li>
-              <li><a href="#projects" onclick="toggleMenu()">Projects</a></li>
-              <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
-            </div>
-            <div class="menu-links fun-links">
-              <li><a href="#recipes" onclick="toggleMenu()">Recipes</a></li>
-              <li><a href="#chat" onclick="toggleMenu()">Chat with Me</a></li>
-              <li><a href="#blogs" onclick="toggleMenu()">Blogs</a></li>
-              <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-    <section id="profile">
-      <div class="section__pic-container">
-        <img src="./assets/profile-pic.png" alt="My profile picture" />
-      </div>
-      <div class="section__text">
-        <p class="section__text__p1">Hello, I'm</p>
-        <h1 class="title">Rishit Chugh</h1>
-        <p class="section__text__p2">AI/ML Engineer</p>
-        <div class="btn-container">
-          <button
-            class="btn btn-color-2"
-            onclick="window.open('./assets/resume.pdf')"
-          >
-            Download CV
-          </button>
-          <button class="btn btn-color-1" onclick="location.href='./#contact'">
-            Contact Info
-          </button>
-        </div>
-        <div id="socials-container">
-          <img
-            src="./assets/linkedin.png"
-            alt="My LinkedIn profile"
-            class="icon"
-            onclick="location.href='https://www.linkedin.com/in/rishit-chugh/'"
-          />
-          <img
-            src="./assets/github.png"
-            alt="My Github profile"
-            class="icon"
-            onclick="location.href='https://github.com/R-C101'"
-          />
-        </div>
-      </div>
-    </section>
-    <section id="about">
-      <p class="section__text__p1">Get To Know More</p>
-      <h1 class="title">About Me</h1>
-      <div class="section-container">
-        <div class="section__pic-container">
-          <img
-            src="./assets/about-pic.jpg"
-            alt="Profile picture"
-            class="about-pic"
-          />
-        </div>
-        <div class="about-details-container">
-          <div class="about-containers">
-            <div class="details-container">
-              <img
-                src="./assets/experience.png"
-                alt="Experience icon"
-                class="icon"
-              />
-              <h3>Experience</h3>
-              <p>Internships <br />AI/ML Engineer</p>
-            </div>
-            <div class="details-container">
-              <img
-                src="./assets/education.png"
-                alt="Education icon"
-                class="icon"
-              />
-              <h3>Education</h3>
-              <p>B.Tech CSE <br />Ongoing MSCS</p>
+          <div class="ac-entry-right">
+            <h3 class="ac-year-mobile">2025</h3>
+            <h4 class="ac-role">Data Scientist</h4>
+            <p class="ac-company">Liat.ai</p>
+            <p class="ac-desc">Creating real-time sports analytical systems for enjoyment.</p>
+            <div class="ac-highlights">
+              <span>PyTorch</span>
+              <span>ONNX</span>
+              <span>TensorRT</span>
+              <span>ElevenLabs</span>
+              <span>Docker</span>
+              <span>Redis</span>
+              <span>Modelling</span>
             </div>
           </div>
-          <div class="text-container">
-            <p>
-              I'm a passionate AI and Machine Learning enthusiast with a strong academic background in Computer Science from VIT Bhopal, currently specializing in cutting-edge technologies that push the boundaries of artificial intelligence. As an innovative intern at companies like DMI Finance and Lilac Mosaic, I've developed advanced solutions in large language model (LLM) guardrailing, chatbot development, and AI-driven systems.
-            </p>
+        </div>
+
+        <div class="ac-entry">
+          <div class="ac-entry-left">
+            <div class="ac-dot-wrap">
+              <div class="ac-dot-outer"><div class="ac-dot-inner"></div></div>
+            </div>
+            <h3 class="ac-year">2024</h3>
+          </div>
+          <div class="ac-entry-right">
+            <h3 class="ac-year-mobile">2024</h3>
+            <h4 class="ac-role">LLM Intern</h4>
+            <p class="ac-company">DMI Finance Pvt Ltd</p>
+            <p class="ac-desc">Developed LLM guardrailing models for toxicity, jailbreak detection, and PII masking — 30% better than Meta's Llama Guard. Implemented VLLM for 5x faster inference. Built RAG and hallucination testing achieving 80% success against ChatGPT and Gemini.</p>
+            <div class="ac-highlights">
+              <span>AWS</span>
+              <span>VLLM</span>
+              <span>PyTorch</span>
+              <span>Transformers</span>
+              <span>PEFT</span>
+            </div>
           </div>
         </div>
+
+        <div class="ac-entry">
+          <div class="ac-entry-left">
+            <div class="ac-dot-wrap">
+              <div class="ac-dot-outer"><div class="ac-dot-inner"></div></div>
+            </div>
+            <h3 class="ac-year">2024</h3>
+          </div>
+          <div class="ac-entry-right">
+            <h3 class="ac-year-mobile">2024</h3>
+            <h4 class="ac-role">AI/ML Intern</h4>
+            <p class="ac-company">Lilac Mosaic</p>
+            <p class="ac-desc">Built FAQ and RAG chatbot using Transformers and Dialogflow — 90% reduction in support inquiries. Implemented image similarity and recommendation systems with OpenCV. Deployed on Firebase and Google Cloud.</p>
+            <div class="ac-highlights">
+              <span>OpenCV</span>
+              <span>Google Cloud</span>
+              <span>Firebase</span>
+              <span>Transformers</span>
+            </div>
+          </div>
+        </div>
+
       </div>
-      <img
-        src="./assets/arrow.png"
-        alt="Arrow icon"
-        class="icon arrow"
-        onclick="location.href='./#experience'"
-      />
-    </section>
-    <section id="experience">
-      <p class="section__text__p1">Explore My</p>
-      <h1 class="title">Experience</h1>
-      <div class="experience-details-container">
-        <div class="about-containers">
-          <div class="details-container">
-            <h2 class="experience-sub-title">Frameworks</h2>
-            <div class="article-container">
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>PyTorch</h3>
-                  <p>Experienced</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>Tensorflow</h3>
-                  <p>Experienced</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>Langchain</h3>
-                  <p>Intermediate</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>Transformers</h3>
-                  <p>Experienced</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>Pandas</h3>
-                  <p>Experienced</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>OpenCV</h3>
-                  <p>Intermediate</p>
-                </div>
-              </article>
+
+      <!-- Scroll-driven gradient line -->
+      <div class="ac-line-track" aria-hidden="true">
+        <div class="ac-line-bg"></div>
+        <div class="ac-line-fill" id="ac-line-fill"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROJECTS ============ -->
+  <section id="projects" class="section">
+    <div class="section-container">
+      <header class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">PROJECTS</h2>
+        <div class="section-rule"></div>
+      </header>
+
+      <div class="deck-wrapper">
+        <div class="deck" id="project-deck">
+
+          <article class="deck-card" data-index="0">
+            <div class="card-evervault" aria-hidden="true">
+              <div class="card-pattern"></div>
+              <div class="card-gradient"></div>
             </div>
-          </div>
-          <div class="details-container">
-            <h2 class="experience-sub-title">Languages, Software and Databases</h2>
-            <div class="article-container">
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>Python</h3>
-                  <p>Experienced</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>Docker</h3>
-                  <p>Intermediate</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>AWS/GCP</h3>
-                  <p>Intermediate</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>Git</h3>
-                  <p>Experienced</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>SQL/MongoDB</h3>
-                  <p>Intermediate</p>
-                </div>
-              </article>
-              
-              <article>
-                <img
-                  src="./assets/checkmark.png"
-                  alt="Experience icon"
-                  class="icon"
-                />
-                <div>
-                  <h3>VectorDBs</h3>
-                  <p>Intermediate</p>
-                </div>
-              </article>
+            <div class="card-content">
+              <span class="card-num">01</span>
+              <h3 class="card-name">RECAP</h3>
+              <p class="card-desc">A novel approach to adversarial attacks on LLMs using semantic similarity search to retrieve proven-successful attack patterns from a curated database.</p>
+              <div class="card-tags">
+                <span>LLM Red-teaming</span>
+                <span>NLP</span>
+                <span>Transformers</span>
+              </div>
+              <a href="https://arxiv.org/abs/2601.15331" class="card-link" target="_blank" rel="noopener">
+                <span>View Paper</span>
+                <span class="card-link-arrow">↗</span>
+              </a>
             </div>
+            <div class="card-corner card-corner--tl"></div>
+            <div class="card-corner card-corner--tr"></div>
+            <div class="card-corner card-corner--bl"></div>
+            <div class="card-corner card-corner--br"></div>
+          </article>
+
+          <article class="deck-card" data-index="1">
+            <div class="card-evervault" aria-hidden="true">
+              <div class="card-pattern"></div>
+              <div class="card-gradient"></div>
+            </div>
+            <div class="card-content">
+              <span class="card-num">02</span>
+              <h3 class="card-name">CVAR</h3>
+              <p class="card-desc">Football analysis system using YOLO and OpenCV for player, referee, and ball tracking. Features ball possession stats, player speed estimation, and camera movement tracking.</p>
+              <div class="card-tags">
+                <span>YOLO</span>
+                <span>OpenCV</span>
+                <span>NumPy</span>
+                <span>SuperVision</span>
+              </div>
+              <a href="https://github.com/R-C101/CVAR" class="card-link" target="_blank" rel="noopener">
+                <span>View Project</span>
+                <span class="card-link-arrow">↗</span>
+              </a>
+            </div>
+            <div class="card-corner card-corner--tl"></div>
+            <div class="card-corner card-corner--tr"></div>
+            <div class="card-corner card-corner--bl"></div>
+            <div class="card-corner card-corner--br"></div>
+          </article>
+
+          <article class="deck-card" data-index="2">
+            <div class="card-evervault" aria-hidden="true">
+              <div class="card-pattern"></div>
+              <div class="card-gradient"></div>
+            </div>
+            <div class="card-content">
+              <span class="card-num">03</span>
+              <h3 class="card-name">OKULARY</h3>
+              <p class="card-desc">Educational platform using NLP, Computer Vision, and Transformers to automate attendance, assignment grading, and plagiarism detection — enhancing teacher efficiency.</p>
+              <div class="card-tags">
+                <span>NLP</span>
+                <span>OpenCV</span>
+                <span>Transformers</span>
+              </div>
+              <a href="https://github.com/SEAR-Innovate/OKULARY" class="card-link" target="_blank" rel="noopener">
+                <span>View Project</span>
+                <span class="card-link-arrow">↗</span>
+              </a>
+            </div>
+            <div class="card-corner card-corner--tl"></div>
+            <div class="card-corner card-corner--tr"></div>
+            <div class="card-corner card-corner--bl"></div>
+            <div class="card-corner card-corner--br"></div>
+          </article>
+
+        </div>
+
+        <div class="deck-controls">
+          <div class="deck-counter">
+            <span class="deck-current">1</span>
+            <span class="deck-sep">/</span>
+            <span class="deck-total">3</span>
           </div>
+          <div class="deck-nav">
+            <button class="deck-btn deck-btn--prev" aria-label="Previous project">←</button>
+            <button class="deck-btn deck-btn--next" aria-label="Next project">→</button>
+          </div>
+          <p class="deck-hint">Drag to dismiss or use arrows</p>
         </div>
       </div>
-      <img
-        src="./assets/arrow.png"
-        alt="Arrow icon"
-        class="icon arrow"
-        onclick="location.href='./#projects'"
-      />
-    </section>
-    <section id="projects">
-      <p class="section__text__p1">Browse My Recent</p>
-      <h1 class="title">Projects</h1>
-      <div class="experience-details-container">
-        <div class="about-containers">
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/okulary.png"
-                alt="Project 1"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">Okulary</h2>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='https://github.com/SEAR-Innovate/OKULARY'"
-              >
-                Github
-              </button>
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='https://github.com/SEAR-Innovate/OKULARY'"
-              >
-                Live Demo
-              </button>
-            </div>
-          </div>
-          
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/cvar.png"
-                alt="Project 2"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">CVAR</h2>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='https://github.com/R-C101/CVAR'"
-              >
-                Github
-              </button>
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='https://github.com/R-C101/CVAR'"
-              >
-                Live Demo
-              </button>
-            </div>
-          </div>
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/recap.png"
-                alt="Project 3"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">RECAP</h2>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='https://github.com/R-C101'"
-              >
-                Github
-              </button>
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='https://github.com/R-C101'"
-              >
-                Live Demo
-              </button>
-            </div>
-          </div>
+    </div>
+  </section>
+
+  <!-- ============ RESEARCH (Container Scroll Animation) ============ -->
+  <section id="research" class="section section--research">
+    <div class="section-container">
+      <header class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">RESEARCH</h2>
+        <div class="section-rule"></div>
+      </header>
+    </div>
+    <div class="scroll-tablet" id="scroll-tablet">
+      <h3 class="scroll-tablet__recap" id="scroll-tablet-header">RECAP</h3>
+      <div class="scroll-tablet__card" id="scroll-tablet-card">
+        <div class="scroll-tablet__bezel">
+          <a href="https://arxiv.org/abs/2601.15331" class="scroll-tablet__screen" target="_blank" rel="noopener">
+            <img src="arxiv-ss.png" alt="RECAP — Research paper on arxiv" draggable="false">
+          </a>
         </div>
       </div>
-      <img
-        src="./assets/arrow.png"
-        alt="Arrow icon"
-        class="icon arrow"
-        onclick="location.href='./#contact'"
-      />
-    </section>
-    <section id="contact">
-      <p class="section__text__p1">Get in Touch</p>
-      <h1 class="title">Contact Me</h1>
-      <div class="contact-info-upper-container">
-        <div class="contact-info-container">
-          <img
-            src="./assets/email.png"
-            alt="Email icon"
-            class="icon contact-icon email-icon"
-          />
-          <p><a href="mailto:examplemail@gmail.com">rishitchugh@gmail.com</a></p>
-        </div>
-        <div class="contact-info-container">
-          <img
-            src="./assets/linkedin.png"
-            alt="LinkedIn icon"
-            class="icon contact-icon"
-          />
-          <p><a href="https://www.linkedin.com/in/rishit-chugh/">LinkedIn</a></p>
-        </div>
+    </div>
+  </section>
+
+  <!-- ============ CONNECT ============ -->
+  <section id="connect" class="section">
+    <div class="section-container">
+      <header class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">CONNECT</h2>
+        <div class="section-rule"></div>
+      </header>
+
+      <div class="display-cards" id="display-cards">
+        <a href="https://x.com/chughrishit?s=21" class="display-card display-card--1" target="_blank" rel="noopener noreferrer">
+          <div class="display-card__top">
+            <span class="display-card__icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </span>
+            <p class="display-card__title">X</p>
+          </div>
+          <p class="display-card__desc">Thoughts & conversations</p>
+          <p class="display-card__handle">@rishitchugh</p>
+        </a>
+
+        <a href="https://www.linkedin.com/in/rishit-chugh/" class="display-card display-card--2" target="_blank" rel="noopener noreferrer">
+          <div class="display-card__top">
+            <span class="display-card__icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+            </span>
+            <p class="display-card__title">LinkedIn</p>
+          </div>
+          <p class="display-card__desc">Professional network & updates</p>
+          <p class="display-card__handle">in/rishitchugh</p>
+        </a>
+
+        <a href="https://github.com/R-C101" class="display-card display-card--3" target="_blank" rel="noopener noreferrer">
+          <div class="display-card__top">
+            <span class="display-card__icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            </span>
+            <p class="display-card__title">GitHub</p>
+          </div>
+          <p class="display-card__desc">Open source projects & code</p>
+          <p class="display-card__handle">@R-C101</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BOTTOM WRAPPER (dotted surface bg) ============ -->
+  <div class="bottom-wrapper" id="bottom-wrapper">
+    <div id="dotted-bg" aria-hidden="true"></div>
+
+    <!-- ============ RESUME ============ -->
+    <section class="section section--resume">
+      <div class="section-container resume-container">
+        <a href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit?usp=sharing&ouid=107367003840117032989&rtpof=true&sd=true" class="hover-btn hover-btn--lg" target="_blank" rel="noopener">
+          <span class="hover-btn__text">See Resume</span>
+          <div class="hover-btn__hover">
+            <span>See Resume</span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+        </a>
       </div>
     </section>
-    
-    <!-- Fun Mode Sections - Hidden by default -->
-    <section id="recipes" class="fun-mode-section">
-      <p class="section__text__p1">Try My Favorite</p>
-      <h1 class="title">Recipes</h1>
-      <div class="experience-details-container">
-        <div class="about-containers">
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/recipe-placeholder.jpg"
-                alt="Recipe 1"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">Midnight Pasta</h2>
-            <p class="recipe-description">A quick, delicious pasta dish perfect for late-night coding sessions.</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='#recipe1'"
-              >
-                View Recipe
-              </button>
-            </div>
+
+    <!-- ============ COLLABORATE ============ -->
+    <section id="collaborate" class="section section--collab">
+      <div class="section-container collab-container">
+        <p class="collab-overline">Got an idea?</p>
+        <h2 class="collab-heading">LET'S BUILD<br>SOMETHING</h2>
+        <a href="mailto:rishitchugh@gmail.com" class="collab-email">rishitchugh@gmail.com</a>
+        <a href="mailto:rishitchugh@gmail.com" class="hover-btn">
+          <span class="hover-btn__text">Start a conversation</span>
+          <div class="hover-btn__hover">
+            <span>Start a conversation</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </div>
-          
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/recipe-placeholder.jpg"
-                alt="Recipe 2"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">AI-Inspired Smoothie</h2>
-            <p class="recipe-description">The perfect brain food for ML engineers - loaded with nutrients.</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='#recipe2'"
-              >
-                View Recipe
-              </button>
-            </div>
-          </div>
-          
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/recipe-placeholder.jpg"
-                alt="Recipe 3"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">Code Break Cookies</h2>
-            <p class="recipe-description">The perfect sweet treat to enjoy during debugging sessions.</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='#recipe3'"
-              >
-                View Recipe
-              </button>
-            </div>
-          </div>
-        </div>
+        </a>
       </div>
     </section>
-    
-    <section id="chat" class="fun-mode-section">
-      <p class="section__text__p1">Have a Conversation</p>
-      <h1 class="title">Chat with Me</h1>
-      <div class="chat-container">
-        <div class="chat-box">
-          <div class="chat-messages" id="chatMessages">
-            <div class="message bot">
-              <p>Hey there! I'm Virtual Rishit. What would you like to chat about?</p>
-            </div>
-          </div>
-          <div class="chat-input-container">
-            <input type="text" id="chatInput" placeholder="Type your message..." />
-            <button class="btn btn-color-1" id="sendMessage">Send</button>
-          </div>
-        </div>
-        <div class="chat-info">
-          <h3>About this chatbot</h3>
-          <p>This is a fun AI assistant that tries to mimic my conversational style. It knows about my work, interests, and can answer questions about AI/ML topics. Give it a try!</p>
-          <p><em>Note: This is just a template. The actual chatbot will be implemented later.</em></p>
-        </div>
-      </div>
-    </section>
-    
-    <section id="blogs" class="fun-mode-section">
-      <p class="section__text__p1">Read My</p>
-      <h1 class="title">Blogs</h1>
-      <div class="blogs-container">
-        <div class="blog-post">
-          <div class="blog-header">
-            <h2>Getting Started with LLMs</h2>
-            <span class="blog-date">March 15, 2024</span>
-          </div>
-          <p class="blog-excerpt">
-            Large Language Models (LLMs) have revolutionized natural language processing. In this post, I share my journey with implementing and fine-tuning these models...
-          </p>
-          <button class="btn btn-color-2">Read More</button>
-        </div>
-        
-        <div class="blog-post">
-          <div class="blog-header">
-            <h2>My Recipe for Work-Life Balance</h2>
-            <span class="blog-date">February 28, 2024</span>
-          </div>
-          <p class="blog-excerpt">
-            Balancing a career in AI with personal life can be challenging. Here are some practical strategies I've developed to maintain productivity while avoiding burnout...
-          </p>
-          <button class="btn btn-color-2">Read More</button>
-        </div>
-        
-        <div class="blog-post">
-          <div class="blog-header">
-            <h2>Cooking and Coding: More Similar Than You Think</h2>
-            <span class="blog-date">January 10, 2024</span>
-          </div>
-          <p class="blog-excerpt">
-            My two passions - cooking and programming - share surprising similarities. Both require creativity, precision, and iteration. In this post, I explore these connections...
-          </p>
-          <button class="btn btn-color-2">Read More</button>
-        </div>
-      </div>
-    </section>
-    
-    <footer>
-      <nav>
-        <div class="nav-links-container">
-          <div class="nav-menu-container">
-            <ul class="nav-links professional-links">
-              <li><a href="#about">About</a></li>
-              <li><a href="#experience">Experience</a></li>
-              <li><a href="#projects">Projects</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-            <ul class="nav-links fun-links">
-              <li><a href="#recipes">Recipes</a></li>
-              <li><a href="#chat">Chat with Me</a></li>
-              <li><a href="#blogs">Blogs</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-      <p>Copyright &#169; 2024 Rishit Chugh. All Rights Reserved.</p>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+      <span>© 2026 Rishit Chugh</span>
+      <span class="footer-sep">·</span>
+      <span>Designed & built with intention</span>
     </footer>
-    <script src="script.js"></script>
-  </body>
+  </div>
+
+  <script src="main.js" defer></script>
+</body>
 </html>
