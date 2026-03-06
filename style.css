@@ -1492,8 +1492,8 @@ body.custom-cursor * {
 
 /* ---------- BB8 STAR WARS THEME TOGGLE ---------- */
 .bb8-toggle {
-  --toggle-size:   11px;
-  --toggle-width:  10.625em;
+  --toggle-size:   8px;
+  --toggle-width:  14em;
   --toggle-height: 5.625em;
   --toggle-offset: calc((var(--toggle-height) - var(--bb8-diameter)) / 2);
   --toggle-bg: linear-gradient(#2c4770, #070e2b 35%, #628cac 50% 70%, #a6c5d4) no-repeat;
@@ -1931,9 +1931,9 @@ body.custom-cursor * {
 
 /* Responsive sizing */
 @media (max-width: 768px) {
-  .bb8-toggle { --toggle-size: 9px; }
+  .bb8-toggle { --toggle-size: 7px; --toggle-width: 12em; }
 }
 
 @media (max-width: 480px) {
-  .bb8-toggle { --toggle-size: 8px; }
+  .bb8-toggle { --toggle-size: 6px; --toggle-width: 11em; }
 }
