@@ -15,6 +15,8 @@
     if (typeof ScrollToPlugin !== 'undefined') {
       gsap.registerPlugin(ScrollToPlugin);
     }
+    initThemeToggle();
+    initTargetCursor();
     initShaderBg();
     initNavScroll();
     initHeroAnimation();
@@ -26,6 +28,196 @@
     initScrollTablet();
     initDottedSurface();
     initSmoothNav();
+  }
+
+  /* ========== TARGET CURSOR ========== */
+  function initTargetCursor() {
+    var hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    var isSmallScreen = window.innerWidth <= 768;
+    var mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+    if ((hasTouchScreen && isSmallScreen) || mobileRegex.test((navigator.userAgent || '').toLowerCase())) return;
+
+    var BORDER_WIDTH = 3;
+    var CORNER_SIZE = 12;
+    var SPIN_DURATION = 2;
+    var HOVER_DURATION = 0.2;
+
+    // Build cursor DOM — hidden by default
+    var cursor = document.createElement('div');
+    cursor.className = 'target-cursor-wrapper';
+    cursor.style.display = 'none';
+    cursor.innerHTML =
+      '<div class="target-cursor-dot"></div>' +
+      '<div class="target-cursor-corner corner-tl"></div>' +
+      '<div class="target-cursor-corner corner-tr"></div>' +
+      '<div class="target-cursor-corner corner-br"></div>' +
+      '<div class="target-cursor-corner corner-bl"></div>';
+    document.body.appendChild(cursor);
+
+    var dot = cursor.querySelector('.target-cursor-dot');
+    var corners = Array.from(cursor.querySelectorAll('.target-cursor-corner'));
+
+    var restingPos = [
+      { x: -CORNER_SIZE * 1.5, y: -CORNER_SIZE * 1.5 },
+      { x:  CORNER_SIZE * 0.5, y: -CORNER_SIZE * 1.5 },
+      { x:  CORNER_SIZE * 0.5, y:  CORNER_SIZE * 0.5 },
+      { x: -CORNER_SIZE * 1.5, y:  CORNER_SIZE * 0.5 }
+    ];
+    corners.forEach(function (c, i) { gsap.set(c, restingPos[i]); });
+
+    gsap.set(cursor, { xPercent: -50, yPercent: -50, x: window.innerWidth / 2, y: window.innerHeight / 2 });
+
+    // RC. logo toggles cursor on/off
+    var isEnabled = false;
+    var logo = document.querySelector('.nav-logo');
+    if (logo) {
+      logo.addEventListener('click', function (e) {
+        e.preventDefault();
+        isEnabled = !isEnabled;
+        cursor.style.display = isEnabled ? '' : 'none';
+        document.body.classList.toggle('custom-cursor', isEnabled);
+      });
+    }
+
+    // Auto-tag interactive elements
+    document.querySelectorAll('a, button, .hover-btn, .display-card, .bb8-toggle, .deck-btn').forEach(function (el) {
+      el.classList.add('cursor-target');
+    });
+
+    var activeTarget = null;
+    var currentLeaveHandler = null;
+    var resumeTimeout = null;
+    var strengthObj = { value: 0 };
+    var targetCornerPos = null;
+    var spinTl = null;
+
+    function createSpinTl() {
+      if (spinTl) spinTl.kill();
+      spinTl = gsap.timeline({ repeat: -1 })
+        .to(cursor, { rotation: '+=360', duration: SPIN_DURATION, ease: 'none' });
+    }
+    createSpinTl();
+
+    function tickerFn() {
+      if (!targetCornerPos || strengthObj.value === 0) return;
+      var cx = gsap.getProperty(cursor, 'x');
+      var cy = gsap.getProperty(cursor, 'y');
+      corners.forEach(function (corner, i) {
+        var curX = gsap.getProperty(corner, 'x');
+        var curY = gsap.getProperty(corner, 'y');
+        var fX = curX + (targetCornerPos[i].x - cx - curX) * strengthObj.value;
+        var fY = curY + (targetCornerPos[i].y - cy - curY) * strengthObj.value;
+        var dur = strengthObj.value >= 0.99 ? 0.2 : 0.05;
+        gsap.to(corner, { x: fX, y: fY, duration: dur, ease: 'power1.out', overwrite: 'auto' });
+      });
+    }
+
+    window.addEventListener('mousemove', function (e) {
+      if (!isEnabled) return;
+      gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1, ease: 'power3.out' });
+    });
+
+    window.addEventListener('mousedown', function () {
+      if (!isEnabled) return;
+      gsap.to(dot, { scale: 0.7, duration: 0.3 });
+      gsap.to(cursor, { scale: 0.9, duration: 0.2 });
+    });
+    window.addEventListener('mouseup', function () {
+      if (!isEnabled) return;
+      gsap.to(dot, { scale: 1, duration: 0.3 });
+      gsap.to(cursor, { scale: 1, duration: 0.2 });
+    });
+
+    window.addEventListener('mouseover', function (e) {
+      if (!isEnabled) return;
+      var el = e.target;
+      while (el && el !== document.body) {
+        if (el.classList && el.classList.contains('cursor-target')) break;
+        el = el.parentElement;
+      }
+      if (!el || !el.classList || !el.classList.contains('cursor-target')) return;
+      if (activeTarget === el) return;
+
+      if (activeTarget && currentLeaveHandler) {
+        activeTarget.removeEventListener('mouseleave', currentLeaveHandler);
+        currentLeaveHandler = null;
+      }
+      if (resumeTimeout) { clearTimeout(resumeTimeout); resumeTimeout = null; }
+
+      activeTarget = el;
+      corners.forEach(function (c) { gsap.killTweensOf(c); });
+      gsap.killTweensOf(cursor, 'rotation');
+      if (spinTl) spinTl.pause();
+      gsap.set(cursor, { rotation: 0 });
+
+      var rect = el.getBoundingClientRect();
+      var cx = gsap.getProperty(cursor, 'x');
+      var cy = gsap.getProperty(cursor, 'y');
+
+      targetCornerPos = [
+        { x: rect.left  - BORDER_WIDTH,              y: rect.top    - BORDER_WIDTH              },
+        { x: rect.right + BORDER_WIDTH - CORNER_SIZE, y: rect.top    - BORDER_WIDTH              },
+        { x: rect.right + BORDER_WIDTH - CORNER_SIZE, y: rect.bottom + BORDER_WIDTH - CORNER_SIZE },
+        { x: rect.left  - BORDER_WIDTH,              y: rect.bottom + BORDER_WIDTH - CORNER_SIZE }
+      ];
+
+      gsap.ticker.add(tickerFn);
+      strengthObj.value = 0;
+      gsap.to(strengthObj, { value: 1, duration: HOVER_DURATION, ease: 'power2.out' });
+
+      corners.forEach(function (corner, i) {
+        gsap.to(corner, { x: targetCornerPos[i].x - cx, y: targetCornerPos[i].y - cy, duration: 0.2, ease: 'power2.out' });
+      });
+
+      var leaveHandler = function () {
+        gsap.ticker.remove(tickerFn);
+        strengthObj.value = 0;
+        targetCornerPos = null;
+        activeTarget = null;
+        corners.forEach(function (c) { gsap.killTweensOf(c); });
+        corners.forEach(function (corner, i) {
+          gsap.to(corner, { x: restingPos[i].x, y: restingPos[i].y, duration: 0.3, ease: 'power3.out' });
+        });
+
+        resumeTimeout = setTimeout(function () {
+          if (!activeTarget && spinTl) {
+            var rot = gsap.getProperty(cursor, 'rotation') % 360;
+            spinTl.kill();
+            spinTl = gsap.timeline({ repeat: -1 })
+              .to(cursor, { rotation: '+=360', duration: SPIN_DURATION, ease: 'none' });
+            gsap.to(cursor, {
+              rotation: rot + 360,
+              duration: SPIN_DURATION * (1 - rot / 360),
+              ease: 'none',
+              onComplete: function () { if (spinTl) spinTl.restart(); }
+            });
+          }
+          resumeTimeout = null;
+        }, 50);
+
+        el.removeEventListener('mouseleave', leaveHandler);
+        currentLeaveHandler = null;
+      };
+
+      currentLeaveHandler = leaveHandler;
+      el.addEventListener('mouseleave', leaveHandler);
+    }, { passive: true });
+  }
+
+  /* ========== THEME TOGGLE ========== */
+  function initThemeToggle() {
+    var checkbox = document.getElementById('theme-checkbox');
+    if (!checkbox) return;
+
+    // Sync checkbox to the theme already set by the inline head script
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    checkbox.checked = (current === 'dark');
+
+    checkbox.addEventListener('change', function () {
+      var theme = this.checked ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('rc-theme', theme);
+    });
   }
 
   /* ========== CYBERNETIC GRID SHADER BACKGROUND ========== */
@@ -48,6 +240,7 @@
       'uniform vec2 iResolution;',
       'uniform float iTime;',
       'uniform vec2 iMouse;',
+      'uniform float iLightMode;',
       '',
       'float random(vec2 st) {',
       '  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);',
@@ -85,15 +278,26 @@
       '  // subtle noise',
       '  color += random(uv + t * 0.1) * 0.03;',
       '',
-      '  // dim for background subtlety',
-      '  gl_FragColor = vec4(color * 0.55, 1.0);',
+      '  // grid intensity used for light mode blending',
+      '  float gridIntensity = clamp(length(color), 0.0, 1.0);',
+      '',
+      '  // dark mode: orange grid lines on near-black',
+      '  vec3 darkResult = color * 0.55;',
+      '',
+      '  // light mode: cream bg with soft amber grid lines overlaid',
+      '  vec3 lightBg = vec3(0.949, 0.941, 0.910);',
+      '  vec3 lightGridColor = vec3(0.98, 0.68, 0.28);',
+      '  vec3 lightResult = mix(lightBg, lightGridColor, gridIntensity * 0.55);',
+      '',
+      '  gl_FragColor = vec4(mix(darkResult, lightResult, iLightMode), 1.0);',
       '}'
     ].join('\n');
 
     var uniforms = {
       iTime:       { value: 0 },
       iResolution: { value: new THREE.Vector2() },
-      iMouse:      { value: new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2) }
+      iMouse:      { value: new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2) },
+      iLightMode:  { value: document.documentElement.getAttribute('data-theme') === 'dark' ? 0.0 : 1.0 }
     };
 
     var material = new THREE.ShaderMaterial({
@@ -132,6 +336,9 @@
 
     renderer.setAnimationLoop(function () {
       uniforms.iTime.value = clock.getElapsedTime();
+      // Smoothly lerp the shader between dark/light mode
+      var targetLight = document.documentElement.getAttribute('data-theme') === 'dark' ? 0.0 : 1.0;
+      uniforms.iLightMode.value += (targetLight - uniforms.iLightMode.value) * 0.05;
       renderer.render(scene, camera);
     });
   }

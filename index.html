@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +20,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
 
   <link rel="stylesheet" href="style.css">
+  <!-- Prevent flash of wrong theme -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('rc-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 </head>
 <body>
 
@@ -38,6 +45,39 @@
       <a href="#research" class="nav-link">Research</a>
       <a href="#connect" class="nav-link">Connect</a>
     </div>
+    <label class="bb8-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+      <input class="bb8-toggle__checkbox" type="checkbox" id="theme-checkbox">
+      <div class="bb8-toggle__container">
+        <div class="bb8-toggle__scenery">
+          <div class="bb8-toggle__star"></div>
+          <div class="bb8-toggle__star"></div>
+          <div class="bb8-toggle__star"></div>
+          <div class="bb8-toggle__star"></div>
+          <div class="bb8-toggle__star"></div>
+          <div class="bb8-toggle__star"></div>
+          <div class="bb8-toggle__star"></div>
+          <div class="tatto-1"></div>
+          <div class="tatto-2"></div>
+          <div class="gomrassen"></div>
+          <div class="hermes"></div>
+          <div class="chenini"></div>
+          <div class="bb8-toggle__cloud"></div>
+          <div class="bb8-toggle__cloud"></div>
+          <div class="bb8-toggle__cloud"></div>
+        </div>
+        <div class="bb8">
+          <div class="bb8__head-container">
+            <div class="bb8__antenna"></div>
+            <div class="bb8__antenna"></div>
+            <div class="bb8__head"></div>
+          </div>
+          <div class="bb8__body"></div>
+        </div>
+        <div class="artificial__hidden">
+          <div class="bb8__shadow"></div>
+        </div>
+      </div>
+    </label>
   </nav>
 
   <!-- ============ HERO ============ -->
