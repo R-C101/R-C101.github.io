@@ -36,13 +36,30 @@ function titleCase(s) {
   return s.replace(/(^|[\s-])\w/g, function (m) { return m.toUpperCase(); }).replace(/-/g, ' ');
 }
 
-function sizeClass(i, total) {
-  if (total === 1) return 'tile--wide';
-  if (total === 2) return 'tile--feature';
-  var p = i % 6;
-  if (p === 0) return 'tile--feature';
-  if (p === 3) return 'tile--wide';
-  return '';
+// Gap-free "bento" tiler. Splits N cards into blocks that each tile a full
+// 4-col band completely, so there are never interior gaps for any count.
+// Templates (emit order matters — auto-flow fills them without holes):
+//   2 -> two heroes (2x2 each)            fills 4x2
+//   3 -> hero(2x2) + tall(1x2) + tall     fills 4x2
+//   4 -> hero(2x2) + tall(1x2) + std + std fills 4x2
+// Blocks are chosen from {4,3,2} so a lone remainder of 1 never happens.
+var BENTO_TEMPLATES = {
+  2: ['t-hero', 't-hero'],
+  3: ['t-hero', 't-tall', 't-tall'],
+  4: ['t-hero', 't-tall', 't-std', 't-std']
+};
+function layoutClasses(total) {
+  if (total <= 0) return [];
+  if (total === 1) return ['t-solo'];
+  var parts = [], n = total;
+  while (n > 0) {
+    if (n === 2 || n === 3 || n === 4) { parts.push(n); n = 0; }
+    else if (n === 5) { parts.push(3); parts.push(2); n = 0; }
+    else { parts.push(4); n -= 4; }   // n >= 6 leaves a safe remainder (>= 2)
+  }
+  var out = [];
+  parts.forEach(function (p) { out = out.concat(BENTO_TEMPLATES[p]); });
+  return out;
 }
 
 /* ---------- state ---------- */
@@ -231,6 +248,7 @@ function render() {
     return;
   }
 
+  var classes = layoutClasses(total);
   els.grid.innerHTML = list.map(function (r, i) {
     var href = 'recipe.html?r=' + encodeURIComponent(r.slug);
     var img = r.image
@@ -241,7 +259,7 @@ function render() {
     }).join('');
 
     return (
-      '<a class="tile ' + sizeClass(i, total) + '" href="' + href + '" style="--i:' + i + '">' +
+      '<a class="tile ' + (classes[i] || 't-std') + '" href="' + href + '" style="--i:' + i + '">' +
         '<article class="card">' +
           '<div class="card__fallback"><span>' + esc(r.emoji || '🍲') + '</span></div>' +
           img +
