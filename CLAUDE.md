@@ -60,6 +60,25 @@ Explain why it can't work on static GitHub Pages and suggest alternatives.
 - **Email**: rishitchugh@gmail.com
 - **Socials**: To be provided (use placeholder links for now)
 
+## Recipes (`recipes/`)
+
+A personal recipe collection, one `.md` file per recipe, kebab-case filenames. Sources are often Hinglish notes from Apple Notes — translate to English. **Do not add a "send Aunty a photo" sign-off** — it was in the source notes but is not wanted in the files.
+
+**Every recipe file must follow this format:**
+
+1. **Title + one-line description**
+2. **Meta line**: **Original Chef** (who the recipe came from) / serves / prep / cook / total. **Default to 2 servings** unless told otherwise. Ask who the chef is if it isn't obvious.
+3. **Macros table** — *always include*. Estimate from ingredients. Must show **calories per serving** plus protein / carbs / fat, and the whole-recipe totals. Context: Rishit eats **~1600–1800 kcal/day** and lifts, so flag any recipe that eats a large share of that and give concrete ways to cut it down.
+4. **Ingredients** — grouped by component, with exact quantities in both grams and cups/tsp where useful.
+5. **Steps** — **repeat the exact measurement inline in every step** (e.g. "Add **2 tbsp oil**", not "add the oil"). This is a hard requirement: he reads the steps while cooking and doesn't want to scroll back to the ingredient list.
+6. Note at the bottom that it was translated from the original Hinglish note.
+
+**Standing preferences:**
+
+- **High protein always.** He's a gym boy. Add **50–100 g dry soya chunks per serving-set** (50 g per serving) wherever it fits, listed as a real ingredient — not a footnote. Where soya doesn't fit the dish, suggest another protein boost in the macros section.
+- Source notes usually have no measurements. Infer sensible ones for the stated serving count.
+- Call out where a step actually matters (squeezing soya dry, hot water not cold, thick batter) rather than writing generic instructions.
+
 ## Development
 
 Since this is a static site, development is straightforward:

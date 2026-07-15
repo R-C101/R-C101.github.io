@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rishit's Kitchen — Recipes</title>
+  <meta name="description" content="A small, growing collection of tested recipes — searchable, filterable, and cooked in a real kitchen.">
+
+  <!-- Prevent flash of wrong theme (own key, independent of the portfolio) -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('recipe-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
+  <!-- Fonts: Fraunces (display) + Hanken Grotesk (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/recipes.css">
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand__mark">🍳</span>
+      <span>Rishit's Kitchen<span class="brand__dot">.</span></span>
+      <small>Recipes</small>
+    </a>
+    <button class="theme-btn" id="theme-btn" aria-label="Toggle light/dark">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.5M19.5 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+    </button>
+  </header>
+
+  <div class="wrap">
+
+    <!-- MASTHEAD -->
+    <section class="masthead">
+      <p class="masthead__kicker">Cooked &amp; measured</p>
+      <h1>The&nbsp;<em>Kitchen</em><br>Collection</h1>
+      <p class="masthead__sub">Family recipes and weeknight staples — translated from scribbled Hinglish notes, given real measurements, and rated by the person who actually eats them.</p>
+      <div class="masthead__rule"></div>
+    </section>
+
+    <!-- CONTROLS -->
+    <section class="controls" id="controls" hidden>
+      <div class="controls__row">
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="search" placeholder="Search recipes, ingredients, chef…" autocomplete="off">
+        </label>
+        <div class="select-wrap">
+          <select class="control" id="cuisine">
+            <option value="">All cuisines</option>
+          </select>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="select-wrap">
+          <select class="control" id="sort">
+            <option value="rating">Sort: Top rated</option>
+            <option value="protein">Sort: Most protein</option>
+            <option value="calories">Sort: Fewest calories</option>
+            <option value="time">Sort: Quickest</option>
+            <option value="difficulty">Sort: Easiest</option>
+            <option value="az">Sort: A–Z</option>
+          </select>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <div class="chips" id="tag-chips">
+        <span class="chips__label">Tags</span>
+      </div>
+
+      <div class="sliders">
+        <div class="slider">
+          <div class="slider__head"><span>Min protein / serving</span><span class="slider__val" id="protein-val">0 g</span></div>
+          <input type="range" id="protein" min="0" max="50" step="2" value="0">
+        </div>
+        <div class="slider">
+          <div class="slider__head"><span>Max calories / serving</span><span class="slider__val" id="calories-val">Any</span></div>
+          <input type="range" id="calories" min="200" max="1200" step="10" value="1200">
+        </div>
+        <div class="rate-filter">
+          <span class="chips__label">Min rating</span>
+          <div class="rate-stars" id="rate-stars" aria-label="Minimum rating filter"></div>
+        </div>
+      </div>
+
+      <div class="controls__meta">
+        <p class="count"><b id="count">0</b> <span id="count-word">recipes</span></p>
+        <button class="clear-btn" id="clear"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Clear filters</button>
+      </div>
+    </section>
+
+    <!-- GRID -->
+    <main class="grid" id="grid">
+      <p class="status" id="status">Warming up the kitchen…</p>
+    </main>
+  </div>
+
+  <footer class="foot">
+    <span>Rishit's Kitchen — a growing collection.</span>
+    <a href="../index.html">← Back to rishitchugh.com</a>
+  </footer>
+
+  <script src="assets/browse.js"></script>
+</body>
+</html>

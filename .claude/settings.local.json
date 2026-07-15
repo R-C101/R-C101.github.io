@@ -5,7 +5,9 @@
       "Bash(osascript:*)",
       "Bash(open:*)",
       "Bash(lsof:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(git push:*)",
+      "Bash(python3:*)"
     ]
   }
 }
