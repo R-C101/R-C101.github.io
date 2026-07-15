@@ -43,6 +43,7 @@ Then visit **http://localhost:8000/recipes/**.
 | `chef` | string | "Original chef" — who the recipe came from. Filterable/searchable. |
 | `cuisine` | string | Single value → drives the cuisine dropdown (e.g. `"Indian"`). |
 | `course` | string | e.g. `"Snack"`, `"Main"`, `"Breakfast"`. |
+| `diet` | string | `"veg"` or `"non-veg"` → drives the Veg / Non-veg filter + card dot. Egg counts as **non-veg** (Indian convention); a veg dish with an *optional* meat/egg add-on stays `"veg"`. |
 | `tags` | string[] | Free tags → become filter chips + search terms. |
 | `flavor` | string[] | Flavour profile → also become filter chips (e.g. `"spicy"`). |
 | `ratings.overall` | number | **Your** rating out of 5 (higher = better). Sorts "Top rated". |
@@ -80,6 +81,7 @@ Copy this into `data/<slug>/<slug>.json` and fill it in:
   "chef": "Who it came from",
   "cuisine": "Indian",
   "course": "Main",
+  "diet": "veg",
   "tags": ["tag-one", "tag-two"],
   "flavor": ["savory"],
   "ratings": { "overall": 4.5, "difficulty": 2, "availability": 4 },

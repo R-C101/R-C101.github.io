@@ -36,70 +36,132 @@
     </button>
   </header>
 
-  <div class="wrap">
+  <div class="shell">
 
-    <!-- MASTHEAD -->
-    <section class="masthead">
-      <p class="masthead__kicker">Cooked &amp; measured</p>
-      <h1>The&nbsp;<em>Kitchen</em><br>Collection</h1>
-      <p class="masthead__sub">Family recipes and weeknight staples — translated from scribbled Hinglish notes, given real measurements, and rated by the person who actually eats them.</p>
-      <div class="masthead__rule"></div>
-    </section>
+    <!-- SIDEBAR: filters + sorting -->
+    <aside class="sidebar" id="sidebar" hidden>
+      <div class="sidebar__inner">
 
-    <!-- CONTROLS -->
-    <section class="controls" id="controls" hidden>
-      <div class="controls__row">
+        <div class="sidebar__head">
+          <span class="fgroup__label">Filters &amp; sorting</span>
+          <button class="drawer-close" id="drawer-close" aria-label="Close filters">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+
         <label class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <input type="search" id="search" placeholder="Search recipes, ingredients, chef…" autocomplete="off">
+          <input type="search" id="search" placeholder="Search recipes, ingredients…" autocomplete="off">
         </label>
-        <div class="select-wrap">
-          <select class="control" id="cuisine">
-            <option value="">All cuisines</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
-        </div>
-        <div class="select-wrap">
-          <select class="control" id="sort">
-            <option value="rating">Sort: Top rated</option>
-            <option value="protein">Sort: Most protein</option>
-            <option value="calories">Sort: Fewest calories</option>
-            <option value="time">Sort: Quickest</option>
-            <option value="difficulty">Sort: Easiest</option>
-            <option value="az">Sort: A–Z</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
-        </div>
-      </div>
 
-      <div class="chips" id="tag-chips">
-        <span class="chips__label">Tags</span>
-      </div>
+        <div class="fgroup">
+          <span class="fgroup__label">Sort by</span>
+          <div class="select-wrap">
+            <select class="control control--block" id="sort">
+              <option value="rating">Top rated</option>
+              <option value="protein">Most protein</option>
+              <option value="calories">Fewest calories</option>
+              <option value="time">Quickest</option>
+              <option value="difficulty">Easiest</option>
+              <option value="az">A–Z</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
 
-      <div class="sliders">
-        <div class="slider">
-          <div class="slider__head"><span>Min protein / serving</span><span class="slider__val" id="protein-val">0 g</span></div>
-          <input type="range" id="protein" min="0" max="50" step="2" value="0">
+        <div class="fgroup">
+          <span class="fgroup__label">Diet</span>
+          <div class="segmented" id="diet-seg" role="group" aria-label="Diet filter">
+            <button type="button" class="seg on" data-diet="">All</button>
+            <button type="button" class="seg seg--veg" data-diet="veg">Veg</button>
+            <button type="button" class="seg seg--nonveg" data-diet="non-veg">Non-veg</button>
+          </div>
         </div>
-        <div class="slider">
-          <div class="slider__head"><span>Max calories / serving</span><span class="slider__val" id="calories-val">Any</span></div>
-          <input type="range" id="calories" min="200" max="1200" step="10" value="1200">
+
+        <div class="fgroup">
+          <span class="fgroup__label">Cuisine</span>
+          <div class="select-wrap">
+            <select class="control control--block" id="cuisine">
+              <option value="">All cuisines</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
         </div>
-        <div class="rate-filter">
-          <span class="chips__label">Min rating</span>
+
+        <div class="fgroup">
+          <span class="fgroup__label">Chef</span>
+          <div class="select-wrap">
+            <select class="control control--block" id="chef">
+              <option value="">All chefs</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <span class="fgroup__label">Course</span>
+          <div class="select-wrap">
+            <select class="control control--block" id="course">
+              <option value="">All courses</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <span class="fgroup__label">Min rating</span>
           <div class="rate-stars" id="rate-stars" aria-label="Minimum rating filter"></div>
         </div>
-      </div>
 
-      <div class="controls__meta">
+        <div class="fgroup">
+          <span class="fgroup__label">Macros / serving</span>
+          <div class="slider">
+            <div class="slider__head"><span>Min protein</span><span class="slider__val" id="protein-val">0 g</span></div>
+            <input type="range" id="protein" min="0" max="50" step="2" value="0">
+          </div>
+          <div class="slider">
+            <div class="slider__head"><span>Max calories</span><span class="slider__val" id="calories-val">Any</span></div>
+            <input type="range" id="calories" min="200" max="1200" step="10" value="1200">
+          </div>
+          <div class="slider">
+            <div class="slider__head"><span>Max carbs</span><span class="slider__val" id="carbs-val">Any</span></div>
+            <input type="range" id="carbs" min="10" max="150" step="5" value="150">
+          </div>
+          <div class="slider">
+            <div class="slider__head"><span>Max fat</span><span class="slider__val" id="fat-val">Any</span></div>
+            <input type="range" id="fat" min="5" max="80" step="2" value="80">
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <span class="fgroup__label">Tags</span>
+          <div class="chips" id="tag-chips"></div>
+        </div>
+
+        <button class="clear-btn" id="clear"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Clear all filters</button>
+      </div>
+    </aside>
+    <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="content">
+      <section class="masthead">
+        <p class="masthead__kicker">Cooked &amp; measured</p>
+        <h1>The&nbsp;<em>Kitchen</em> Collection</h1>
+        <p class="masthead__sub">Family recipes and weeknight staples — translated from scribbled Hinglish notes, given real measurements, and rated by the person who actually eats them.</p>
+      </section>
+
+      <div class="content__bar">
+        <button class="filter-toggle" id="filter-toggle" aria-expanded="false" aria-controls="sidebar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+          Filters<span class="filter-toggle__count" id="active-count" hidden>0</span>
+        </button>
         <p class="count"><b id="count">0</b> <span id="count-word">recipes</span></p>
-        <button class="clear-btn" id="clear"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Clear filters</button>
       </div>
-    </section>
 
-    <!-- GRID -->
-    <main class="grid" id="grid">
-      <p class="status" id="status">Warming up the kitchen…</p>
+      <div class="grid" id="grid">
+        <p class="status" id="status">Warming up the kitchen…</p>
+      </div>
     </main>
   </div>
 

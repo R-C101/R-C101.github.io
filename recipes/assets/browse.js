@@ -48,10 +48,15 @@ function hueFor(slug) {
 var RECIPES = [];
 var state = {
   q: '',
+  diet: '',
   cuisine: '',
+  chef: '',
+  course: '',
   tags: new Set(),
   protein: 0,
   calMax: 1200,
+  carbMax: 150,
+  fatMax: 80,
   minRating: 0,
   sort: 'rating'
 };
@@ -59,19 +64,30 @@ var state = {
 var els = {
   grid: document.getElementById('grid'),
   status: document.getElementById('status'),
-  controls: document.getElementById('controls'),
+  sidebar: document.getElementById('sidebar'),
   search: document.getElementById('search'),
+  dietSeg: document.getElementById('diet-seg'),
   cuisine: document.getElementById('cuisine'),
+  chef: document.getElementById('chef'),
+  course: document.getElementById('course'),
   sort: document.getElementById('sort'),
   tagChips: document.getElementById('tag-chips'),
   protein: document.getElementById('protein'),
   proteinVal: document.getElementById('protein-val'),
   calories: document.getElementById('calories'),
   caloriesVal: document.getElementById('calories-val'),
+  carbs: document.getElementById('carbs'),
+  carbsVal: document.getElementById('carbs-val'),
+  fat: document.getElementById('fat'),
+  fatVal: document.getElementById('fat-val'),
   rateStars: document.getElementById('rate-stars'),
   count: document.getElementById('count'),
   countWord: document.getElementById('count-word'),
-  clear: document.getElementById('clear')
+  clear: document.getElementById('clear'),
+  filterToggle: document.getElementById('filter-toggle'),
+  drawerClose: document.getElementById('drawer-close'),
+  drawerScrim: document.getElementById('drawer-scrim'),
+  activeCount: document.getElementById('active-count')
 };
 
 /* ---------- load ---------- */
@@ -97,15 +113,32 @@ var els = {
 })();
 
 /* ---------- build filter controls from data ---------- */
-function buildControls() {
-  els.controls.hidden = false;
-
-  // cuisines
-  var cuisines = Array.from(new Set(RECIPES.map(function (r) { return r.cuisine; }).filter(Boolean))).sort();
-  cuisines.forEach(function (c) {
+function fillSelect(sel, values) {
+  values.forEach(function (v) {
     var o = document.createElement('option');
-    o.value = c; o.textContent = c;
-    els.cuisine.appendChild(o);
+    o.value = v; o.textContent = v;
+    sel.appendChild(o);
+  });
+}
+function uniqSorted(key) {
+  return Array.from(new Set(RECIPES.map(key).filter(Boolean))).sort();
+}
+
+function buildControls() {
+  els.sidebar.hidden = false;
+
+  // dropdowns from data
+  fillSelect(els.cuisine, uniqSorted(function (r) { return r.cuisine; }));
+  fillSelect(els.chef, uniqSorted(function (r) { return r.chef; }));
+  fillSelect(els.course, uniqSorted(function (r) { return r.course; }));
+
+  // diet segmented control
+  Array.prototype.forEach.call(els.dietSeg.children, function (btn) {
+    btn.addEventListener('click', function () {
+      state.diet = btn.dataset.diet;
+      Array.prototype.forEach.call(els.dietSeg.children, function (b) { b.classList.toggle('on', b === btn); });
+      render();
+    });
   });
 
   // tags (union of tags + flavor), most common first
@@ -147,6 +180,8 @@ function buildControls() {
   // listeners
   els.search.addEventListener('input', function () { state.q = this.value.trim().toLowerCase(); render(); });
   els.cuisine.addEventListener('change', function () { state.cuisine = this.value; render(); });
+  els.chef.addEventListener('change', function () { state.chef = this.value; render(); });
+  els.course.addEventListener('change', function () { state.course = this.value; render(); });
   els.sort.addEventListener('change', function () { state.sort = this.value; render(); });
   els.protein.addEventListener('input', function () {
     state.protein = +this.value;
@@ -158,7 +193,34 @@ function buildControls() {
     els.caloriesVal.textContent = state.calMax >= 1200 ? 'Any' : state.calMax + ' kcal';
     render();
   });
+  els.carbs.addEventListener('input', function () {
+    state.carbMax = +this.value;
+    els.carbsVal.textContent = state.carbMax >= 150 ? 'Any' : state.carbMax + ' g';
+    render();
+  });
+  els.fat.addEventListener('input', function () {
+    state.fatMax = +this.value;
+    els.fatVal.textContent = state.fatMax >= 80 ? 'Any' : state.fatMax + ' g';
+    render();
+  });
   els.clear.addEventListener('click', resetFilters);
+
+  // mobile drawer
+  function openDrawer() {
+    els.sidebar.classList.add('open');
+    els.drawerScrim.hidden = false;
+    requestAnimationFrame(function () { els.drawerScrim.classList.add('show'); });
+    els.filterToggle.setAttribute('aria-expanded', 'true');
+  }
+  function closeDrawer() {
+    els.sidebar.classList.remove('open');
+    els.drawerScrim.classList.remove('show');
+    setTimeout(function () { els.drawerScrim.hidden = true; }, 320);
+    els.filterToggle.setAttribute('aria-expanded', 'false');
+  }
+  els.filterToggle.addEventListener('click', openDrawer);
+  els.drawerClose.addEventListener('click', closeDrawer);
+  els.drawerScrim.addEventListener('click', closeDrawer);
 }
 
 function paintRateStars() {
@@ -168,21 +230,49 @@ function paintRateStars() {
 }
 
 function resetFilters() {
-  state.q = ''; state.cuisine = ''; state.tags.clear();
-  state.protein = 0; state.calMax = 1200; state.minRating = 0;
-  els.search.value = ''; els.cuisine.value = '';
+  state.q = ''; state.diet = ''; state.cuisine = ''; state.chef = ''; state.course = '';
+  state.tags.clear();
+  state.protein = 0; state.calMax = 1200; state.carbMax = 150; state.fatMax = 80; state.minRating = 0;
+  els.search.value = '';
+  els.cuisine.value = ''; els.chef.value = ''; els.course.value = '';
   els.protein.value = 0; els.proteinVal.textContent = '0 g';
   els.calories.value = 1200; els.caloriesVal.textContent = 'Any';
+  els.carbs.value = 150; els.carbsVal.textContent = 'Any';
+  els.fat.value = 80; els.fatVal.textContent = 'Any';
+  Array.prototype.forEach.call(els.dietSeg.children, function (b) { b.classList.toggle('on', b.dataset.diet === ''); });
   Array.prototype.forEach.call(els.tagChips.querySelectorAll('.chip'), function (c) { c.setAttribute('aria-pressed', 'false'); });
   paintRateStars();
   render();
 }
 
+// count of active (non-default) filters, for the mobile toggle badge
+function activeFilterCount() {
+  var n = 0;
+  if (state.q) n++;
+  if (state.diet) n++;
+  if (state.cuisine) n++;
+  if (state.chef) n++;
+  if (state.course) n++;
+  n += state.tags.size;
+  if (state.protein) n++;
+  if (state.calMax < 1200) n++;
+  if (state.carbMax < 150) n++;
+  if (state.fatMax < 80) n++;
+  if (state.minRating) n++;
+  return n;
+}
+
 /* ---------- filtering + sorting ---------- */
 function matches(r) {
+  if (state.diet && r.diet !== state.diet) return false;
   if (state.cuisine && r.cuisine !== state.cuisine) return false;
-  if (state.protein && (r.macros.perServing.protein || 0) < state.protein) return false;
-  if (state.calMax < 1200 && (r.macros.perServing.calories || 0) > state.calMax) return false;
+  if (state.chef && r.chef !== state.chef) return false;
+  if (state.course && r.course !== state.course) return false;
+  var ps = r.macros.perServing;
+  if (state.protein && (ps.protein || 0) < state.protein) return false;
+  if (state.calMax < 1200 && (ps.calories || 0) > state.calMax) return false;
+  if (state.carbMax < 150 && (ps.carbs || 0) > state.carbMax) return false;
+  if (state.fatMax < 80 && (ps.fat || 0) > state.fatMax) return false;
   if (state.minRating && (r.ratings.overall || 0) < state.minRating) return false;
   if (state.tags.size) {
     var have = new Set((r.tags || []).concat(r.flavor || []));
@@ -220,8 +310,10 @@ function render() {
   // count + active-filter indicator
   els.count.textContent = total;
   els.countWord.textContent = total === 1 ? 'recipe' : 'recipes';
-  var active = state.q || state.cuisine || state.tags.size || state.protein || state.calMax < 1200 || state.minRating;
-  els.clear.classList.toggle('show', !!active);
+  var active = activeFilterCount();
+  els.clear.classList.toggle('show', active > 0);
+  els.activeCount.textContent = active;
+  els.activeCount.hidden = active === 0;
 
   if (!total) {
     els.grid.innerHTML =
@@ -247,7 +339,10 @@ function render() {
           '<div class="card__scrim"></div>' +
           '<div class="card__body">' +
             '<div class="card__top">' +
-              '<span class="card__cuisine">' + esc(r.cuisine || '') + '</span>' +
+              '<span class="card__badges">' +
+                (r.diet ? '<span class="veg-dot veg-dot--' + esc(r.diet) + '" title="' + (r.diet === 'veg' ? 'Vegetarian' : 'Non-vegetarian') + '"></span>' : '') +
+                '<span class="card__cuisine">' + esc(r.cuisine || '') + '</span>' +
+              '</span>' +
               '<span class="card__time">' +
                 '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' +
                 esc(r.time.total) + 'm</span>' +

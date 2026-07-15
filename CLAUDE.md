@@ -73,6 +73,8 @@ A personal recipe collection, one `.md` file per recipe, kebab-case filenames. S
 5. **Steps** — **repeat the exact measurement inline in every step** (e.g. "Add **2 tbsp oil**", not "add the oil"). This is a hard requirement: he reads the steps while cooking and doesn't want to scroll back to the ingredient list.
 6. Note at the bottom that it was translated from the original Hinglish note.
 
+**Structured data (`recipes/data/<slug>/<slug>.json`):** recipes are stored as structured JSON (schema in `recipes/RECIPE-FORMAT.md`), rendered by the browse + detail pages — not as prose markdown. Every recipe JSON **must include a `"diet"` field set to `"veg"` or `"non-veg"`** — it drives the Veg / Non-veg filter and the card indicator dot. Rules: **egg counts as non-veg** (Indian convention); a veg-base dish with an *optional* meat/egg add-on (e.g. "optional chicken breast per serving") stays `"veg"`. Also set `chef`, `cuisine`, and `course` — they drive the sidebar filters.
+
 **Standing preferences:**
 
 - **High protein always.** He's a gym boy. Add **50–100 g dry soya chunks per serving-set** (50 g per serving) wherever it fits, listed as a real ingredient — not a footnote. Where soya doesn't fit the dish, suggest another protein boost in the macros section.

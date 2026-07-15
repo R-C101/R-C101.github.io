@@ -88,7 +88,8 @@ function render(r, slug) {
     ? '<img src="data/' + esc(slug) + '/' + esc(r.image) + '" alt="' + esc(r.title) + '" onerror="this.closest(\'.r-hero__media\').classList.add(\'no-img\');this.remove()">'
     : '';
 
-  var kicker = [r.cuisine, r.course].filter(Boolean)
+  var dietLabel = r.diet === 'veg' ? 'Veg' : (r.diet === 'non-veg' ? 'Non-veg' : '');
+  var kicker = [dietLabel, r.cuisine, r.course].filter(Boolean)
     .map(function (x) { return esc(x); }).join('<span class="dot"></span>');
 
   var metaCells = [
