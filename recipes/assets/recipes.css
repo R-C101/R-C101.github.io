@@ -489,7 +489,9 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: var(--shadow);
   background: var(--paper-2);
 }
-.r-hero__media img { width: 100%; height: 100%; object-fit: cover; }
+.r-hero__media .card__fallback { z-index: 0; }
+/* img must sit ABOVE the absolutely-positioned fallback, or the fallback hides it */
+.r-hero__media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; }
 .r-hero__media .card__fallback span { font-size: clamp(3rem, 9vw, 6rem); }
 
 .r-head { margin-top: 2rem; }
