@@ -24,6 +24,11 @@ function esc(s) {
 function titleCase(s) {
   return s.replace(/(^|[\s-])\w/g, function (m) { return m.toUpperCase(); }).replace(/-/g, ' ');
 }
+function hueFor(slug) {
+  var h = 0, s = String(slug || '');
+  for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) % 360; }
+  return h;
+}
 function starsHTML(val) {
   var pct = Math.max(0, Math.min(100, (val / 5) * 100));
   return '<span class="stars stars--ink" title="' + val + ' / 5">' +
@@ -138,7 +143,7 @@ function render(r, slug) {
   root.innerHTML =
     '<a class="backlink" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> All recipes</a>' +
 
-    '<div class="r-hero"><div class="r-hero__media">' +
+    '<div class="r-hero"><div class="r-hero__media" style="--tile-h:' + hueFor(slug) + '">' +
       '<div class="card__fallback"><span>' + esc(r.emoji || '🍲') + '</span></div>' + media +
     '</div></div>' +
 
