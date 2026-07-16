@@ -169,8 +169,11 @@ button { font-family: inherit; cursor: pointer; }
   max-height: calc(100vh - 104px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: 0.35rem;
+  /* hide the scrollbar but keep it scrollable */
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* old Edge */
 }
+.sidebar::-webkit-scrollbar { width: 0; height: 0; display: none; }  /* Chromium/Safari */
 .sidebar__inner { display: flex; flex-direction: column; gap: 1.35rem; }
 
 .fgroup { display: flex; flex-direction: column; gap: 0.6rem; }
@@ -276,8 +279,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .search {
   position: relative;
-  flex: 1 1 320px;
-  min-width: 220px;
+  width: 100%;
 }
 .search svg {
   position: absolute; left: 16px; top: 50%;
