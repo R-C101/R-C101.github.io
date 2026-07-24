@@ -1,96 +1,121 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code when working in this repository.
 
-## Project Overview
+## What this is
 
-Personal portfolio website for **Rishit Chugh**, an ML Engineer. Static site hosted on **GitHub Pages** — no backend, no server-side rendering. The site prioritizes bold, futuristic-yet-minimalist aesthetics with scroll-driven storytelling animations.
+A personal portfolio for **Rishit Chugh** (ML Engineer) built as a **mock desktop operating system**. Visitors land on a desktop, and every part of the portfolio opens as its own **app in a draggable window** — with working close / minimise / maximise controls, a dock, a menu bar, and a taskbar. This is not a scrolling page dressed up as an OS; it behaves like a real windowed environment.
 
-## Architecture
+It replaces the previous scroll-based portfolio (still live, kept in `../personal_portfolio/`). Design language, structure, and palette here are all new. The old site is **content source-of-truth and anti-reference for the look**, nothing more.
 
-- **Static site**: Pure HTML/CSS/JS. All dependencies loaded via CDN or bundled locally. Must work as a GitHub Pages deployment (no build server required unless using a static site generator).
-- **Scrollytelling design**: Apple-style scroll-triggered animations — elements appear, transform, and animate as the user scrolls. Uses GSAP + ScrollTrigger (CDN). JS-based animations are fully supported and encouraged — GitHub Pages serves static files, so any client-side JS works fine.
-- **Modular sections**: Each major section is self-contained and swappable. Keep section markup, styles, and scripts isolated so custom components (shaders, WebGL backgrounds, animated widgets) can replace them without touching other sections.
-- **Responsive**: Mobile-first design. Must work seamlessly on both mobile and desktop.
+## Hard constraints (non-negotiable)
 
-## Sections (in order)
+- **Static only.** Pure HTML/CSS/JS. No backend, no SSR, no build step. Must deploy on **GitHub Pages default deployment** and must run opened from disk (`file://`) — with one known exception below.
+- **`fetch` exception:** the recipe app reads JSON from `data/recipes/`, so it needs a server locally (`python3 -m http.server`). This works on GitHub Pages as-is. This is the *only* thing that needs a server — the shell and every other app must work from `file://`.
+- **External resources via public HTTPS CDN only** (Google Fonts; a vetted JS lib from cdnjs *only if unavoidable*). Prefer CSS/SVG/canvas. No asset that isn't fetchable over HTTPS.
+- **All visuals authored in CSS/SVG/canvas** unless a real asset already exists in `assets/` or `data/`. No missing-file references.
+- **Relative paths everywhere** (GitHub Pages project-page compatibility — the site may be served from a subpath).
+- **Accessibility floor:** semantic HTML, body-text contrast ≥ 4.5:1, visible focus states, `prefers-reduced-motion` honored for heavy motion.
 
-1. **Hero/Landing** — Futuristic, minimalist intro with particle canvas. No face photo. Name + tagline + entrance animation.
-2. **Experience** — Aceternity-style scroll timeline with sticky year titles on left, content on right, gradient line fill on scroll. Uses GSAP ScrollTrigger.
-3. **Projects** — Editorial list layout with hover animations.
-4. **Socials/Connect** — Links to GitHub, LinkedIn, Twitter/X, etc.
-5. **Email/Collaborate** — Contact CTA with `rishitchugh@gmail.com`.
+## The design system
 
-## Design System
+Locked with the user. Do not drift from this without asking.
 
-- **Colors**: All defined as CSS custom properties in `:root`. Easily changeable — swap `--accent`, `--black`, `--white`, etc. to retheme the entire site.
-- **Fonts**: Syne (display) + DM Mono (body) via Google Fonts CDN. Changeable by updating the `<link>` tag and `--font-display`/`--font-mono` vars.
-- **Current palette**: Dark black bg (`#07070a`), warm cream text (`#E2DFD0`), vibrant orange accent (`#F97300`), warm gray (`#524C42`), deep plum sparingly (`#32012F`). Canvas particle colors are hardcoded in `main.js` as `rgba(249, 115, 0, ...)` — update when accent changes.
+### Aesthetic
+**Modern macOS** (Big Sur → Sonoma lineage), reskinned to a **blueprint palette**. Restrained and mostly-solid surfaces — **NOT** early-2000s Aqua, **NOT** heavy transparency or shiny candy glass. Subtle effects only (soft shadows, gentle vibrancy, rounded corners, hairline strokes). It should feel like a clean, current Mac that happens to be blue/orange/white.
 
-## Handling Component Prompts from the User
+The shell (desktop, dock, window chrome) is one calm, coherent world. **Each app is allowed its own interior world** (see the per-app table) — the window is the frame, the app is the painting.
 
-The user will provide React/Tailwind component prompts (e.g., from Aceternity UI, shadcn, etc.). These must be **adapted to vanilla HTML/CSS/JS + GSAP** since this is a static site with no React, no build tools, and no Tailwind.
+### Palette (starting tokens — tune during build, keep as CSS custom properties in `shared/tokens.css`)
+| Token | Value | Use |
+|---|---|---|
+| `--paper` | `#FFFFFF` | primary window surface |
+| `--paper-2` | `#F4F6FA` | recessed / sidebar surface |
+| `--ink` | `#16202E` | primary text |
+| `--ink-2` | `#5A6675` | secondary text |
+| `--line` | `#D8DFE8` | hairline strokes |
+| `--blue` | `#0B5FD6` | primary accent (blueprint blue) |
+| `--blue-deep` | `#08306B` | Projects/blueprint dark ground |
+| `--orange` | `#F26B1D` | secondary accent |
+| `--desktop` | blue-tinted gradient + faint blueprint grid | wallpaper |
 
-**Process:**
-1. Analyze the component's visual behavior and animation logic
-2. Recreate the same effect using vanilla JS + GSAP + CSS
-3. Match the layout, scroll behavior, and responsive breakpoints
-4. Integrate with the existing design tokens (CSS custom properties)
+Traffic-light window controls stay the **familiar red / amber / green** — universally understood, most authentic. Everything else stays in blue/orange/white.
 
-**Refuse to implement if the component requires:**
-- Server-side rendering (Next.js `getServerSideProps`, API routes)
-- Database connections or backend APIs
-- Server components (`"use server"`)
-- Node.js runtime features not available in the browser
+### Type
+- **Shell** (menu bar, dock labels, window titles, Finder-like UI): `system-ui` / SF stack + a technical mono for small labels/telemetry.
+- **Apps own their own fonts** to sell their world (see table). Load per-app, don't force one family across worlds.
+- Big display type: tracking floor `-0.04em`. Shadows always have offset + blur (never a zero-offset colored halo).
 
-Explain why it can't work on static GitHub Pages and suggest alternatives.
+## Per-app design worlds
 
-## Design Principles
+Each app draws from one of the 10 concepts in `concepts/`. Keep those concept files intact as reference.
 
-- **Futuristic minimalism**: Clean layouts with bold typographic choices and deliberate negative space. Avoid generic AI aesthetics (no purple-on-white gradients, no Inter/Roboto).
-- **Scroll animations**: Smooth, performant scroll-triggered reveals. JS-based animations (GSAP, canvas, WebGL) are fine and encouraged for complex effects. Prefer `transform` and `opacity` for GPU-accelerated performance.
-- **No face/photo dependency**: Use abstract visuals, geometric patterns, code-inspired textures, or subtle particle/shader effects instead of portrait photos.
-- **Extensibility**: Sections should be easy to replace with custom components (e.g., a Three.js background, a shader hero, a Lottie animation) without restructuring the page.
-- **Canvas / retina**: Always account for `window.devicePixelRatio` when sizing canvas elements.
+| App | Draws from | World |
+|---|---|---|
+| **Boot screen** | `os-3-tty` (loading part only) | Terminal boot sequence into the OS. Plays every load, skippable. Just the boot, not the full TUI. |
+| **About** | `os-1-paper` / `os-2-aqua` windows + docks | Identity / hero. The window & dock vocabulary the whole shell is built on. |
+| **Experience** | shell world | The 3 roles. May live inside About as a section — decide at that phase. |
+| **Projects** | `fresh-8-blueprint` | Blue/orange/white blueprint / drafting. Source of the system palette. |
+| **Documents** | `fresh-7-preprint` | arXiv/LaTeX preprint. Opens the RECAP paper **and** the résumé as documents. |
+| **Recipe Book** | `fresh-10-fieldnotes` | Field-notes / lab-notebook. Reskins the real recipe data (`data/recipes/`). |
+| **Contact / Connect** | shell world | Socials + email. |
 
-## Personal Details
+Not used for the personal site: `os-4-hud`, `os-5-spatial`, `fresh-6-broadcast` (broadcast is earmarked for a future Liat.ai site), `fresh-9-swiss`. All concepts stay in `concepts/` — **do not delete them.**
 
-- **Name**: Rishit Chugh
-- **Role**: ML Engineer
-- **Email**: rishitchugh@gmail.com
-- **Socials**: To be provided (use placeholder links for now)
+## Window system spec
 
-## Recipes (`recipes/`)
+- **No page scroll.** `html,body{overflow:hidden;height:100%}`. The desktop is a fixed viewport. Only window *bodies* scroll internally when their content overflows.
+- **Windows:** rounded, soft drop shadow, title bar with traffic-light controls (close, minimise, maximise/restore) on the left, title centered/left.
+- **Interactions:** drag by title bar; click to focus (raise z-index); minimise to dock/taskbar; maximise to fill the workspace (below the menu bar) and restore.
+- **Multiple windows** open at once, overlapping and stacking. A **dock** launches apps; a **taskbar/dock indicator** shows what's open. A top **menu bar** carries the OS identity + clock.
+- **Desktop icons** may also launch apps.
+- Keep window state in a small JS registry (`os/os.js`): open apps, positions, z-order, min/max state.
 
-A personal recipe collection, one `.md` file per recipe, kebab-case filenames. Sources are often Hinglish notes from Apple Notes — translate to English. **Do not add a "send Aunty a photo" sign-off** — it was in the source notes but is not wanted in the files.
+## Motion
+One authored signature moment per world (app-open/genie, boot sequence), not scattered hovers. Exponential ease-out. Animate `transform`/`opacity`/`filter` only — never width/height/top/left for anything expensive. Retina-aware canvas (`devicePixelRatio`). Respect `prefers-reduced-motion`.
 
-**Every recipe file must follow this format:**
+## Repository structure
 
-1. **Title + one-line description**
-2. **Meta line**: **Original Chef** (who the recipe came from) / serves / prep / cook / total. **Default to 2 servings** unless told otherwise. Ask who the chef is if it isn't obvious.
-3. **Macros table** — *always include*. Estimate from ingredients. Must show **calories per serving** plus protein / carbs / fat, and the whole-recipe totals. Context: Rishit eats **~1600–1800 kcal/day** and lifts, so flag any recipe that eats a large share of that and give concrete ways to cut it down.
-4. **Ingredients** — grouped by component, with exact quantities in both grams and cups/tsp where useful.
-5. **Steps** — **repeat the exact measurement inline in every step** (e.g. "Add **2 tbsp oil**", not "add the oil"). This is a hard requirement: he reads the steps while cooking and doesn't want to scroll back to the ingredient list.
-6. Note at the bottom that it was translated from the original Hinglish note.
+```
+index.html            OS shell entry (boot + desktop + window manager)
+CLAUDE.md             this file
+PLAN.md               phased build plan — read it before starting a phase
+os/                   the desktop environment (shell): boot, desktop, window manager
+apps/                 one folder per app; each is its own interior world
+  about/ experience/ projects/ documents/ recipes/ contact/
+shared/               tokens.css (palette/type), shared helpers
+assets/               authored + migrated static assets
+  paper/arxiv-ss.png  RECAP paper screenshot (real)
+  wallpaper/          desktop wallpaper assets (authored)
+data/                 fetched content
+  recipes/            55 migrated recipes (<slug>/<slug>.json + image.webp), manifest.json, RECIPE-FORMAT.md
+concepts/             the 10 design concepts + switcher — REFERENCE, do not delete
+docs/                 working notes
+```
 
-**Structured data (`recipes/data/<slug>/<slug>.json`):** recipes are stored as structured JSON (schema in `recipes/RECIPE-FORMAT.md`), rendered by the browse + detail pages — not as prose markdown. Every recipe JSON **must include a `"diet"` field set to `"veg"` or `"non-veg"`** — it drives the Veg / Non-veg filter and the card indicator dot. Rules: **egg counts as non-veg** (Indian convention); a veg-base dish with an *optional* meat/egg add-on (e.g. "optional chicken breast per serving") stays `"veg"`. Also set `chef`, `cuisine`, and `course` — they drive the sidebar filters.
+App-loading mechanism (inline templates vs. iframe-per-app for CSS isolation) is decided when the first app is built; iframe-per-app is the leading candidate because apps have deliberately different interiors.
 
-**Standing preferences:**
+## Content (source of truth)
 
-- **High protein always.** He's a gym boy. Add **50–100 g dry soya chunks per serving-set** (50 g per serving) wherever it fits, listed as a real ingredient — not a footnote. Where soya doesn't fit the dish, suggest another protein boost in the macros section.
-- Source notes usually have no measurements. Infer sensible ones for the stated serving count.
-- Call out where a step actually matters (squeezing soya dry, hot water not cold, thick batter) rather than writing generic instructions.
+- **Name:** Rishit Chugh · **Role:** ML Engineer · **Email:** rishitchugh@gmail.com
+- **Résumé:** https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit
+- **Socials:** X [@rishitchugh](https://x.com/chughrishit) · LinkedIn [in/rishit-chugh](https://www.linkedin.com/in/rishit-chugh/) · GitHub [@R-C101](https://github.com/R-C101)
+- **Experience:** Data Scientist @ Liat.ai (2025) · LLM Intern @ DMI Finance (2024) · AI/ML Intern @ Lilac Mosaic (2024)
+- **Projects:** RECAP (research paper, https://arxiv.org/abs/2601.15331) · CVAR (https://github.com/R-C101/CVAR) · OKULARY (https://github.com/SEAR-Innovate/OKULARY)
+- Full detail lives in `../personal_portfolio/` (its `CLAUDE.md`, `index.html`, `main.js`). Use the **real hrefs**, `target="_blank" rel="noopener"`.
+- **Research paper file:** only `assets/paper/arxiv-ss.png` (screenshot) exists so far. The user will provide the paper for the Documents app.
 
-## Development
+## Recipe data contract
 
-Since this is a static site, development is straightforward:
-- Open `index.html` in a browser, or use any local server (`python3 -m http.server`, VS Code Live Server, etc.)
-- No build step unless a bundler is added later
-- All assets should be relative-pathed for GitHub Pages compatibility
+Full schema in `data/recipes/RECIPE-FORMAT.md`. When editing recipes, preserve these standing rules:
+- Every recipe JSON has a `diet` field (`veg`/`non-veg`; **egg = non-veg**; a veg dish with an *optional* meat/egg add-on stays `veg`).
+- **High-protein bias:** ~50 g dry soya chunks per serving where it fits, as a real ingredient.
+- Steps repeat exact measurements inline. Translated from Hinglish notes. **Never** add a "send Aunty a photo" sign-off.
+- `chef`, `cuisine`, `course` drive filters. Data is `fetch`ed → recipes need a server locally.
 
-## Key Constraints
+## Dev
 
-- Must deploy as a static GitHub Pages site (no Node.js server, no SSR)
-- Animations must be performant — avoid layout thrashing, prefer `transform` and `opacity` for animations
-- External libraries should be loaded via CDN with integrity hashes when possible
-- Keep total page weight reasonable — optimize images, lazy-load below-fold content
+```
+python3 -m http.server      # serve from repo root; needed for the recipe app's fetch
+```
+Everything else opens fine from `file://`. No build step. Keep page weight reasonable; lazy-load app interiors.

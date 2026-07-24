@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rishit Chugh: Building Intelligent Systems — Preprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&family=Fira+Code:wght@400;500;600&family=Newsreader:ital,opsz@0,6..72;1,6..72&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBFAF7;
+    --paper-edge:#F3F1EA;
+    --ink:#1A1815;
+    --ink-soft:#403c36;
+    --ink-faint:#6d675d;
+    --rule:#d8d3c7;
+    --rule-soft:#e7e2d7;
+    --crimson:#8a1a1a;      /* arXiv-ish crimson for links/refs */
+    --crimson-bg:#f6e9e4;
+    --measure:min(720px, 100%);
+  }
+
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+
+  body{
+    margin:0;
+    background:
+      radial-gradient(140% 90% at 50% -10%, #ffffff 0%, var(--paper) 40%, var(--paper) 100%);
+    color:var(--ink);
+    font-family:"Source Serif 4", Georgia, serif;
+    font-optical-sizing:auto;
+    font-size:18px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    font-feature-settings:"liga" 1, "clig" 1, "kern" 1;
+  }
+
+  /* ---------- arXiv toolbar ---------- */
+  .toolbar{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; gap:1rem;
+    padding:.5rem clamp(1rem,4vw,2rem);
+    background:rgba(251,250,247,.9);
+    backdrop-filter:saturate(1.1) blur(2px);
+    border-bottom:1px solid var(--rule);
+    font-family:"Fira Code", monospace;
+    font-size:12px; letter-spacing:.01em;
+    color:var(--ink-faint);
+  }
+  .toolbar .brand{ color:var(--crimson); font-weight:600; letter-spacing:.02em; }
+  .toolbar .arxid{ color:var(--ink-soft); }
+  .toolbar .spacer{ flex:1 1 auto; }
+  .toolbar .pill{
+    color:var(--ink-faint);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:.12rem .45rem;
+    background:#fff;
+  }
+  .btn-pdf{
+    display:inline-flex; align-items:center; gap:.4rem;
+    font-family:"Fira Code", monospace; font-size:12px; font-weight:500;
+    text-decoration:none;
+    color:#fff; background:var(--crimson);
+    padding:.34rem .7rem; border-radius:3px;
+    border:1px solid #6f1414;
+    box-shadow:0 1px 2px rgba(60,20,20,.25);
+    transition:transform .25s cubic-bezier(.2,.8,.2,1), background .2s;
+    white-space:nowrap;
+  }
+  .btn-pdf:hover{ background:#6f1414; transform:translateY(-1px); }
+  .btn-pdf svg{ width:12px; height:12px; }
+  @media (max-width:640px){ .toolbar .hide-sm{ display:none; } }
+
+  /* ---------- page sheet ---------- */
+  .sheet{
+    max-width:940px;
+    margin:0 auto;
+    padding:clamp(2.2rem,5vw,4.5rem) clamp(1.15rem,5vw,3.2rem) 4rem;
+    position:relative;
+  }
+
+  /* vertical arXiv stamp, like a real PDF left margin */
+  .vstamp{
+    position:absolute;
+    left:.15rem; top:210px;
+    writing-mode:vertical-rl;
+    transform:rotate(180deg);
+    font-family:"Fira Code", monospace;
+    font-size:11px; letter-spacing:.06em;
+    color:var(--ink-faint);
+    user-select:none;
+  }
+  @media (max-width:1120px){ .vstamp{ display:none; } }
+
+  /* ---------- title block ---------- */
+  .titleblock{ text-align:center; margin:1.4rem 0 2.2rem; }
+  h1.title{
+    font-weight:600;
+    font-size:clamp(1.9rem,4.4vw,3rem);
+    line-height:1.08;
+    letter-spacing:-.02em;
+    margin:.2rem auto .1rem;
+    max-width:20ch;
+    text-wrap:balance;
+  }
+  h1.title .sub{
+    display:block;
+    font-size:clamp(1rem,2vw,1.35rem);
+    font-weight:400;
+    font-style:italic;
+    color:var(--ink-soft);
+    letter-spacing:0;
+    margin-top:.55rem;
+  }
+  .authors{
+    margin-top:1.4rem;
+    font-size:1.12rem;
+  }
+  .authors .name{ font-weight:600; }
+  .authors sup{ color:var(--crimson); font-weight:600; }
+  .affil{
+    margin-top:.35rem;
+    font-size:.95rem;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .affil .sym{ color:var(--crimson); }
+  .datedoi{
+    margin-top:1rem;
+    font-family:"Fira Code", monospace;
+    font-size:.78rem;
+    color:var(--ink-faint);
+    letter-spacing:.01em;
+  }
+  .datedoi a{ color:var(--crimson); }
+
+  /* ---------- abstract ---------- */
+  .abstract{
+    max-width:660px;
+    margin:1.2rem auto 0;
+    padding:1.15rem 0 1.3rem;
+    border-top:1px solid var(--rule);
+    border-bottom:1px solid var(--rule);
+  }
+  .abstract .lab{
+    text-align:center;
+    font-variant-caps:small-caps;
+    font-feature-settings:"smcp" 1;
+    letter-spacing:.08em;
+    font-weight:600;
+    font-size:.92rem;
+    margin-bottom:.55rem;
+    color:var(--ink);
+  }
+  .abstract p{
+    text-align:justify;
+    hyphens:auto;
+    -webkit-hyphens:auto;
+    font-size:.98rem;
+    line-height:1.6;
+    margin:0 0 .7rem;
+  }
+  .abstract p:first-of-type::first-letter{
+    font-size:1.05em; font-weight:600;
+  }
+  .abstract p:last-child{ margin-bottom:0; }
+  .abstract .lead{ font-style:italic; }
+  .keywords{
+    max-width:660px; margin:.9rem auto 0;
+    font-size:.86rem; color:var(--ink-soft);
+    text-align:center;
+  }
+  .keywords b{ font-weight:600; font-variant-caps:small-caps; letter-spacing:.04em; }
+
+  /* ---------- body & sections ---------- */
+  main{ counter-reset:sec; margin-top:2.6rem; }
+  .col{ max-width:var(--measure); margin-left:auto; margin-right:auto; }
+
+  section.sec{ margin:2.9rem auto 0; max-width:var(--measure); scroll-margin-top:70px; }
+  h2.sechead{
+    counter-increment:sec;
+    counter-reset:sub;
+    font-size:1.28rem;
+    font-weight:600;
+    letter-spacing:.005em;
+    margin:0 0 .5rem;
+    padding-bottom:.15rem;
+    font-variant-caps:small-caps;
+    font-feature-settings:"smcp" 1;
+  }
+  h2.sechead::before{
+    content:counter(sec) "\2002";
+    font-variant-caps:normal;
+    font-weight:600;
+  }
+  h2.sechead.unnumbered{ counter-increment:none; }
+  h2.sechead.unnumbered::before{ content:none; }
+  h3.subhead{
+    counter-increment:sub;
+    font-size:1.04rem;
+    font-weight:600;
+    margin:1.5rem 0 .3rem;
+  }
+  h3.subhead::before{
+    content:counter(sec) "." counter(sub) "\2002";
+    color:var(--ink-soft);
+  }
+  p.body{ text-align:justify; hyphens:auto; -webkit-hyphens:auto; margin:.35rem 0 .8rem; }
+  p.body.noindent{ text-indent:0; }
+  main p.body + p.body{ text-indent:1.4em; }
+
+  a.ref, a.exlink{
+    color:var(--crimson);
+    text-decoration:none;
+    border-bottom:1px solid rgba(138,26,26,.28);
+    transition:background .2s, border-color .2s;
+  }
+  a.ref:hover, a.exlink:hover{ background:var(--crimson-bg); border-color:var(--crimson); }
+  a.cite{
+    color:var(--crimson);
+    text-decoration:none;
+    font-variant-numeric:tabular-nums;
+    cursor:pointer;
+  }
+  a.cite:hover{ text-decoration:underline; }
+
+  .texttt{
+    font-family:"Fira Code", monospace;
+    font-size:.82em;
+    background:var(--paper-edge);
+    border:1px solid var(--rule-soft);
+    border-radius:3px;
+    padding:.02em .34em;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+
+  /* meta line for CV roles */
+  .role{ margin-top:.15rem; }
+  .role .rmeta{
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:.5rem;
+    font-size:.86rem; color:var(--ink-faint);
+    font-family:"Fira Code", monospace;
+    margin-bottom:.15rem;
+  }
+  .role .rmeta .yr{ color:var(--crimson); }
+  .stackline{ margin:.4rem 0 .2rem; font-size:.92rem; }
+  .stackline .lbl{ font-style:italic; color:var(--ink-soft); }
+
+  /* ---------- figures ---------- */
+  figure{
+    margin:1.4rem 0;
+    padding:1rem 1rem .4rem;
+    border:1px solid var(--rule);
+    background:#fffdf9;
+    border-radius:2px;
+  }
+  figure svg{ display:block; width:100%; height:auto; }
+  figcaption{
+    margin-top:.7rem;
+    font-size:.85rem;
+    line-height:1.5;
+    color:var(--ink-soft);
+    text-align:left;
+    padding:0 .2rem;
+  }
+  figcaption .fnum{ font-weight:600; color:var(--ink); }
+  figure{ counter-increment:fig; }
+  main{ counter-reset:sec fig eq tab; }
+
+  .diag-lbl{ font-family:"Fira Code", monospace; font-size:11px; fill:var(--ink-soft); }
+  .diag-title{ font-family:"Source Serif 4", serif; font-size:13px; font-weight:600; fill:var(--ink); }
+  .diag-box{ fill:#fff; stroke:var(--ink-soft); stroke-width:1.2; }
+  .diag-box-a{ fill:var(--crimson-bg); stroke:var(--crimson); stroke-width:1.4; }
+  .diag-arrow{ stroke:var(--ink-soft); stroke-width:1.3; fill:none; }
+  .diag-arrow-a{ stroke:var(--crimson); stroke-width:1.6; fill:none; }
+
+  /* ---------- equation ---------- */
+  .equation{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    gap:1rem;
+    margin:1.2rem 0;
+    padding:.2rem 0;
+  }
+  .equation .eq{
+    text-align:center;
+    font-family:"Fira Code", monospace;
+    font-size:1rem;
+    color:var(--ink);
+    overflow-x:auto;
+  }
+  .equation .eqnum{
+    counter-increment:eq;
+    font-family:"Fira Code", monospace;
+    font-size:.92rem;
+    color:var(--ink-soft);
+  }
+  .equation .eqnum::before{ content:"(" counter(eq) ")"; }
+  .frac{ display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; margin:0 .15em; }
+  .frac .num{ border-bottom:1px solid var(--ink); padding:0 .3em; }
+  .frac .den{ padding:0 .3em; }
+
+  /* ---------- table ---------- */
+  .tablewrap{ margin:1.3rem 0; overflow-x:auto; }
+  table.skills{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.9rem;
+    min-width:520px;
+  }
+  table.skills caption{
+    caption-side:top;
+    text-align:left;
+    font-size:.85rem;
+    color:var(--ink-soft);
+    margin-bottom:.55rem;
+    counter-increment:tab;
+  }
+  table.skills caption .fnum{ font-weight:600; color:var(--ink); }
+  table.skills thead th{
+    text-align:left;
+    font-weight:600;
+    font-variant-caps:small-caps;
+    letter-spacing:.03em;
+    border-top:1.6px solid var(--ink);
+    border-bottom:1px solid var(--ink);
+    padding:.4rem .6rem;
+  }
+  table.skills td{
+    padding:.42rem .6rem;
+    border-bottom:1px solid var(--rule-soft);
+    vertical-align:top;
+  }
+  table.skills tbody tr:last-child td{ border-bottom:1.6px solid var(--ink); }
+  table.skills td:first-child{ font-weight:600; white-space:nowrap; }
+  table.skills td .texttt{ font-size:.78em; }
+
+  /* ---------- two column ---------- */
+  .twocol{ column-count:2; column-gap:2rem; }
+  .twocol p{ text-align:justify; hyphens:auto; -webkit-hyphens:auto; margin:0 0 .7rem; font-size:.94rem; }
+  @media (max-width:640px){ .twocol{ column-count:1; } }
+
+  /* ---------- bibtex box ---------- */
+  .bibtex{
+    margin:1.2rem 0;
+    border:1px solid var(--rule);
+    border-radius:3px;
+    background:#fffdf9;
+    overflow:hidden;
+  }
+  .bibtex .bar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:.4rem .7rem;
+    background:var(--paper-edge);
+    border-bottom:1px solid var(--rule);
+    font-family:"Fira Code", monospace;
+    font-size:.72rem; letter-spacing:.03em;
+    color:var(--ink-faint);
+  }
+  .bibtex .bar button{
+    font-family:"Fira Code", monospace;
+    font-size:.72rem;
+    color:var(--crimson);
+    background:#fff;
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:.16rem .5rem;
+    cursor:pointer;
+    transition:background .2s;
+  }
+  .bibtex .bar button:hover{ background:var(--crimson-bg); }
+  .bibtex pre{
+    margin:0; padding:.85rem 1rem;
+    font-family:"Fira Code", monospace;
+    font-size:.78rem; line-height:1.6;
+    color:var(--ink-soft);
+    overflow-x:auto;
+    white-space:pre;
+    tab-size:2;
+  }
+  .bibtex pre .k{ color:var(--crimson); }
+  .bibtex pre .f{ color:var(--ink); }
+
+  /* callout / abstract of the paper (research) */
+  .paperabs{
+    border:1px solid var(--rule);
+    background:var(--paper-edge);
+    padding:.9rem 1.1rem;
+    margin:1rem 0;
+    font-size:.94rem;
+  }
+  .paperabs .h{ font-variant-caps:small-caps; letter-spacing:.04em; font-weight:600; font-size:.85rem; color:var(--crimson); }
+  .paperabs p{ text-align:justify; hyphens:auto; margin:.35rem 0 0; }
+
+  /* ---------- contact ---------- */
+  .corr{ font-size:.94rem; }
+  .corr .row{ display:flex; gap:.7rem; margin:.2rem 0; }
+  .corr .row .k{ font-family:"Fira Code", monospace; font-size:.8rem; color:var(--ink-faint); min-width:110px; }
+
+  /* ---------- references ---------- */
+  ol.refs{
+    list-style:none;
+    counter-reset:rr;
+    padding:0; margin:.6rem 0 0;
+    font-size:.9rem;
+  }
+  ol.refs li{
+    counter-increment:rr;
+    position:relative;
+    padding-left:2.6rem;
+    margin:.5rem 0;
+    line-height:1.5;
+    scroll-margin-top:80px;
+    border-radius:3px;
+    transition:background .5s ease;
+  }
+  ol.refs li::before{
+    content:"[" counter(rr) "]";
+    position:absolute; left:0; top:0;
+    font-family:"Fira Code", monospace;
+    font-size:.82rem;
+    color:var(--ink-soft);
+  }
+  ol.refs li.flash{ background:var(--crimson-bg); }
+  ol.refs a{ color:var(--crimson); text-decoration:none; border-bottom:1px solid rgba(138,26,26,.28); word-break:break-word; }
+  ol.refs a:hover{ background:var(--crimson-bg); }
+  .refauthor{ font-variant-caps:small-caps; letter-spacing:.02em; }
+  .reftitle{ font-style:italic; }
+
+  /* supplementary */
+  .supp{
+    margin:1rem 0 0;
+    padding:.85rem 1rem;
+    border:1px dashed var(--rule);
+    border-radius:3px;
+    font-size:.9rem;
+    background:#fffdf9;
+    display:flex; align-items:center; gap:.8rem; flex-wrap:wrap;
+  }
+  .supp .sicon{ color:var(--crimson); }
+  .supp a{ color:var(--crimson); }
+
+  /* footer */
+  footer{
+    max-width:var(--measure);
+    margin:3.4rem auto 0;
+    padding-top:1rem;
+    border-top:1px solid var(--rule);
+    font-size:.78rem;
+    color:var(--ink-faint);
+    font-family:"Fira Code", monospace;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:.5rem;
+  }
+
+  /* subtle print-render entrance */
+  @keyframes rise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
+  .reveal{ opacity:0; }
+  .reveal.in{ animation:rise .8s cubic-bezier(.16,.84,.3,1) forwards; }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1 !important; animation:none !important; transform:none !important; }
+  }
+
+  ::selection{ background:var(--crimson-bg); }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span class="brand">arXiv</span>
+  <span class="arxid hide-sm">:2601.15331v1</span>
+  <span class="pill hide-sm">cs.LG</span>
+  <span class="spacer"></span>
+  <span class="pill hide-sm">Portfolio &middot; 2026</span>
+  <a class="btn-pdf" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener" aria-label="Download PDF (resume)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
+    Download&nbsp;PDF
+  </a>
+</div>
+
+<div class="sheet">
+  <div class="vstamp">arXiv:2601.15331v1&nbsp;&nbsp;[cs.LG]&nbsp;&nbsp;24 Jul 2026</div>
+
+  <!-- ===== TITLE BLOCK ===== -->
+  <header class="titleblock reveal">
+    <h1 class="title">Rishit Chugh: Building Intelligent Systems
+      <span class="sub">Real-time sports analytics, LLM red-teaming, and models that ship</span>
+    </h1>
+    <div class="authors">
+      <span class="name">Rishit Chugh</span><sup>1,&#9993;</sup>
+    </div>
+    <div class="affil">
+      <span class="sym">1</span>&thinsp;Machine Learning Engineer, Liat.ai &nbsp;&middot;&nbsp; <span class="sym">&#9993;</span>&thinsp;<a class="ref" href="mailto:rishitchugh@gmail.com">rishitchugh@gmail.com</a>
+    </div>
+    <div class="datedoi">
+      Preprint &middot; compiled 24 July 2026 &middot; <a class="ref" href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener">arXiv:2601.15331 [cs.LG]</a>
+    </div>
+  </header>
+
+  <!-- ===== ABSTRACT ===== -->
+  <section class="abstract reveal" aria-label="Abstract">
+    <div class="lab">Abstract</div>
+    <p><span class="lead">We present the work of an ML engineer building intelligent systems that reach production.</span> This document surveys three years of applied machine-learning practice spanning real-time computer vision, large-language-model safety, and retrieval-augmented systems. We describe deployed pipelines for live sports analytics at <span class="texttt">Liat.ai</span>, guardrailing models that outperform published baselines by a 30% margin, and a novel retrieval-based method for adversarial attacks on LLMs, published as a peer-reviewed preprint. Across projects the guiding thesis is consistent: research-grade methods are only interesting once they <em>ship</em>. We report methods, systems, and results, and provide correspondence and supplementary material for the reader.</p>
+  </section>
+  <p class="keywords reveal"><b>Keywords:</b> machine learning &middot; real-time computer vision &middot; LLM safety &middot; red-teaming &middot; retrieval-augmented generation &middot; production ML</p>
+
+  <!-- ===== BODY ===== -->
+  <main>
+
+    <!-- 1. INTRODUCTION -->
+    <section class="sec reveal" id="introduction">
+      <h2 class="sechead">Introduction</h2>
+      <p class="body noindent">Machine learning has an implementation gap: the distance between a promising result and a system a person can rely on in real time. The author's work is organized around closing that gap. As a Machine Learning Engineer at <span class="texttt">Liat.ai</span>, the current focus is real-time sports analytics&nbsp;<a class="cite" href="#ref-cvar" data-ref="ref-cvar">[4]</a> &mdash; systems that watch a match and reason about it as it unfolds. Prior work has spanned large-language-model safety at <span class="texttt">DMI&nbsp;Finance</span> and retrieval-augmented conversational systems at <span class="texttt">Lilac&nbsp;Mosaic</span>.</p>
+      <p class="body">The remainder of this paper is organized as follows. Section&nbsp;2 details professional experience as a formatted curriculum vitae. Section&nbsp;3 presents three representative projects, each accompanied by a system figure. Section&nbsp;4 describes the flagship research contribution, <span class="reftitle">RECAP</span>&nbsp;<a class="cite" href="#ref-recap" data-ref="ref-recap">[3]</a>, including a citable reference. Section&nbsp;5 provides correspondence details, and a References section lists all cited resources. A skills summary is given in Table&nbsp;1.</p>
+    </section>
+
+    <!-- 2. EXPERIENCE -->
+    <section class="sec reveal" id="experience">
+      <h2 class="sechead">Experience</h2>
+      <p class="body noindent">We summarize three professional appointments in reverse-chronological order. Technology stacks are given inline in <span class="texttt">\texttt{}</span> for reproducibility.</p>
+
+      <div class="role">
+        <h3 class="subhead">Data Scientist &mdash; Liat.ai</h3>
+        <div class="rmeta"><span class="yr">2025&ndash;present</span> &middot; <span>Real-time sports analytics</span></div>
+        <p class="body noindent">Design and deployment of real-time sports analytical systems built for enjoyment and broadcast-grade insight. Work covers model design, latency-critical inference, and audio synthesis for live commentary.</p>
+        <div class="stackline"><span class="lbl">Stack.&nbsp;</span>
+          <span class="texttt">PyTorch</span> <span class="texttt">ONNX</span> <span class="texttt">TensorRT</span> <span class="texttt">ElevenLabs</span> <span class="texttt">Docker</span> <span class="texttt">Redis</span> <span class="texttt">Modelling</span>
+        </div>
+      </div>
+
+      <div class="role">
+        <h3 class="subhead">LLM Intern &mdash; DMI Finance Pvt Ltd</h3>
+        <div class="rmeta"><span class="yr">2024</span> &middot; <span>LLM safety &amp; guardrailing</span></div>
+        <p class="body noindent">Developed LLM guardrailing models for toxicity, jailbreak detection, and PII masking &mdash; achieving a <strong>30% improvement</strong> over Meta's Llama&nbsp;Guard. Implemented <span class="texttt">vLLM</span> for a <strong>5&times;</strong> inference speedup, and built RAG and hallucination-testing harnesses reaching an <strong>80% success rate</strong> against ChatGPT and Gemini.</p>
+        <div class="stackline"><span class="lbl">Stack.&nbsp;</span>
+          <span class="texttt">AWS</span> <span class="texttt">vLLM</span> <span class="texttt">PyTorch</span> <span class="texttt">Transformers</span> <span class="texttt">PEFT</span>
+        </div>
+      </div>
+
+      <div class="role">
+        <h3 class="subhead">AI/ML Intern &mdash; Lilac Mosaic</h3>
+        <div class="rmeta"><span class="yr">2024</span> &middot; <span>Conversational AI &amp; vision</span></div>
+        <p class="body noindent">Built an FAQ and RAG chatbot with Transformers and Dialogflow, yielding a <strong>90% reduction</strong> in support inquiries. Implemented image-similarity and recommendation systems with OpenCV, deployed on Firebase and Google Cloud.</p>
+        <div class="stackline"><span class="lbl">Stack.&nbsp;</span>
+          <span class="texttt">OpenCV</span> <span class="texttt">Google Cloud</span> <span class="texttt">Firebase</span> <span class="texttt">Transformers</span>
+        </div>
+      </div>
+
+      <!-- skills table -->
+      <div class="tablewrap">
+        <table class="skills">
+          <caption><span class="fnum">Table&nbsp;1:</span> Competency matrix across domains, with representative tooling.</caption>
+          <thead>
+            <tr><th scope="col">Domain</th><th scope="col">Focus</th><th scope="col">Representative stack</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Deep Learning</td><td>Training &amp; fine-tuning</td><td><span class="texttt">PyTorch</span> <span class="texttt">Transformers</span> <span class="texttt">PEFT</span></td></tr>
+            <tr><td>LLM Safety</td><td>Guardrails, red-teaming</td><td><span class="texttt">vLLM</span> <span class="texttt">RAG</span> <span class="texttt">Llama Guard</span></td></tr>
+            <tr><td>Computer Vision</td><td>Tracking &amp; detection</td><td><span class="texttt">YOLO</span> <span class="texttt">OpenCV</span> <span class="texttt">SuperVision</span></td></tr>
+            <tr><td>Inference / Deploy</td><td>Latency-critical serving</td><td><span class="texttt">ONNX</span> <span class="texttt">TensorRT</span> <span class="texttt">Docker</span> <span class="texttt">Redis</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. PROJECTS -->
+    <section class="sec reveal" id="projects">
+      <h2 class="sechead">Projects</h2>
+      <p class="body noindent">We describe three systems. Each is presented with a system-level figure drawn to scale.</p>
+
+      <!-- 3.1 RECAP -->
+      <h3 class="subhead">RECAP &mdash; retrieval-augmented adversarial attacks</h3>
+      <p class="body noindent">A novel approach to adversarial attacks on LLMs. Rather than searching the attack space from scratch, RECAP performs semantic-similarity retrieval over a curated database of <em>proven-successful</em> attack patterns, conditioning new attacks on prior wins. Given a target prompt embedding&nbsp;<span class="texttt">q</span>, the system returns the pattern maximizing cosine similarity:</p>
+
+      <div class="equation">
+        <div class="eq">
+          p&#770; = arg&thinsp;max<sub>p&#8712;D</sub>&nbsp;
+          <span class="frac">
+            <span class="num">&#10216;&#966;(q),&nbsp;&#966;(p)&#10217;</span>
+            <span class="den">&#8214;&#966;(q)&#8214;&nbsp;&#8214;&#966;(p)&#8214;</span>
+          </span>
+        </div>
+        <div class="eqnum"></div>
+      </div>
+
+      <p class="body noindent">where <span class="texttt">&#966;</span> is a sentence encoder and <span class="texttt">D</span> the curated attack corpus. RECAP is treated as the flagship research contribution and is detailed in Section&nbsp;4. Tags: <span class="texttt">LLM Red-teaming</span> <span class="texttt">NLP</span> <span class="texttt">Transformers</span>. See&nbsp;<a class="exlink" href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener">arXiv:2601.15331</a>.</p>
+
+      <figure>
+        <svg viewBox="0 0 720 220" role="img" aria-label="RECAP retrieval pipeline: a target prompt is embedded, matched against a curated attack database by cosine similarity, and the best pattern is composed into an attack on the target model.">
+          <!-- input -->
+          <rect class="diag-box" x="14" y="86" width="120" height="48" rx="4"/>
+          <text class="diag-lbl" x="74" y="106" text-anchor="middle">target prompt</text>
+          <text class="diag-lbl" x="74" y="122" text-anchor="middle">q</text>
+          <!-- encoder -->
+          <rect class="diag-box" x="176" y="86" width="110" height="48" rx="4"/>
+          <text class="diag-lbl" x="231" y="107" text-anchor="middle">encoder &#966;(&middot;)</text>
+          <text class="diag-lbl" x="231" y="122" text-anchor="middle" style="font-style:italic">embed</text>
+          <!-- database -->
+          <rect class="diag-box" x="176" y="6" width="110" height="52" rx="4"/>
+          <text class="diag-lbl" x="231" y="27" text-anchor="middle">attack DB</text>
+          <text class="diag-lbl" x="231" y="43" text-anchor="middle" style="font-style:italic">curated D</text>
+          <!-- retrieval (accent) -->
+          <rect class="diag-box-a" x="330" y="80" width="140" height="60" rx="4"/>
+          <text class="diag-title" x="400" y="104" text-anchor="middle">cosine retrieval</text>
+          <text class="diag-lbl" x="400" y="122" text-anchor="middle">arg max &#10216;&#966;(q),&#966;(p)&#10217;</text>
+          <!-- best pattern -->
+          <rect class="diag-box" x="514" y="6" width="120" height="52" rx="4"/>
+          <text class="diag-lbl" x="574" y="27" text-anchor="middle">best pattern</text>
+          <text class="diag-lbl" x="574" y="43" text-anchor="middle">p&#770;</text>
+          <!-- target model -->
+          <rect class="diag-box" x="514" y="86" width="120" height="48" rx="4"/>
+          <text class="diag-lbl" x="574" y="107" text-anchor="middle">target LLM</text>
+          <text class="diag-lbl" x="574" y="122" text-anchor="middle" style="font-style:italic">attacked</text>
+          <!-- outcome -->
+          <rect class="diag-box" x="514" y="164" width="120" height="44" rx="4"/>
+          <text class="diag-lbl" x="574" y="190" text-anchor="middle">jailbreak eval</text>
+          <!-- arrows -->
+          <defs>
+            <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#403c36"/></marker>
+            <marker id="aha" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8a1a1a"/></marker>
+          </defs>
+          <path class="diag-arrow" d="M134 110 H172" marker-end="url(#ah)"/>
+          <path class="diag-arrow" d="M286 100 H326" marker-end="url(#ah)"/>
+          <path class="diag-arrow" d="M231 58 V78 h60" marker-end="url(#ah)"/>
+          <path class="diag-arrow-a" d="M470 96 C 492 70, 496 52, 512 40" marker-end="url(#aha)"/>
+          <path class="diag-arrow" d="M574 58 V82" marker-end="url(#ah)"/>
+          <path class="diag-arrow" d="M574 134 V162" marker-end="url(#ah)"/>
+        </svg>
+        <figcaption><span class="fnum">Figure&nbsp;1:</span> RECAP pipeline. A target prompt&nbsp;<em>q</em> is embedded and matched against a curated database&nbsp;<em>D</em> of proven attack patterns by cosine similarity; the retrieved pattern&nbsp;<em>p&#770;</em> is composed into an attack on the target model and scored by a jailbreak evaluator.</figcaption>
+      </figure>
+
+      <!-- 3.2 CVAR -->
+      <h3 class="subhead">CVAR &mdash; computer-vision assisted refereeing</h3>
+      <p class="body noindent">A football-analysis system using YOLO and OpenCV for player, referee, and ball tracking. CVAR computes ball-possession statistics, per-player speed estimation, and camera-movement compensation, producing broadcast-ready annotations from raw match footage. Tags: <span class="texttt">YOLO</span> <span class="texttt">OpenCV</span> <span class="texttt">NumPy</span> <span class="texttt">SuperVision</span>. Source:&nbsp;<a class="exlink" href="https://github.com/R-C101/CVAR" target="_blank" rel="noopener">github.com/R-C101/CVAR</a>.</p>
+
+      <figure>
+        <svg viewBox="0 0 720 150" role="img" aria-label="CVAR pipeline: match frames flow through YOLO detection, tracking, camera-motion compensation, and analytics producing possession, speed, and events.">
+          <defs>
+            <marker id="ah2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#403c36"/></marker>
+          </defs>
+          <!-- pitch mini -->
+          <rect class="diag-box" x="12" y="50" width="96" height="50" rx="4"/>
+          <text class="diag-lbl" x="60" y="72" text-anchor="middle">match</text>
+          <text class="diag-lbl" x="60" y="88" text-anchor="middle" style="font-style:italic">frames</text>
+          <!-- stages -->
+          <rect class="diag-box" x="140" y="50" width="104" height="50" rx="4"/>
+          <text class="diag-lbl" x="192" y="72" text-anchor="middle">YOLO</text>
+          <text class="diag-lbl" x="192" y="88" text-anchor="middle" style="font-style:italic">detect</text>
+          <rect class="diag-box" x="276" y="50" width="104" height="50" rx="4"/>
+          <text class="diag-lbl" x="328" y="72" text-anchor="middle">tracking</text>
+          <text class="diag-lbl" x="328" y="88" text-anchor="middle" style="font-style:italic">re-ID</text>
+          <rect class="diag-box" x="412" y="50" width="118" height="50" rx="4"/>
+          <text class="diag-lbl" x="471" y="72" text-anchor="middle">camera comp.</text>
+          <text class="diag-lbl" x="471" y="88" text-anchor="middle" style="font-style:italic">optical flow</text>
+          <rect class="diag-box-a" x="562" y="50" width="146" height="50" rx="4"/>
+          <text class="diag-title" x="635" y="72" text-anchor="middle">analytics</text>
+          <text class="diag-lbl" x="635" y="88" text-anchor="middle">possession &middot; speed</text>
+          <!-- arrows -->
+          <path class="diag-arrow" d="M108 75 H138" marker-end="url(#ah2)"/>
+          <path class="diag-arrow" d="M244 75 H274" marker-end="url(#ah2)"/>
+          <path class="diag-arrow" d="M380 75 H410" marker-end="url(#ah2)"/>
+          <path class="diag-arrow" d="M530 75 H560" marker-end="url(#ah2)"/>
+        </svg>
+        <figcaption><span class="fnum">Figure&nbsp;2:</span> CVAR analysis pipeline. Match frames pass through YOLO detection, multi-object tracking with re-identification, camera-motion compensation via optical flow, and an analytics stage emitting possession and speed statistics.</figcaption>
+      </figure>
+
+      <!-- 3.3 OKULARY -->
+      <h3 class="subhead">OKULARY &mdash; automating the classroom</h3>
+      <p class="body noindent">An educational platform combining NLP, computer vision, and Transformers to automate attendance, assignment grading, and plagiarism detection, materially enhancing teacher efficiency. Tags: <span class="texttt">NLP</span> <span class="texttt">OpenCV</span> <span class="texttt">Transformers</span>. Source:&nbsp;<a class="exlink" href="https://github.com/SEAR-Innovate/OKULARY" target="_blank" rel="noopener">github.com/SEAR-Innovate/OKULARY</a>.</p>
+    </section>
+
+    <!-- 4. RESEARCH -->
+    <section class="sec reveal" id="research">
+      <h2 class="sechead">Research</h2>
+      <p class="body noindent">The flagship contribution is <span class="reftitle">RECAP</span>, a peer-reviewed preprint on adversarial attacks against large language models&nbsp;<a class="cite" href="#ref-recap" data-ref="ref-recap">[3]</a>. We reproduce its abstract and provide a citable reference below.</p>
+
+      <div class="paperabs">
+        <span class="h">Abstract (RECAP)</span>
+        <p>Adversarial attacks on LLMs are typically discovered by expensive search. We instead treat successful jailbreaks as a reusable resource: given a curated database of proven attack patterns, semantic-similarity retrieval surfaces the pattern most likely to transfer to a new target. This reframing turns red-teaming into a retrieval problem, yielding attacks that are cheaper to generate and stronger in aggregate, and provides a growing corpus that compounds with every success.</p>
+      </div>
+
+      <!-- two column commentary, like a real paper -->
+      <div class="twocol">
+        <p>The method is deliberately model-agnostic. Because attacks are conditioned on an embedding of the target prompt rather than on any single model's internals, the curated database transfers across model families. In practice this makes RECAP a practical tool for continuous evaluation: as new patterns are found, they are folded back into the corpus, and the retrieval front-end immediately benefits.</p>
+        <p>This orientation &mdash; safety as an evolving, data-driven practice rather than a one-off audit &mdash; connects directly to the guardrailing work in Section&nbsp;2. Both share a conviction that robustness is measured, versioned, and improved like any other engineered artifact, and both aim to hand practitioners tools that keep working after the paper is published.</p>
+      </div>
+
+      <!-- bibtex -->
+      <div class="bibtex">
+        <div class="bar">
+          <span>cite this &middot; BibTeX</span>
+          <button type="button" id="copybib" aria-label="Copy BibTeX to clipboard">copy</button>
+        </div>
+<pre id="bibsrc"><span class="k">@article</span>{<span class="f">chugh2026recap</span>,
+  <span class="k">title</span>   = {RECAP: Retrieval-Augmented Adversarial Attacks on Large Language Models},
+  <span class="k">author</span>  = {Chugh, Rishit},
+  <span class="k">journal</span> = {arXiv preprint arXiv:2601.15331},
+  <span class="k">year</span>    = {2026},
+  <span class="k">eprint</span>  = {2601.15331},
+  <span class="k">archivePrefix</span> = {arXiv},
+  <span class="k">primaryClass</span>  = {cs.LG},
+  <span class="k">url</span>     = {https://arxiv.org/abs/2601.15331}
+}</pre>
+      </div>
+    </section>
+
+    <!-- 5. CONTACT / CORRESPONDENCE -->
+    <section class="sec reveal" id="contact">
+      <h2 class="sechead">Correspondence</h2>
+      <p class="body noindent">Correspondence and requests for materials should be addressed to the author. Links to public repositories and profiles are enumerated in the References.</p>
+      <div class="corr">
+        <div class="row"><span class="k">&#9993;&nbsp;email</span><span><a class="exlink" href="mailto:rishitchugh@gmail.com">rishitchugh@gmail.com</a></span></div>
+        <div class="row"><span class="k">&#167;&nbsp;linkedin</span><span><a class="exlink" href="https://www.linkedin.com/in/rishit-chugh/" target="_blank" rel="noopener">in/rishit-chugh</a>&nbsp;<a class="cite" href="#ref-li" data-ref="ref-li">[1]</a></span></div>
+        <div class="row"><span class="k">&#167;&nbsp;github</span><span><a class="exlink" href="https://github.com/R-C101" target="_blank" rel="noopener">@R-C101</a>&nbsp;<a class="cite" href="#ref-gh" data-ref="ref-gh">[2]</a></span></div>
+        <div class="row"><span class="k">&#167;&nbsp;x/twitter</span><span><a class="exlink" href="https://x.com/chughrishit" target="_blank" rel="noopener">@rishitchugh</a>&nbsp;<a class="cite" href="#ref-x" data-ref="ref-x">[5]</a></span></div>
+      </div>
+
+      <div class="supp">
+        <span class="sicon" aria-hidden="true">&#9635;</span>
+        <span><strong>Supplementary Material.</strong> Full curriculum vitae available as a downloadable document.</span>
+        <a class="exlink" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener">Download&nbsp;r&eacute;sum&eacute; (PDF)</a>
+      </div>
+    </section>
+
+    <!-- REFERENCES -->
+    <section class="sec reveal" id="references" aria-label="References">
+      <h2 class="sechead unnumbered">References</h2>
+      <ol class="refs">
+        <li id="ref-li"><span class="refauthor">Chugh, R.</span> <span class="reftitle">Professional profile.</span> LinkedIn. <a href="https://www.linkedin.com/in/rishit-chugh/" target="_blank" rel="noopener">linkedin.com/in/rishit-chugh</a>.</li>
+        <li id="ref-gh"><span class="refauthor">Chugh, R.</span> <span class="reftitle">Source repositories.</span> GitHub (@R-C101). <a href="https://github.com/R-C101" target="_blank" rel="noopener">github.com/R-C101</a>.</li>
+        <li id="ref-recap"><span class="refauthor">Chugh, R.</span> (2026). <span class="reftitle">RECAP: Retrieval-Augmented Adversarial Attacks on Large Language Models.</span> arXiv:2601.15331 [cs.LG]. <a href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener">arxiv.org/abs/2601.15331</a>.</li>
+        <li id="ref-cvar"><span class="refauthor">Chugh, R.</span> <span class="reftitle">CVAR: Computer-vision football analysis.</span> GitHub. <a href="https://github.com/R-C101/CVAR" target="_blank" rel="noopener">github.com/R-C101/CVAR</a>.</li>
+        <li id="ref-x"><span class="refauthor">Chugh, R.</span> <span class="reftitle">Notes &amp; updates.</span> X / Twitter (@rishitchugh). <a href="https://x.com/chughrishit" target="_blank" rel="noopener">x.com/chughrishit</a>.</li>
+        <li id="ref-okulary"><span class="refauthor">SEAR Innovate.</span> <span class="reftitle">OKULARY: automated classroom platform.</span> GitHub. <a href="https://github.com/SEAR-Innovate/OKULARY" target="_blank" rel="noopener">github.com/SEAR-Innovate/OKULARY</a>.</li>
+      </ol>
+    </section>
+
+    <footer>
+      <span>&copy; 2026 Rishit Chugh</span>
+      <span>Typeset for the web &middot; cs.LG</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---- signature: inline citations smooth-scroll + highlight the reference ---- */
+  document.querySelectorAll('a.cite[data-ref]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      var el = document.getElementById(a.dataset.ref);
+      if(!el) return;
+      el.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
+      el.classList.remove('flash');
+      /* reflow to restart the transition */
+      void el.offsetWidth;
+      el.classList.add('flash');
+      setTimeout(function(){ el.classList.remove('flash'); }, 1600);
+    });
+  });
+
+  /* ---- copy BibTeX ---- */
+  var btn = document.getElementById('copybib');
+  if(btn){
+    btn.addEventListener('click', function(){
+      var txt = document.getElementById('bibsrc').innerText;
+      var done = function(){ var o=btn.textContent; btn.textContent='copied ✓'; setTimeout(function(){ btn.textContent=o; },1400); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(txt).then(done, done);
+      } else {
+        var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); done();
+      }
+    });
+  }
+
+  /* ---- print-render style reveal on scroll ---- */
+  var reveals = [].slice.call(document.querySelectorAll('.reveal'));
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)){
+    reveals.forEach(function(r){ r.classList.add('in'); r.style.opacity=1; });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:0.08});
+    reveals.forEach(function(r){ io.observe(r); });
+    /* ensure the top of the paper is visible immediately */
+    setTimeout(function(){
+      reveals.slice(0,3).forEach(function(r){ r.classList.add('in'); });
+    }, 60);
+  }
+})();
+</script>
+</body>
+</html>

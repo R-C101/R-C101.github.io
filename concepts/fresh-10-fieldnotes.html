@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Field Notes — Rishit Chugh</title>
+<meta name="description" content="The lab notebook of Rishit Chugh, ML Engineer — experiments, results, and observations." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   FIELD NOTES — an ML researcher's tactile lab notebook
+   ============================================================ */
+:root{
+  --paper:#f2e9d3;
+  --paper-deep:#ebe0c4;
+  --paper-edge:#e2d4b0;
+  --grid:rgba(96,132,150,.16);
+  --grid-strong:rgba(96,132,150,.26);
+  --ink:#2c2a25;
+  --ink-soft:#514c42;
+  --ink-faint:#7c7565;
+  --pen-blue:#274b86;
+  --pen-blue-bright:#2f61b0;
+  --hi-yellow:#f4e26a;
+  --red:#c0362a;
+  --red-soft:#d6534a;
+  --tab-green:#a7c4a0;
+  --tab-blue:#9fbcd6;
+  --tab-pink:#e3a9a0;
+  --tab-amber:#e8cd86;
+  --tape:rgba(226,214,176,.55);
+  --tape-line:rgba(150,138,104,.35);
+  --shadow:24px 30px 60px -30px rgba(60,45,20,.55);
+  --maxw:960px;
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+
+body{
+  margin:0;
+  font-family:"Courier Prime",monospace;
+  color:var(--ink);
+  background:#d8c9a4;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255,250,235,.5), transparent 60%),
+    radial-gradient(1000px 700px at 10% 110%, rgba(120,100,60,.18), transparent 55%);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ---------- the notebook page (paper ground) ---------- */
+.page{
+  position:relative;
+  max-width:var(--maxw);
+  margin:0 auto;
+  background-color:var(--paper);
+  background-image:
+    /* subtle mottled paper tone */
+    radial-gradient(140px 100px at 22% 8%, rgba(180,150,90,.10), transparent 70%),
+    radial-gradient(180px 120px at 88% 40%, rgba(170,140,80,.09), transparent 70%),
+    radial-gradient(200px 160px at 12% 78%, rgba(150,120,70,.08), transparent 70%),
+    /* graph paper */
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(var(--grid-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-strong) 1px, transparent 1px);
+  background-size:
+    auto,auto,auto,
+    23px 23px, 23px 23px,
+    115px 115px, 115px 115px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+/* paper fiber noise */
+.page::after{
+  content:"";
+  position:absolute;inset:0;
+  pointer-events:none;
+  opacity:.5;
+  mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* red margin rule + spiral binding rail */
+.rail{
+  position:absolute;
+  top:0;bottom:0;left:0;
+  width:74px;
+  pointer-events:none;
+  z-index:3;
+}
+.rail::before{ /* red margin line */
+  content:"";
+  position:absolute;top:0;bottom:0;left:64px;width:2px;
+  background:var(--red);opacity:.5;
+}
+.rail::after{ /* punched holes */
+  content:"";
+  position:absolute;top:0;bottom:0;left:22px;width:20px;
+  background-image:radial-gradient(circle at 50% 50%, rgba(120,100,60,.35) 0 42%, rgba(255,255,255,.35) 46% 52%, transparent 56%);
+  background-size:20px 150px;
+  background-repeat:repeat-y;
+}
+
+.content{
+  position:relative;
+  z-index:2;
+  padding:0 46px 0 92px;
+}
+
+/* ---------- shared marks ---------- */
+.hand{font-family:"Caveat",cursive;}
+.kalam{font-family:"Kalam",cursive;}
+.blue{color:var(--pen-blue);}
+.red{color:var(--red);}
+.mono{font-family:"Courier Prime",monospace;}
+
+.highlight{
+  background:linear-gradient(180deg, transparent 12%, rgba(244,226,106,.72) 14%, rgba(244,226,106,.72) 86%, transparent 88%);
+  padding:0 .12em;
+  box-decoration-break:clone;
+  -webkit-box-decoration-break:clone;
+}
+
+/* page number in bottom margin of a block */
+.pageno{
+  font-family:"Kalam",cursive;
+  font-size:.78rem;
+  color:var(--ink-faint);
+  letter-spacing:.04em;
+}
+
+/* section scaffolding */
+section{position:relative;padding:64px 0;}
+.eyebrow-date{
+  font-family:"Kalam",cursive;
+  font-size:.9rem;
+  color:var(--red);
+  letter-spacing:.02em;
+  transform:rotate(-2deg);
+  display:inline-block;
+}
+
+h2.sec-title{
+  font-family:"Courier Prime",monospace;
+  font-weight:700;
+  font-size:clamp(1.5rem,3.4vw,2.15rem);
+  letter-spacing:-.02em;
+  margin:.15em 0 .1em;
+  color:var(--ink);
+}
+h2.sec-title .no{color:var(--ink-faint);font-weight:400;font-size:.7em;margin-right:.4em;}
+
+.lede{
+  font-family:"Courier Prime",monospace;
+  color:var(--ink-soft);
+  max-width:56ch;
+  font-size:.98rem;
+}
+
+a{color:var(--pen-blue);text-decoration:none;}
+
+/* ============================================================
+   STICKY-NOTE TAB NAV
+   ============================================================ */
+.tabs{
+  position:fixed;
+  top:50%;
+  right:max(10px, calc((100vw - var(--maxw))/2 - 58px));
+  transform:translateY(-50%);
+  z-index:40;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+.tab{
+  font-family:"Kalam",cursive;
+  font-size:.8rem;
+  font-weight:700;
+  color:var(--ink);
+  text-decoration:none;
+  padding:8px 12px 8px 14px;
+  width:104px;
+  border:none;
+  cursor:pointer;
+  text-align:left;
+  box-shadow:2px 4px 8px -3px rgba(60,45,20,.5);
+  transition:transform .35s cubic-bezier(.16,1,.3,1);
+  position:relative;
+  clip-path:polygon(0 0,100% 0,100% 100%,10px 100%,0 calc(100% - 10px));
+}
+.tab:nth-child(5n+1){background:var(--tab-amber);transform:translateX(28px) rotate(-1.5deg);}
+.tab:nth-child(5n+2){background:var(--tab-green);transform:translateX(22px) rotate(1deg);}
+.tab:nth-child(5n+3){background:var(--tab-blue);transform:translateX(30px) rotate(-1deg);}
+.tab:nth-child(5n+4){background:var(--tab-pink);transform:translateX(20px) rotate(1.6deg);}
+.tab:nth-child(5n+5){background:var(--tab-amber);transform:translateX(26px) rotate(-.6deg);}
+.tab:hover,.tab:focus-visible{transform:translateX(0) rotate(0deg);outline:none;}
+.tab.active{transform:translateX(0) rotate(0deg);box-shadow:2px 4px 12px -2px rgba(60,45,20,.6);}
+.tab.active::before{content:"›";position:absolute;left:4px;color:var(--red);font-family:"Courier Prime";}
+@media (max-width:820px){.tabs{display:none;}}
+
+/* ============================================================
+   HERO / COVER
+   ============================================================ */
+.cover{
+  min-height:100vh;
+  padding-top:72px;
+  padding-bottom:40px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.property{
+  font-family:"Kalam",cursive;
+  font-size:.9rem;
+  color:var(--ink-soft);
+  border:1.5px solid var(--ink-soft);
+  border-radius:3px;
+  padding:5px 12px;
+  display:inline-block;
+  transform:rotate(-1.2deg);
+  background:rgba(255,252,244,.5);
+  align-self:flex-start;
+}
+.property b{color:var(--red);font-weight:700;}
+
+.cover-title{
+  font-family:"Courier Prime",monospace;
+  font-weight:700;
+  font-size:clamp(2.8rem,10vw,6.2rem);
+  line-height:.98;
+  letter-spacing:-.045em;
+  margin:26px 0 0;
+  color:var(--ink);
+  position:relative;
+  display:inline-block;
+}
+.cover-sub{
+  font-family:"Kalam",cursive;
+  font-size:clamp(1.3rem,3.5vw,2rem);
+  color:var(--pen-blue);
+  margin:2px 0 0;
+  transform:rotate(-1deg);
+  display:inline-block;
+}
+/* signature underline SVG */
+.sig-wrap{display:block;margin-top:-6px;max-width:520px;}
+.sig-wrap svg{width:100%;height:52px;overflow:visible;}
+.sig-path{
+  fill:none;stroke:var(--pen-blue);stroke-width:3.4;
+  stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:900;stroke-dashoffset:900;
+}
+.sig-path.draw{animation:draw 1.5s cubic-bezier(.2,.7,.2,1) .5s forwards;}
+
+.cover-meta{
+  display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-start;
+  margin-top:46px;
+}
+
+/* taped index card (role) */
+.indexcard{
+  position:relative;
+  background:
+    linear-gradient(180deg, rgba(255,253,247,.92), rgba(252,246,232,.92));
+  border-radius:2px;
+  padding:20px 22px 16px;
+  width:290px;
+  max-width:100%;
+  box-shadow:6px 10px 20px -10px rgba(60,45,20,.5);
+  transform:rotate(1.4deg);
+  transition:transform .4s cubic-bezier(.16,1,.3,1);
+  background-image:
+    linear-gradient(180deg, rgba(255,253,247,.92), rgba(252,246,232,.92)),
+    repeating-linear-gradient(180deg, transparent 0 27px, rgba(200,120,110,.18) 27px 28px);
+  border-top:26px solid transparent;
+}
+.indexcard:hover{transform:rotate(0deg);}
+.indexcard::before{ /* red header line of index card */
+  content:"";position:absolute;top:26px;left:0;right:0;height:1.5px;background:rgba(190,70,60,.4);
+}
+.indexcard .role{
+  font-family:"Courier Prime";font-weight:700;font-size:1.15rem;letter-spacing:-.01em;margin:0;
+}
+.indexcard .role-hand{font-family:"Caveat";font-size:1.5rem;color:var(--pen-blue);line-height:1;}
+.indexcard .tagline{font-size:.82rem;color:var(--ink-soft);margin:.5em 0 0;}
+
+/* tape strip helper */
+.tape{
+  position:absolute;
+  width:96px;height:28px;
+  background:var(--tape);
+  background-image:repeating-linear-gradient(90deg, transparent 0 5px, var(--tape-line) 5px 6px);
+  box-shadow:0 2px 4px -1px rgba(60,45,20,.25);
+}
+.tape.tl{top:-14px;left:-12px;transform:rotate(-34deg);}
+.tape.tr{top:-14px;right:-14px;transform:rotate(32deg);}
+
+.scrollcue{
+  margin-top:auto;
+  padding-top:40px;
+  font-family:"Kalam",cursive;
+  color:var(--ink-faint);
+  font-size:.9rem;
+  display:flex;align-items:center;gap:10px;
+}
+.scrollcue svg{width:20px;height:34px;}
+.scrollcue .arrow{stroke:var(--ink-faint);fill:none;stroke-width:2;stroke-linecap:round;}
+
+/* coffee ring stain */
+.coffee{
+  position:absolute;
+  width:130px;height:130px;border-radius:50%;
+  pointer-events:none;z-index:1;
+  background:
+    radial-gradient(circle, transparent 0 44%, rgba(120,80,35,.16) 46% 50%, rgba(120,80,35,.05) 51% 57%, transparent 60%);
+  mix-blend-mode:multiply;
+}
+
+/* margin note (handwritten, sits toward the red rule) */
+.mnote{
+  font-family:"Caveat",cursive;
+  font-size:1.35rem;
+  color:var(--pen-blue);
+  line-height:1.15;
+}
+.mnote.rednote{color:var(--red);}
+
+/* ============================================================
+   EXPERIENCE — LOG ENTRIES
+   ============================================================ */
+.log{
+  display:grid;
+  grid-template-columns:78px 1fr;
+  gap:0 22px;
+  padding:26px 0;
+  border-bottom:1.5px dashed rgba(120,105,70,.35);
+  align-items:start;
+}
+.log:first-of-type{border-top:1.5px dashed rgba(120,105,70,.35);}
+.log .when{
+  font-family:"Kalam",cursive;
+  font-weight:700;
+  color:var(--red);
+  font-size:1.05rem;
+  padding-top:2px;
+  transform:rotate(-2deg);
+}
+.log h3{
+  font-family:"Courier Prime";font-weight:700;font-size:1.12rem;margin:0;letter-spacing:-.01em;
+}
+.log h3 .co{color:var(--pen-blue);}
+.log p{margin:.4em 0 .7em;color:var(--ink-soft);font-size:.93rem;max-width:60ch;}
+.log .side{
+  font-family:"Caveat";font-size:1.35rem;color:var(--pen-blue);
+  transform:rotate(-2deg);display:inline-block;
+}
+
+/* rubber-stamp chips (stacks) */
+.stamps{display:flex;flex-wrap:wrap;gap:8px 9px;margin-top:8px;}
+.stamp{
+  font-family:"Courier Prime";font-weight:700;
+  font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--pen-blue);
+  border:1.6px solid var(--pen-blue);
+  border-radius:3px;
+  padding:2px 8px;
+  opacity:.82;
+  transform:rotate(var(--r,-1deg));
+  background:rgba(255,253,247,.3);
+  position:relative;
+}
+.stamp:nth-child(2n){--r:1.4deg;color:var(--red);border-color:var(--red);}
+.stamp:nth-child(3n){--r:-1.8deg;}
+.stamp:nth-child(4n){--r:1deg;}
+
+/* ============================================================
+   PROJECTS — taped-in figures / index cards
+   ============================================================ */
+.figs{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:34px 30px;
+  margin-top:40px;
+}
+.fig{
+  position:relative;
+  background:linear-gradient(180deg,#fffdf6,#f7efdc);
+  padding:16px 16px 20px;
+  box-shadow:8px 14px 26px -14px rgba(60,45,20,.55);
+  transform:rotate(var(--rot,-2deg));
+  transition:transform .45s cubic-bezier(.16,1,.3,1);
+}
+.fig:hover{transform:rotate(0deg) translateY(-3px);}
+.fig:nth-child(2){--rot:1.8deg;}
+.fig:nth-child(3){--rot:-1.2deg;}
+/* the "figure" plate */
+.fig .plate{
+  background:var(--paper-deep);
+  background-image:
+    linear-gradient(rgba(96,132,150,.14) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(96,132,150,.14) 1px,transparent 1px);
+  background-size:14px 14px;
+  border:1px solid rgba(120,105,70,.25);
+  aspect-ratio:16/10;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+.fig .plate svg{width:100%;height:100%;}
+.fig .cap{
+  font-family:"Caveat";
+  font-size:1.35rem;color:var(--ink);
+  margin:10px 2px 2px;line-height:1.1;
+}
+.fig .cap .lbl{color:var(--red);font-weight:700;}
+.fig .tagrow{display:flex;flex-wrap:wrap;gap:5px;margin:7px 2px 8px;}
+.fig .tg{
+  font-family:"Kalam";font-size:.72rem;color:var(--ink-soft);
+  background:rgba(159,188,214,.28);
+  padding:1px 7px;border-radius:20px;
+}
+.fig .golink{
+  font-family:"Courier Prime";font-weight:700;font-size:.78rem;
+  color:var(--pen-blue);display:inline-flex;align-items:center;gap:5px;
+  border-bottom:1.5px solid rgba(39,75,134,.4);padding-bottom:1px;
+}
+.fig .golink:hover{border-color:var(--pen-blue);}
+/* paperclip */
+.clip{
+  position:absolute;top:-13px;right:22px;width:22px;height:52px;z-index:4;
+}
+.clip svg{width:100%;height:100%;}
+/* tape on figure */
+.fig .tape{width:80px;height:24px;top:-12px;left:50%;margin-left:-40px;transform:rotate(-2deg);}
+
+/* ============================================================
+   RESEARCH — the proud page
+   ============================================================ */
+.research{
+  position:relative;
+}
+.research-card{
+  position:relative;
+  background:
+    linear-gradient(180deg, rgba(255,253,246,.96),rgba(252,245,230,.96));
+  border:2px solid var(--red);
+  border-radius:4px;
+  padding:36px 34px 30px;
+  max-width:640px;
+  box-shadow:10px 16px 34px -18px rgba(120,50,30,.55);
+  transform:rotate(-.8deg);
+  transition:transform .45s cubic-bezier(.16,1,.3,1);
+}
+.research-card:hover{transform:rotate(0deg);}
+.research-card::before{ /* double-ruled excited border */
+  content:"";position:absolute;inset:5px;border:1px dashed rgba(192,54,42,.5);border-radius:3px;pointer-events:none;
+}
+.star{
+  font-family:"Courier Prime";color:var(--red);font-weight:700;font-size:1.1rem;
+}
+.research-card h3{
+  font-family:"Courier Prime";font-weight:700;font-size:clamp(1.6rem,5vw,2.4rem);
+  letter-spacing:-.03em;margin:.1em 0;position:relative;display:inline-block;
+}
+.research-card h3 .u{ /* hand underline under RECAP */
+  position:absolute;left:-4px;right:-6px;bottom:-6px;height:12px;
+}
+.research-card h3 .u path{fill:none;stroke:var(--red);stroke-width:3;stroke-linecap:round;
+  stroke-dasharray:340;stroke-dashoffset:340;}
+.research-card h3 .u path.draw{animation:draw 1s ease-out .3s forwards;}
+.research-card .desc{color:var(--ink-soft);font-size:.95rem;max-width:52ch;margin:.6em 0 1em;}
+.pub-badge{
+  font-family:"Kalam";font-weight:700;color:#fff;background:var(--red);
+  padding:3px 12px;border-radius:2px;font-size:.9rem;
+  display:inline-block;transform:rotate(-2deg);
+  box-shadow:2px 3px 0 rgba(120,40,30,.35);
+}
+.research-card .arrow-note{
+  position:absolute;right:-8px;top:-30px;
+  font-family:"Caveat";font-size:1.7rem;color:var(--red);
+  transform:rotate(6deg);text-align:center;
+}
+.research-card .cta{
+  margin-top:16px;font-family:"Courier Prime";font-weight:700;font-size:.85rem;
+  color:var(--pen-blue);display:inline-flex;gap:6px;align-items:center;
+  border-bottom:1.5px solid rgba(39,75,134,.4);padding-bottom:2px;
+}
+/* hand-drawn circle around research */
+.circle-svg{position:absolute;inset:-30px -20px -30px -20px;pointer-events:none;z-index:5;overflow:visible;}
+.circle-svg path{fill:none;stroke:var(--pen-blue);stroke-width:2.6;stroke-linecap:round;
+  stroke-dasharray:1600;stroke-dashoffset:1600;opacity:.75;}
+.circle-svg path.draw{animation:draw 1.6s ease-out .2s forwards;}
+.excited{
+  font-family:"Caveat";font-size:1.5rem;color:var(--pen-blue);
+  transform:rotate(-3deg);display:inline-block;margin-top:18px;
+}
+
+/* ============================================================
+   CONNECT / CONTACT — business card + contact page
+   ============================================================ */
+.connect-grid{
+  display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start;margin-top:34px;
+}
+@media (max-width:720px){.connect-grid{grid-template-columns:1fr;}}
+
+.bizcard{
+  position:relative;
+  background:linear-gradient(160deg,#fffdf7,#f3ead4);
+  border-radius:3px;
+  padding:26px 26px 22px 30px;
+  box-shadow:8px 14px 30px -14px rgba(60,45,20,.55);
+  transform:rotate(-1.6deg);
+  transition:transform .45s cubic-bezier(.16,1,.3,1);
+}
+/* the card's own faint red margin rule (thin line, like the page) */
+.bizcard::after{
+  content:"";position:absolute;top:8px;bottom:8px;left:18px;width:1.5px;
+  background:var(--red);opacity:.4;
+}
+.bizcard:hover{transform:rotate(0deg);}
+.bizcard .bc-name{font-family:"Courier Prime";font-weight:700;font-size:1.4rem;letter-spacing:-.02em;margin:0;}
+.bizcard .bc-role{font-family:"Caveat";font-size:1.35rem;color:var(--pen-blue);line-height:1;margin:0 0 12px;}
+.bizcard .bc-line{
+  display:flex;align-items:center;gap:9px;font-size:.86rem;color:var(--ink-soft);margin:5px 0;word-break:break-word;
+}
+.bizcard .bc-line svg{width:15px;height:15px;flex:0 0 auto;stroke:var(--pen-blue);}
+.bizcard .bc-line a{border-bottom:1px solid rgba(39,75,134,.35);}
+.bizcard .bc-line a:hover{border-color:var(--pen-blue);}
+
+/* email + resume callout (handwritten note area) */
+.contact-note{position:relative;padding-top:10px;}
+.contact-note .big-hand{
+  font-family:"Caveat";font-size:clamp(1.7rem,5vw,2.4rem);color:var(--ink);line-height:1.15;
+}
+.contact-note .big-hand a{color:var(--pen-blue);}
+.mailbtn{
+  font-family:"Courier Prime";font-weight:700;font-size:.95rem;
+  color:var(--paper);background:var(--ink);
+  padding:12px 20px;border-radius:3px;display:inline-flex;gap:9px;align-items:center;
+  margin-top:16px;box-shadow:5px 7px 0 rgba(44,42,37,.22);
+  transition:transform .25s ease, box-shadow .25s ease;
+  transform:rotate(-1deg);
+}
+.mailbtn:hover{transform:rotate(0) translate(-1px,-1px);box-shadow:6px 9px 0 rgba(44,42,37,.28);color:var(--hi-yellow);}
+.resumebtn{
+  font-family:"Kalam";font-weight:700;font-size:.92rem;color:var(--red);
+  display:inline-flex;gap:8px;align-items:center;margin-top:16px;margin-left:16px;
+  border:1.8px solid var(--red);border-radius:3px;padding:9px 16px;transform:rotate(1deg);
+  transition:transform .25s ease,background .25s ease;
+}
+.resumebtn:hover{transform:rotate(0);background:rgba(192,54,42,.08);}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.foot{
+  padding:50px 0 60px;
+  border-top:2.5px solid var(--ink);
+  margin-top:20px;
+  display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;
+}
+.foot .sig-small{font-family:"Caveat";font-size:1.6rem;color:var(--pen-blue);}
+.foot .cpr{font-family:"Courier Prime";font-size:.82rem;color:var(--ink-soft);}
+.foot .stamp-final{
+  font-family:"Courier Prime";font-weight:700;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--red);border:2px solid var(--red);border-radius:4px;padding:6px 12px;transform:rotate(-4deg);opacity:.8;
+}
+
+/* write-on utility */
+@keyframes draw{to{stroke-dashoffset:0;}}
+.ink-draw{stroke-dasharray:var(--len,600);stroke-dashoffset:var(--len,600);}
+.ink-draw.draw{animation:draw 1.3s ease-out forwards;}
+@media (prefers-reduced-motion:reduce){
+  .sig-path,.ink-draw,.circle-svg path,.research-card h3 .u path{stroke-dashoffset:0!important;animation:none!important;}
+}
+
+/* reveal-on-scroll (gentle) */
+.rise{opacity:0;transform:translateY(18px) rotate(var(--seed,0deg));transition:opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1);}
+.rise.in{opacity:1;transform:translateY(0) rotate(var(--seed,0deg));}
+@media (prefers-reduced-motion:reduce){.rise{opacity:1!important;transform:none!important;}}
+
+/* small screens */
+@media (max-width:640px){
+  .content{padding:0 20px 0 58px;}
+  .rail{width:52px;}
+  .rail::before{left:44px;}
+  .rail::after{left:14px;}
+  .log{grid-template-columns:1fr;gap:6px;}
+  .log .when{transform:none;}
+  .cover-meta{gap:26px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ======================= STICKY TAB NAV ======================= -->
+<nav class="tabs" aria-label="Notebook sections">
+  <a class="tab" href="#cover">Cover</a>
+  <a class="tab" href="#experience">Log</a>
+  <a class="tab" href="#projects">Figures</a>
+  <a class="tab" href="#research">★ Paper</a>
+  <a class="tab" href="#connect">Contact</a>
+</nav>
+
+<main class="page">
+  <div class="rail" aria-hidden="true"></div>
+  <div class="content">
+
+    <!-- ======================= COVER ======================= -->
+    <section id="cover" class="cover">
+      <span class="property" style="--seed:-1.2deg">PROPERTY OF <b>RISHIT CHUGH</b> — if found, please return</span>
+
+      <div style="position:relative;margin-top:8px;">
+        <div class="coffee" style="top:-30px;right:40px;transform:rotate(12deg);"></div>
+        <span class="hand" style="position:absolute;right:0;top:-8px;" role="presentation">
+          <span class="mnote rednote" style="transform:rotate(4deg);display:inline-block;">Notebook&nbsp;№ 07</span>
+        </span>
+        <h1 class="cover-title">Field<br>Notes.</h1>
+        <span class="cover-sub">the lab notebook of an ML engineer</span>
+        <span class="sig-wrap" aria-hidden="true">
+          <svg viewBox="0 0 520 52" preserveAspectRatio="none">
+            <path class="sig-path" d="M6,34 C60,10 96,10 120,26 C140,40 118,48 132,44 C168,34 210,12 262,18 C300,22 288,40 306,36 C356,26 402,14 460,24 C486,28 502,30 514,22"/>
+          </svg>
+        </span>
+      </div>
+
+      <div class="cover-meta">
+        <div class="indexcard" style="--seed:1.4deg">
+          <span class="tape tl" aria-hidden="true"></span>
+          <span class="tape tr" aria-hidden="true"></span>
+          <p class="role">RE: who's writing this?</p>
+          <p class="role-hand">Rishit Chugh — ML Engineer</p>
+          <p class="tagline">Real-time sports analytics &amp; LLM research.<br>I make models that ship.</p>
+        </div>
+
+        <div style="max-width:300px;padding-top:6px;">
+          <p class="mnote" style="margin:0;">started keeping notes<br>because good ideas<br><span class="rednote">don't survive memory.</span></p>
+          <p class="kalam" style="color:var(--ink-faint);font-size:.85rem;margin-top:14px;">// est. 2026 · India → the internet</p>
+        </div>
+      </div>
+
+      <div class="scrollcue">
+        <svg viewBox="0 0 20 34" aria-hidden="true"><path class="arrow" d="M10 2 V30 M4 23 L10 30 L16 23"/></svg>
+        turn the page →
+      </div>
+    </section>
+
+    <!-- ======================= EXPERIENCE ======================= -->
+    <section id="experience">
+      <span class="eyebrow-date rise">§ dated log entries</span>
+      <h2 class="sec-title rise"><span class="no">01.</span>Where the hours went</h2>
+      <p class="lede rise">Field observations from the roles that taught me things. Recorded as they happened.</p>
+
+      <div style="position:relative;margin-top:30px;">
+        <div class="coffee" style="top:120px;left:-10px;transform:rotate(-8deg);width:150px;height:150px;"></div>
+
+        <article class="log rise">
+          <div class="when">2025 —</div>
+          <div>
+            <h3>Data Scientist · <span class="co">Liat.ai</span></h3>
+            <p>Building real-time sports analytical systems — for the sheer enjoyment of watching a model narrate a game as it unfolds. <span class="side">real-time!!</span></p>
+            <div class="stamps" aria-label="stack">
+              <span class="stamp">PyTorch</span><span class="stamp">ONNX</span><span class="stamp">TensorRT</span>
+              <span class="stamp">ElevenLabs</span><span class="stamp">Docker</span><span class="stamp">Redis</span><span class="stamp">Modelling</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="log rise">
+          <div class="when">2024 —</div>
+          <div>
+            <h3>LLM Intern · <span class="co">DMI Finance Pvt Ltd</span></h3>
+            <p>Built LLM guardrails for toxicity, jailbreak detection &amp; PII masking — <b>30% better than Meta's Llama Guard.</b> Shipped VLLM for 5× faster inference; built RAG + hallucination testing hitting 80% success against ChatGPT &amp; Gemini. <span class="side">30% &gt; Llama Guard 🙂</span></p>
+            <div class="stamps" aria-label="stack">
+              <span class="stamp">AWS</span><span class="stamp">VLLM</span><span class="stamp">PyTorch</span><span class="stamp">Transformers</span><span class="stamp">PEFT</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="log rise">
+          <div class="when">2024 —</div>
+          <div>
+            <h3>AI/ML Intern · <span class="co">Lilac Mosaic</span></h3>
+            <p>FAQ + RAG chatbot on Transformers &amp; Dialogflow — <b>90% fewer support inquiries.</b> Added image-similarity &amp; recommendation systems with OpenCV, deployed on Firebase &amp; Google Cloud. <span class="side">first real ship ✎</span></p>
+            <div class="stamps" aria-label="stack">
+              <span class="stamp">OpenCV</span><span class="stamp">Google Cloud</span><span class="stamp">Firebase</span><span class="stamp">Transformers</span>
+            </div>
+          </div>
+        </article>
+        <p class="pageno" style="margin-top:20px;text-align:right;">— 12 —</p>
+      </div>
+    </section>
+
+    <!-- ======================= PROJECTS ======================= -->
+    <section id="projects">
+      <span class="eyebrow-date rise" style="transform:rotate(1.5deg)">§ taped-in figures</span>
+      <h2 class="sec-title rise"><span class="no">02.</span>Things I built &amp; pinned in</h2>
+      <p class="lede rise">Prints and index cards stuck to the page. Handle gently — some are still wet.</p>
+
+      <div class="figs">
+
+        <!-- RECAP -->
+        <article class="fig rise" style="--seed:-2deg">
+          <span class="clip" aria-hidden="true">
+            <svg viewBox="0 0 22 52"><path d="M11 50 V12 a5 5 0 0 1 10 0 V44 a9 9 0 0 1 -18 0 V10 a7 7 0 0 1 14 0 V46" fill="none" stroke="#8a8577" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </span>
+          <div class="plate">
+            <!-- sketchy attack-retrieval diagram -->
+            <svg viewBox="0 0 220 140" role="img" aria-label="Sketch: semantic retrieval of attack patterns">
+              <g fill="none" stroke="#274b86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="14" y="52" width="52" height="34" rx="3" transform="rotate(-1 40 69)"/>
+                <text x="40" y="73" font-family="Kalam" font-size="12" fill="#274b86" text-anchor="middle" stroke="none">prompt</text>
+                <path d="M68 69 C90 64 96 74 112 70" stroke="#c0362a"/>
+                <path d="M104 66 L112 70 L104 74" stroke="#c0362a"/>
+                <ellipse cx="150" cy="45" rx="30" ry="20"/>
+                <text x="150" y="42" font-family="Kalam" font-size="10" fill="#274b86" text-anchor="middle" stroke="none">attack</text>
+                <text x="150" y="53" font-family="Kalam" font-size="10" fill="#274b86" text-anchor="middle" stroke="none">DB</text>
+                <circle cx="140" cy="40" r="2.4" fill="#c0362a" stroke="none"/>
+                <circle cx="158" cy="48" r="2.4" fill="#c0362a" stroke="none"/>
+                <circle cx="150" cy="36" r="2.4" fill="#c0362a" stroke="none"/>
+                <path d="M132 60 C144 78 150 92 148 108" />
+                <path d="M142 100 L148 108 L154 100"/>
+                <rect x="118" y="108" width="64" height="22" rx="3" transform="rotate(1 150 119)"/>
+                <text x="150" y="122" font-family="Kalam" font-size="11" fill="#c0362a" text-anchor="middle" stroke="none">✓ jailbreak</text>
+              </g>
+            </svg>
+          </div>
+          <p class="cap"><span class="lbl">Fig 1 —</span> RECAP: retrieving attacks that already worked.</p>
+          <div class="tagrow"><span class="tg">LLM Red-teaming</span><span class="tg">NLP</span><span class="tg">Transformers</span></div>
+          <a class="golink" href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener">read paper →</a>
+        </article>
+
+        <!-- CVAR -->
+        <article class="fig rise" style="--seed:1.8deg">
+          <span class="tape" aria-hidden="true"></span>
+          <div class="plate">
+            <!-- sketchy football pitch tracking -->
+            <svg viewBox="0 0 220 140" role="img" aria-label="Sketch: football pitch with player and ball tracking">
+              <g fill="none" stroke="#3f7a4a" stroke-width="1.8" stroke-linecap="round">
+                <rect x="10" y="14" width="200" height="112" rx="3"/>
+                <line x1="110" y1="14" x2="110" y2="126"/>
+                <circle cx="110" cy="70" r="18"/>
+                <rect x="10" y="44" width="26" height="52"/>
+                <rect x="184" y="44" width="26" height="52"/>
+              </g>
+              <g stroke-linecap="round">
+                <!-- tracked players -->
+                <circle cx="60" cy="52" r="6" fill="#274b86"/>
+                <circle cx="86" cy="96" r="6" fill="#274b86"/>
+                <circle cx="150" cy="46" r="6" fill="#c0362a"/>
+                <circle cx="168" cy="92" r="6" fill="#c0362a"/>
+                <!-- ball + dashed speed path -->
+                <path d="M60 52 C96 60 120 72 150 46" fill="none" stroke="#2c2a25" stroke-width="1.6" stroke-dasharray="4 5"/>
+                <circle cx="118" cy="66" r="4.2" fill="#f4e26a" stroke="#2c2a25" stroke-width="1.4"/>
+                <!-- bounding boxes hand-drawn -->
+                <rect x="52" y="42" width="18" height="22" fill="none" stroke="#274b86" stroke-width="1.4"/>
+                <rect x="142" y="36" width="18" height="22" fill="none" stroke="#c0362a" stroke-width="1.4"/>
+              </g>
+              <text x="118" y="122" font-family="Kalam" font-size="10" fill="#2c2a25" text-anchor="middle">possession 62%</text>
+            </svg>
+          </div>
+          <p class="cap"><span class="lbl">Fig 2 —</span> CVAR: YOLO watching every player &amp; the ball.</p>
+          <div class="tagrow"><span class="tg">YOLO</span><span class="tg">OpenCV</span><span class="tg">NumPy</span><span class="tg">SuperVision</span></div>
+          <a class="golink" href="https://github.com/R-C101/CVAR" target="_blank" rel="noopener">view repo →</a>
+        </article>
+
+        <!-- OKULARY -->
+        <article class="fig rise" style="--seed:-1.2deg">
+          <span class="clip" aria-hidden="true">
+            <svg viewBox="0 0 22 52"><path d="M11 50 V12 a5 5 0 0 1 10 0 V44 a9 9 0 0 1 -18 0 V10 a7 7 0 0 1 14 0 V46" fill="none" stroke="#8a8577" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </span>
+          <div class="plate">
+            <!-- sketchy classroom automation -->
+            <svg viewBox="0 0 220 140" role="img" aria-label="Sketch: classroom automation - attendance, grading, plagiarism">
+              <g fill="none" stroke="#274b86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <!-- face / attendance -->
+                <circle cx="46" cy="46" r="18"/>
+                <rect x="30" y="30" width="32" height="32" stroke="#c0362a" stroke-width="1.4"/>
+                <text x="46" y="82" font-family="Kalam" font-size="10" fill="#274b86" text-anchor="middle" stroke="none">attendance</text>
+                <!-- grading paper -->
+                <rect x="96" y="26" width="40" height="50" rx="2"/>
+                <line x1="104" y1="40" x2="128" y2="40"/><line x1="104" y1="50" x2="128" y2="50"/><line x1="104" y1="60" x2="120" y2="60"/>
+                <path d="M120 44 L126 52 L138 34" stroke="#c0362a" stroke-width="2.4"/>
+                <text x="116" y="94" font-family="Kalam" font-size="10" fill="#274b86" text-anchor="middle" stroke="none">grading</text>
+                <!-- plagiarism match -->
+                <rect x="164" y="26" width="20" height="26" rx="2"/>
+                <rect x="182" y="34" width="20" height="26" rx="2"/>
+                <path d="M174 60 C180 70 186 70 192 62" stroke="#c0362a"/>
+                <text x="184" y="94" font-family="Kalam" font-size="10" fill="#c0362a" text-anchor="middle" stroke="none">plagiarism</text>
+                <path d="M20 112 C80 104 150 118 200 106" stroke="#2c2a25" stroke-dasharray="3 5" stroke-width="1.4"/>
+              </g>
+            </svg>
+          </div>
+          <p class="cap"><span class="lbl">Fig 3 —</span> OKULARY: giving teachers their hours back.</p>
+          <div class="tagrow"><span class="tg">NLP</span><span class="tg">OpenCV</span><span class="tg">Transformers</span></div>
+          <a class="golink" href="https://github.com/SEAR-Innovate/OKULARY" target="_blank" rel="noopener">view repo →</a>
+        </article>
+      </div>
+      <p class="pageno" style="margin-top:26px;text-align:right;">— 13 —</p>
+    </section>
+
+    <!-- ======================= RESEARCH ======================= -->
+    <section id="research" class="research">
+      <span class="eyebrow-date rise" style="transform:rotate(-1.5deg)">§ the entry I keep flipping back to</span>
+      <h2 class="sec-title rise"><span class="no">03.</span>Research — it got published.</h2>
+
+      <div style="position:relative;margin-top:34px;display:inline-block;max-width:100%;">
+        <svg class="circle-svg" viewBox="0 0 700 340" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M40,60 C200,18 520,20 660,54 C690,62 686,150 674,240 C664,312 500,326 340,324 C180,322 30,318 26,236 C22,150 18,96 40,60"/>
+        </svg>
+        <span class="mnote rednote" style="position:absolute;left:-2px;top:-30px;transform:rotate(-4deg);">finally!!! ★</span>
+
+        <div class="research-card">
+          <span class="arrow-note">↖ this one<br>matters</span>
+          <div class="star">★ ★ ★</div>
+          <h3>RECAP
+            <svg class="u" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M4,7 C50,2 150,2 196,6"/></svg>
+          </h3>
+          <p class="desc">A novel approach to adversarial attacks on LLMs: use semantic similarity search to retrieve <b>proven-successful</b> attack patterns from a curated database, instead of generating from scratch.</p>
+          <p><span class="highlight">Published on arXiv.</span> &nbsp;<span class="pub-badge">peer-shared ✓</span></p>
+          <a class="cta" href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener">open arXiv:2601.15331 →</a>
+          <div><span class="excited">"turns out old attacks generalize better than we thought."</span></div>
+        </div>
+      </div>
+      <p class="pageno" style="margin-top:24px;text-align:right;">— 14 —</p>
+    </section>
+
+    <!-- ======================= CONNECT / CONTACT ======================= -->
+    <section id="connect">
+      <span class="eyebrow-date rise" style="transform:rotate(1.2deg)">§ last page — say hello</span>
+      <h2 class="sec-title rise"><span class="no">04.</span>Contact card, taped in</h2>
+
+      <div class="connect-grid">
+        <div class="bizcard rise" style="--seed:-1.6deg">
+          <p class="bc-name">Rishit Chugh</p>
+          <p class="bc-role">ML Engineer</p>
+          <p class="bc-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            <a href="mailto:rishitchugh@gmail.com">rishitchugh@gmail.com</a>
+          </p>
+          <p class="bc-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4"/></svg>
+            <a href="https://www.linkedin.com/in/rishit-chugh/" target="_blank" rel="noopener">in/rishit-chugh</a>
+          </p>
+          <p class="bc-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 4l7 8M20 4l-7 8M4 20l7-8M20 20l-7-8" /></svg>
+            <a href="https://x.com/chughrishit" target="_blank" rel="noopener">@rishitchugh (X)</a>
+          </p>
+          <p class="bc-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M9 19c-4 1.5-4-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6 0C6.9 2.3 5.9 2.6 5.9 2.6a4.3 4.3 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.5 9c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+            <a href="https://github.com/R-C101" target="_blank" rel="noopener">@R-C101</a>
+          </p>
+          <span class="tape" style="width:70px;top:-10px;right:20px;transform:rotate(6deg);" aria-hidden="true"></span>
+        </div>
+
+        <div class="contact-note rise">
+          <p class="big-hand">Got a model that should ship — or an attack that shouldn't work but does? <a href="mailto:rishitchugh@gmail.com">Write to me.</a></p>
+          <div>
+            <a class="mailbtn" href="mailto:rishitchugh@gmail.com">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+              email me
+            </a>
+            <a class="resumebtn" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener">
+              ✎ full résumé
+            </a>
+          </div>
+          <p class="mnote" style="margin-top:26px;">replies faster than<br><span class="rednote">gradient descent converges.</span></p>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="foot">
+        <div>
+          <span class="sig-small">Rishit Chugh</span>
+          <p class="cpr">© 2026 Rishit Chugh — end of notebook. Turn over for the next volume.</p>
+        </div>
+        <span class="stamp-final">Filed · 2026</span>
+      </footer>
+      <p class="pageno" style="margin-top:10px;text-align:right;">— 15 —</p>
+    </section>
+
+  </div>
+</main>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- signature underline draws on load ---- */
+  window.addEventListener('load', function(){
+    var sig = document.querySelector('.sig-path');
+    if(sig && !reduce) sig.classList.add('draw');
+    else if(sig) sig.style.strokeDashoffset = '0';
+  });
+
+  /* ---- write-on + rise reveals via IntersectionObserver ---- */
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('in');
+          // trigger any hand-drawn strokes inside
+          e.target.querySelectorAll('.circle-svg path, .research-card h3 .u path').forEach(function(p){ p.classList.add('draw'); });
+          io.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.18, rootMargin:'0px 0px -8% 0px'});
+
+    document.querySelectorAll('.rise').forEach(function(el){ io.observe(el); });
+
+    // observe the research block for the circle draw
+    var research = document.querySelector('#research .research');
+    var circle = document.querySelector('.circle-svg');
+    if(circle){
+      var io2 = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting && !reduce){
+            e.target.querySelectorAll('path').forEach(function(p){ p.classList.add('draw'); });
+            io2.unobserve(e.target);
+          }
+        });
+      }, {threshold:0.3});
+      io2.observe(circle);
+      var uPath = document.querySelector('.research-card h3 .u path');
+      if(uPath){ io2.observe(document.querySelector('.research-card')); }
+    }
+  } else {
+    document.querySelectorAll('.rise').forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* ---- active sticky tab tracking ---- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var secs = tabs.map(function(t){ return document.querySelector(t.getAttribute('href')); });
+  if('IntersectionObserver' in window){
+    var navIo = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var i = secs.indexOf(e.target);
+          tabs.forEach(function(t){ t.classList.remove('active'); });
+          if(i>-1) tabs[i].classList.add('active');
+        }
+      });
+    }, {threshold:0.4, rootMargin:'-20% 0px -40% 0px'});
+    secs.forEach(function(s){ if(s) navIo.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

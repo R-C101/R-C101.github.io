@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rishit Chugh — DWG.01 / ML Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&family=Overpass+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#123a66;
+    --ground-deep:#0e2f54;
+    --ink:#eaf3ff;          /* primary line/text white-cyan */
+    --ink-2:#a9c9ef;        /* secondary drafting text */
+    --ink-3:#6f9bcf;        /* faint construction lines */
+    --cyan:#8fd0ff;         /* bright cyan linework */
+    --accent:#ff7a45;       /* drafting red-amber: revisions/callouts */
+    --accent-soft:#ffb27f;
+    --grid-fine:rgba(200,225,255,.055);
+    --grid-mid:rgba(200,225,255,.10);
+    --frame:rgba(214,232,255,.55);
+    --hair:rgba(214,232,255,.28);
+    --sans:'Overpass',sans-serif;
+    --mono:'Overpass Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background-color:var(--ground);
+    background-image:
+      radial-gradient(120% 90% at 50% -10%, rgba(120,180,255,.14), transparent 60%),
+      linear-gradient(rgba(200,225,255,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,225,255,.05) 1px, transparent 1px),
+      linear-gradient(var(--grid-mid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-mid) 1px, transparent 1px);
+    background-size:100% 100%, 22px 22px, 22px 22px, 110px 110px, 110px 110px;
+    background-position:0 0, 0 0, 0 0, 0 0, 0 0;
+    color:var(--ink);
+    font-family:var(--sans);
+    font-weight:400;
+    line-height:1.5;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* faint vignette for cyanotype depth */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(130% 100% at 50% 40%, transparent 55%, rgba(6,22,44,.55) 100%);
+  }
+  a{color:inherit}
+  ::selection{background:var(--accent);color:#221007}
+
+  /* ---------- SHEET BORDER (fixed drawing frame) ---------- */
+  .sheet-frame{position:fixed;inset:12px;z-index:40;pointer-events:none}
+  .sheet-frame .outer{position:absolute;inset:0;border:1.5px solid var(--frame)}
+  .sheet-frame .inner{position:absolute;inset:9px;border:1px solid var(--hair)}
+  .sheet-frame .corner{position:absolute;width:16px;height:16px;border:1.5px solid var(--frame)}
+  .sheet-frame .corner.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}
+  .sheet-frame .corner.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}
+  .sheet-frame .corner.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}
+  .sheet-frame .corner.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+  .zone{position:absolute;font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--ink-3)}
+  .zone.top{top:1px;transform:translateX(-50%)}
+  .zone.bottom{bottom:1px;transform:translateX(-50%)}
+  .zone.left{left:2px;transform:translateY(-50%)}
+  .zone.right{right:2px;transform:translateY(-50%)}
+  @media(max-width:720px){.sheet-frame{inset:6px}.zone{display:none}}
+
+  /* ---------- COORDINATE READOUT (mouse crosshair) ---------- */
+  #readout{
+    position:fixed;left:16px;bottom:16px;z-index:60;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+    color:var(--ink-2);background:rgba(14,47,84,.72);
+    border:1px solid var(--hair);padding:6px 9px;
+    line-height:1.35;pointer-events:none;
+    backdrop-filter:blur(1px);
+  }
+  #readout b{color:var(--cyan);font-weight:600}
+  #readout .lab{color:var(--ink-3)}
+  .xhair{position:fixed;z-index:39;pointer-events:none;background:rgba(143,208,255,.35)}
+  .xhair.v{top:0;bottom:0;width:1px}
+  .xhair.h{left:0;right:0;height:1px}
+  @media(max-width:720px){#readout,.xhair{display:none}}
+  @media(hover:none){.xhair{display:none}}
+
+  /* ---------- NAV / SHEET INDEX ---------- */
+  header.nav{
+    position:fixed;top:22px;left:50%;transform:translateX(-50%);
+    z-index:55;display:flex;align-items:stretch;
+    border:1px solid var(--hair);background:rgba(14,47,84,.82);
+    backdrop-filter:blur(2px);
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  }
+  header.nav .tag{
+    display:flex;align-items:center;gap:7px;padding:8px 12px;
+    border-right:1px solid var(--hair);color:var(--ink-2);white-space:nowrap;
+  }
+  header.nav .tag .no{color:var(--accent);font-weight:700}
+  header.nav nav{display:flex}
+  header.nav nav a{
+    display:flex;align-items:center;padding:8px 13px;text-decoration:none;
+    color:var(--ink-2);border-right:1px solid var(--hair);
+    transition:background .25s ease,color .25s ease;position:relative;
+  }
+  header.nav nav a:last-child{border-right:0}
+  header.nav nav a:hover,header.nav nav a:focus-visible{background:var(--accent);color:#221007;outline:none}
+  @media(max-width:820px){
+    header.nav .tag{display:none}
+    header.nav nav{overflow-x:auto;max-width:92vw}
+    header.nav nav a{padding:8px 10px;font-size:9.5px}
+  }
+
+  /* ---------- LAYOUT WRAP ---------- */
+  main{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:0 34px}
+  @media(max-width:720px){main{padding:0 20px}}
+  section{position:relative;padding:120px 0}
+  @media(max-width:720px){section{padding:78px 0}}
+
+  /* drafting section label */
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:46px;flex-wrap:wrap}
+  .sec-head .code{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--accent);
+    border:1px solid var(--accent);padding:3px 8px;flex:none;
+  }
+  .sec-head h2{
+    font-size:clamp(1.4rem,3vw,2.1rem);font-weight:800;letter-spacing:.02em;
+    text-transform:uppercase;margin:0;line-height:1;
+  }
+  .sec-head .rule{flex:1;min-width:40px;height:1px;background:var(--hair);position:relative;top:-3px}
+  .sec-head .rule::after{content:"";position:absolute;right:0;top:-3px;width:1px;height:7px;background:var(--hair)}
+  .sub{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
+
+  /* ---------- HERO SHEET ---------- */
+  .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:120px;padding-bottom:60px}
+  .hero .cutout{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+    text-transform:uppercase;margin-bottom:8px;
+    display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+  }
+  .hero .cutout .dot{width:5px;height:5px;background:var(--accent);border-radius:50%;box-shadow:0 0 0 3px rgba(255,122,69,.18)}
+
+  .titleblock-hero{position:relative}
+  .drawing-title{position:relative;padding:26px 0 12px}
+  .drawing-title h1{
+    font-size:clamp(3rem,12.5vw,9.5rem);font-weight:800;line-height:.86;
+    letter-spacing:-0.045em;margin:0;text-transform:uppercase;
+    color:var(--ink);
+  }
+  .drawing-title h1 .thin{font-weight:300;color:var(--cyan)}
+  .dim-wrap{position:relative;width:100%;max-width:820px}
+  .dim-svg{display:block;width:100%;height:auto;overflow:visible}
+  .leader-role{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--accent-soft);
+    text-transform:uppercase;
+  }
+  .hero-note{
+    margin-top:34px;max-width:560px;font-size:clamp(1rem,1.6vw,1.18rem);
+    color:var(--ink-2);line-height:1.55;font-weight:300;
+  }
+  .hero-note b{color:var(--ink);font-weight:600}
+  .hero-actions{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
+
+  /* drafting button */
+  .btn{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+    text-decoration:none;padding:12px 18px;border:1px solid var(--frame);color:var(--ink);
+    display:inline-flex;align-items:center;gap:10px;background:transparent;cursor:pointer;
+    position:relative;transition:background .25s ease,color .25s ease,border-color .25s ease;
+  }
+  .btn .k{color:var(--accent);font-weight:700}
+  .btn:hover,.btn:focus-visible{background:var(--ink);color:var(--ground-deep);border-color:var(--ink);outline:none}
+  .btn:hover .k,.btn:focus-visible .k{color:var(--accent)}
+  .btn.solid{background:var(--accent);border-color:var(--accent);color:#241005;font-weight:600}
+  .btn.solid:hover,.btn.solid:focus-visible{background:var(--accent-soft);border-color:var(--accent-soft)}
+
+  /* fixed title block bottom-right */
+  .titleblock{
+    position:fixed;right:24px;bottom:24px;z-index:45;width:300px;
+    border:1.5px solid var(--frame);background:rgba(13,44,80,.9);
+    backdrop-filter:blur(2px);font-family:var(--mono);
+    box-shadow:6px 8px 0 rgba(6,22,44,.35);
+  }
+  .titleblock .tb-top{display:flex;border-bottom:1px solid var(--hair)}
+  .titleblock .cell{padding:6px 9px;border-right:1px solid var(--hair)}
+  .titleblock .cell:last-child{border-right:0}
+  .titleblock .lab{font-size:8px;letter-spacing:.14em;color:var(--ink-3);display:block;margin-bottom:2px}
+  .titleblock .val{font-size:11px;letter-spacing:.03em;color:var(--ink);font-weight:600}
+  .titleblock .tb-title{padding:8px 9px;border-bottom:1px solid var(--hair)}
+  .titleblock .tb-title .val{font-size:12.5px;color:var(--cyan);letter-spacing:.06em}
+  .titleblock .tb-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+  .titleblock .tb-grid .cell{border-bottom:0}
+  .titleblock .tb-grid .cell{text-align:left}
+  .tb-flag{position:absolute;top:-9px;left:9px;background:var(--accent);color:#241005;
+    font-size:8px;letter-spacing:.16em;padding:2px 6px;font-weight:700}
+  @media(max-width:980px){.titleblock{display:none}}
+
+  /* ---------- REVISION TABLE (experience) ---------- */
+  .revtable{border:1px solid var(--hair);border-bottom:0}
+  .rev-row{display:grid;grid-template-columns:74px 96px 1fr 88px;border-bottom:1px solid var(--hair);
+    transition:background .3s ease}
+  .rev-row.head{background:rgba(143,208,255,.06)}
+  .rev-row.head > div{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ink-3);
+    text-transform:uppercase;padding:9px 12px}
+  .rev-row > div{padding:16px 12px;border-right:1px solid var(--hair)}
+  .rev-row > div:last-child{border-right:0}
+  .rev-row .cREV{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);line-height:1;display:flex;align-items:flex-start}
+  .rev-row .cDATE{font-family:var(--mono);font-size:13px;color:var(--cyan);letter-spacing:.04em}
+  .rev-row .cBY{font-family:var(--mono);font-size:12px;color:var(--ink-2);letter-spacing:.06em}
+  .rev-row .cDESC h3{margin:0 0 5px;font-size:1.12rem;font-weight:700;letter-spacing:.01em}
+  .rev-row .cDESC h3 span{color:var(--ink-3);font-weight:400;font-size:.86em}
+  .rev-row .cDESC p{margin:0 0 9px;color:var(--ink-2);font-size:.94rem;font-weight:300;max-width:66ch}
+  .rev-row:not(.head):hover{background:rgba(143,208,255,.05)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-2);
+    border:1px solid var(--hair);padding:2px 7px;text-transform:uppercase}
+  @media(max-width:720px){
+    .rev-row{grid-template-columns:52px 1fr}
+    .rev-row .cDATE{grid-column:2;font-size:12px;padding-top:16px;padding-bottom:0;border-right:0}
+    .rev-row .cDESC{grid-column:1 / -1;border-right:0;padding-top:8px}
+    .rev-row .cBY{display:none}
+    .rev-row.head .cDATE,.rev-row.head .cBY{display:none}
+    .rev-row .cREV{grid-row:1 / span 2}
+  }
+
+  /* ---------- PROJECTS (exploded schematics) ---------- */
+  .proj{border:1px solid var(--hair);margin-bottom:34px;position:relative;background:rgba(12,40,74,.35)}
+  .proj-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+    padding:16px 20px;border-bottom:1px solid var(--hair);flex-wrap:wrap}
+  .proj-top .pn{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--accent);margin-bottom:6px}
+  .proj-top h3{margin:0;font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:800;letter-spacing:.01em;text-transform:uppercase;line-height:.95}
+  .proj-top .meta{text-align:right;font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;line-height:1.7}
+  .proj-body{display:grid;grid-template-columns:1.35fr 1fr;gap:0}
+  .proj-diagram{padding:22px 20px;border-right:1px solid var(--hair)}
+  .proj-diagram svg{display:block;width:100%;height:auto;overflow:visible}
+  .proj-info{padding:22px 20px;display:flex;flex-direction:column}
+  .proj-info p{margin:0 0 16px;color:var(--ink-2);font-weight:300;font-size:.98rem;line-height:1.55}
+  .proj-info .chips{margin-bottom:20px}
+  .proj-info .spacer{flex:1}
+  @media(max-width:820px){
+    .proj-body{grid-template-columns:1fr}
+    .proj-diagram{border-right:0;border-bottom:1px solid var(--hair)}
+  }
+
+  /* schematic svg text helpers reused inline */
+  .node-box{fill:rgba(143,208,255,.05);stroke:var(--cyan);stroke-width:1.3}
+  .node-box.acc{stroke:var(--accent);fill:rgba(255,122,69,.06)}
+  .node-lbl{font-family:'Overpass Mono',monospace;font-size:11px;fill:var(--ink);letter-spacing:.03em;font-weight:600}
+  .node-sub{font-family:'Overpass Mono',monospace;font-size:8.5px;fill:var(--ink-3);letter-spacing:.05em}
+  .flow{stroke:var(--ink-2);stroke-width:1.2;fill:none}
+  .callout-line{stroke:var(--accent);stroke-width:1;fill:none}
+  .callout-txt{font-family:'Overpass Mono',monospace;font-size:9px;fill:var(--accent-soft);letter-spacing:.06em}
+
+  /* ---------- RESEARCH / SECTION A-A ---------- */
+  .section-aa{border:1.5px solid var(--frame);position:relative;background:
+      repeating-linear-gradient(135deg, rgba(143,208,255,.04) 0 2px, transparent 2px 9px),
+      rgba(12,40,74,.5)}
+  .aa-flag{position:absolute;top:-14px;left:24px;background:var(--ground);padding:0 12px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--accent);font-weight:700}
+  .aa-inner{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .aa-detail{padding:34px 30px;border-right:1px solid var(--hair)}
+  .aa-detail svg{width:100%;height:auto;display:block;overflow:visible}
+  .aa-text{padding:34px 30px}
+  .aa-text .pn{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--accent);margin-bottom:10px}
+  .aa-text h3{margin:0 0 6px;font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.02em;line-height:.9}
+  .aa-text .paper{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:.06em;margin-bottom:20px}
+  .aa-text p{color:var(--ink-2);font-weight:300;line-height:1.6;margin:0 0 22px}
+  .aa-text p b{color:var(--ink);font-weight:600}
+  .spec-list{border-top:1px solid var(--hair);margin:0 0 22px}
+  .spec-list div{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--hair);
+    font-family:var(--mono);font-size:11px;letter-spacing:.04em}
+  .spec-list .k{color:var(--ink-3)}
+  .spec-list .v{color:var(--ink);text-align:right}
+  @media(max-width:820px){
+    .aa-inner{grid-template-columns:1fr}
+    .aa-detail{border-right:0;border-bottom:1px solid var(--hair)}
+  }
+
+  /* ---------- CONNECT / MARGIN NOTES ---------- */
+  .notes{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--hair)}
+  .note{padding:26px 22px;border-right:1px solid var(--hair);position:relative;text-decoration:none;color:inherit;
+    display:block;transition:background .3s ease}
+  .note:last-child{border-right:0}
+  .note:hover,.note:focus-visible{background:rgba(143,208,255,.06);outline:none}
+  .note .nn{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ink-3);margin-bottom:20px;
+    display:flex;justify-content:space-between}
+  .note .nn b{color:var(--accent)}
+  .note .plat{font-size:1.35rem;font-weight:800;letter-spacing:.01em;margin-bottom:4px}
+  .note .handle{font-family:var(--mono);font-size:12px;color:var(--cyan);letter-spacing:.03em}
+  .note .arrow{position:absolute;bottom:18px;right:18px;font-family:var(--mono);color:var(--ink-3);transition:transform .3s ease,color .3s ease}
+  .note:hover .arrow{transform:translate(3px,-3px);color:var(--accent)}
+  @media(max-width:720px){.notes{grid-template-columns:1fr}.note{border-right:0;border-bottom:1px solid var(--hair)}.note:last-child{border-bottom:0}}
+
+  /* ---------- CONTACT ---------- */
+  .contact{border:1.5px solid var(--frame);padding:clamp(30px,6vw,64px) clamp(24px,5vw,54px);position:relative;
+    background:rgba(12,40,74,.4)}
+  .contact .stamp{position:absolute;top:20px;right:22px;font-family:var(--mono);font-size:10px;
+    color:var(--accent);border:1px solid var(--accent);padding:5px 9px;letter-spacing:.14em;
+    transform:rotate(-6deg)}
+  .contact .lab{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;margin-bottom:18px}
+  .contact h2{font-size:clamp(2rem,6vw,4rem);font-weight:800;letter-spacing:-.03em;margin:0 0 8px;line-height:.92;text-transform:uppercase}
+  .contact .mail{font-family:var(--mono);font-size:clamp(1rem,2.4vw,1.5rem);color:var(--cyan);text-decoration:none;
+    letter-spacing:.02em;border-bottom:1px solid var(--hair);padding-bottom:2px;transition:border-color .3s}
+  .contact .mail:hover{border-color:var(--cyan)}
+  .contact .row{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
+
+  /* ---------- FOOTER ---------- */
+  footer{border-top:1px solid var(--hair);margin-top:20px;padding:26px 0 46px;
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-3)}
+  footer b{color:var(--ink-2);font-weight:500}
+
+  /* ---------- DRAW-ON ANIMATION ---------- */
+  .draw{stroke-dasharray:1000;stroke-dashoffset:1000;transition:stroke-dashoffset 1.3s cubic-bezier(.16,1,.3,1)}
+  .in .draw{stroke-dashoffset:0}
+  .fade{opacity:0;transform:translateY(14px);transition:opacity .8s ease,transform .8s cubic-bezier(.16,1,.3,1)}
+  .in .fade{opacity:1;transform:none}
+  .fade.d1{transition-delay:.12s}.fade.d2{transition-delay:.24s}.fade.d3{transition-delay:.36s}.fade.d4{transition-delay:.48s}
+  .stag{opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s cubic-bezier(.16,1,.3,1)}
+  .in .stag{opacity:1;transform:none}
+
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .draw{stroke-dashoffset:0 !important;transition:none}
+    .fade,.stag{opacity:1 !important;transform:none !important;transition:none}
+    .xhair{display:none !important}
+  }
+</style>
+</head>
+<body>
+
+<!-- FIXED DRAWING FRAME -->
+<div class="sheet-frame" aria-hidden="true">
+  <div class="outer"></div>
+  <div class="inner"></div>
+  <span class="corner tl"></span><span class="corner tr"></span>
+  <span class="corner bl"></span><span class="corner br"></span>
+  <span class="zone top" style="left:25%">A</span>
+  <span class="zone top" style="left:50%">B</span>
+  <span class="zone top" style="left:75%">C</span>
+  <span class="zone bottom" style="left:25%">A</span>
+  <span class="zone bottom" style="left:50%">B</span>
+  <span class="zone bottom" style="left:75%">C</span>
+  <span class="zone left" style="top:33%">1</span>
+  <span class="zone left" style="top:66%">2</span>
+  <span class="zone right" style="top:33%">1</span>
+  <span class="zone right" style="top:66%">2</span>
+</div>
+
+<!-- CROSSHAIR + READOUT -->
+<div class="xhair v" id="xv" aria-hidden="true"></div>
+<div class="xhair h" id="xh" aria-hidden="true"></div>
+<div id="readout" aria-hidden="true">
+  <span class="lab">CURSOR</span> X<b id="rx">000.0</b> Y<b id="ry">000.0</b><br>
+  <span class="lab">SHEET</span> ISO&nbsp;A1 &nbsp;<span class="lab">UNITS</span> MM
+</div>
+
+<!-- FIXED TITLE BLOCK -->
+<aside class="titleblock" aria-label="Drawing title block">
+  <span class="tb-flag">TITLE BLOCK</span>
+  <div class="tb-top">
+    <div class="cell" style="flex:1"><span class="lab">DRAWN BY</span><span class="val">R. CHUGH</span></div>
+    <div class="cell" style="flex:1"><span class="lab">CHK'D</span><span class="val">RC</span></div>
+    <div class="cell"><span class="lab">REV</span><span class="val" style="color:var(--accent)">C</span></div>
+  </div>
+  <div class="tb-title"><span class="lab">TITLE</span><span class="val">ML ENGINEER — PORTFOLIO</span></div>
+  <div class="tb-grid">
+    <div class="cell"><span class="lab">SCALE</span><span class="val">1:1</span></div>
+    <div class="cell"><span class="lab">DATE</span><span class="val">2026</span></div>
+    <div class="cell"><span class="lab">SHEET</span><span class="val">01/01</span></div>
+    <div class="cell"><span class="lab">SIZE</span><span class="val">A1</span></div>
+  </div>
+</aside>
+
+<!-- NAV / SHEET INDEX -->
+<header class="nav">
+  <div class="tag"><span class="no">DWG</span> RC-2026-01</div>
+  <nav aria-label="Sheet index">
+    <a href="#experience">01 · SCHEDULE</a>
+    <a href="#projects">02 · ASSEMBLIES</a>
+    <a href="#research">03 · SECTION A-A</a>
+    <a href="#connect">04 · NOTES</a>
+    <a href="#contact">05 · CONTACT</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top">
+    <div class="cutout">
+      <span class="dot"></span> GENERAL ARRANGEMENT DRAWING
+      <span>·</span> PROJECTION: THIRD ANGLE
+      <span>·</span> TOL ±0.1
+    </div>
+
+    <div class="titleblock-hero">
+      <div class="drawing-title">
+        <div class="dim-wrap">
+          <!-- top dimension line drawing across the name -->
+          <svg class="dim-svg" viewBox="0 0 820 44" preserveAspectRatio="none" aria-hidden="true" style="height:44px">
+            <defs>
+              <marker id="arL" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 Z" fill="var(--cyan)"/></marker>
+              <marker id="arR" markerWidth="10" markerHeight="10" refX="2" refY="4" orient="auto"><path d="M2,0 L10,4 L2,8 Z" fill="var(--cyan)"/></marker>
+            </defs>
+            <!-- extension lines -->
+            <line class="draw" x1="4" y1="8" x2="4" y2="40" stroke="var(--ink-3)" stroke-width="1"/>
+            <line class="draw" x1="816" y1="8" x2="816" y2="40" stroke="var(--ink-3)" stroke-width="1"/>
+            <!-- dimension line with arrows -->
+            <line class="draw" x1="6" y1="24" x2="814" y2="24" stroke="var(--cyan)" stroke-width="1.2" marker-start="url(#arL)" marker-end="url(#arR)"/>
+            <rect x="372" y="14" width="76" height="20" fill="var(--ground)"/>
+            <text x="410" y="28" text-anchor="middle" font-family="Overpass Mono" font-size="13" fill="var(--cyan)" letter-spacing="1">1180.0</text>
+          </svg>
+        </div>
+
+        <h1>Rishit<br><span class="thin">Chugh</span></h1>
+
+        <!-- leader annotating ML ENGINEER + bottom dim -->
+        <div class="dim-wrap" style="margin-top:10px">
+          <svg class="dim-svg" viewBox="0 0 820 70" aria-hidden="true" style="height:70px">
+            <!-- leader line to role -->
+            <path class="draw" d="M40,4 L40,30 L120,30" stroke="var(--accent)" stroke-width="1.1" fill="none"/>
+            <circle cx="40" cy="4" r="3" fill="var(--accent)"/>
+            <text x="128" y="34" font-family="Overpass Mono" font-size="13" fill="var(--accent-soft)" letter-spacing="1.5">DES: ML ENGINEER</text>
+            <!-- coordinate datum -->
+            <path class="draw" d="M560,8 L560,46 M540,28 L700,28" stroke="var(--ink-3)" stroke-width="1"/>
+            <circle cx="560" cy="28" r="4" fill="none" stroke="var(--ink-3)"/>
+            <text x="600" y="24" font-family="Overpass Mono" font-size="10" fill="var(--ink-3)" letter-spacing="1">DATUM 0,0</text>
+          </svg>
+        </div>
+      </div>
+
+      <p class="hero-note fade d1">
+        <b>Building intelligent systems.</b> Real-time sports analytics and LLM red-teaming research —
+        drawn, dimensioned, and shipped. Every model here is an engineered assembly with tolerances I can defend.
+      </p>
+
+      <div class="hero-actions fade d2">
+        <a class="btn solid" href="#projects"><span class="k">▸</span> VIEW ASSEMBLIES</a>
+        <a class="btn" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener"><span class="k">⤓</span> PLOT RESUME.PDF</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXPERIENCE / REVISION TABLE ============ -->
+  <section id="experience">
+    <div class="sec-head fade">
+      <span class="code">SHT 01</span>
+      <h2>Revision Schedule</h2>
+      <span class="rule"></span>
+      <span class="sub">Career log · rev A→C</span>
+    </div>
+
+    <div class="revtable">
+      <div class="rev-row head">
+        <div>REV</div><div>DATE</div><div>DESCRIPTION</div><div>DRAWN BY</div>
+      </div>
+
+      <div class="rev-row stag">
+        <div class="cREV">C</div>
+        <div class="cDATE">2025</div>
+        <div class="cDESC">
+          <h3>Data Scientist <span>— Liat.ai</span></h3>
+          <p>Creating real-time sports analytical systems for enjoyment — low-latency inference pipelines pushed to the edge and voiced back to the fan.</p>
+          <div class="chips">
+            <span class="chip">PyTorch</span><span class="chip">ONNX</span><span class="chip">TensorRT</span>
+            <span class="chip">ElevenLabs</span><span class="chip">Docker</span><span class="chip">Redis</span><span class="chip">Modelling</span>
+          </div>
+        </div>
+        <div class="cBY">RC</div>
+      </div>
+
+      <div class="rev-row stag">
+        <div class="cREV">B</div>
+        <div class="cDATE">2024</div>
+        <div class="cDESC">
+          <h3>LLM Intern <span>— DMI Finance Pvt Ltd</span></h3>
+          <p>Developed LLM guardrailing models for toxicity, jailbreak detection and PII masking — 30% better than Meta's Llama Guard. Implemented VLLM for 5× faster inference. Built RAG and hallucination testing achieving 80% success against ChatGPT and Gemini.</p>
+          <div class="chips">
+            <span class="chip">AWS</span><span class="chip">VLLM</span><span class="chip">PyTorch</span>
+            <span class="chip">Transformers</span><span class="chip">PEFT</span>
+          </div>
+        </div>
+        <div class="cBY">RC</div>
+      </div>
+
+      <div class="rev-row stag">
+        <div class="cREV">A</div>
+        <div class="cDATE">2024</div>
+        <div class="cDESC">
+          <h3>AI/ML Intern <span>— Lilac Mosaic</span></h3>
+          <p>Built a FAQ and RAG chatbot using Transformers and Dialogflow — 90% reduction in support inquiries. Implemented image similarity and recommendation systems with OpenCV. Deployed on Firebase and Google Cloud.</p>
+          <div class="chips">
+            <span class="chip">OpenCV</span><span class="chip">Google Cloud</span><span class="chip">Firebase</span><span class="chip">Transformers</span>
+          </div>
+        </div>
+        <div class="cBY">RC</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROJECTS / ASSEMBLIES ============ -->
+  <section id="projects">
+    <div class="sec-head fade">
+      <span class="code">SHT 02</span>
+      <h2>Exploded Assemblies</h2>
+      <span class="rule"></span>
+      <span class="sub">3 units · scaled schematic</span>
+    </div>
+
+    <!-- PROJECT 1 : RECAP pipeline -->
+    <article class="proj">
+      <div class="proj-top">
+        <div>
+          <div class="pn">PART No. ASM-01</div>
+          <h3>RECAP</h3>
+        </div>
+        <div class="meta">
+          MATL: LLM RED-TEAM<br>QTY: 1 &nbsp; SCALE 1:1<br>
+          <a href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">↗ arXiv:2601.15331</a>
+        </div>
+      </div>
+      <div class="proj-body stag">
+        <div class="proj-diagram">
+          <svg viewBox="0 0 520 210" aria-label="RECAP pipeline schematic">
+            <!-- flow lines first -->
+            <path class="flow draw" d="M96,44 L150,44" marker-end="url(#pa)"/>
+            <path class="flow draw" d="M246,44 L300,44" marker-end="url(#pa)"/>
+            <path class="flow draw" d="M375,68 L375,120" marker-end="url(#pa)"/>
+            <path class="flow draw" d="M300,140 L246,140" marker-end="url(#pa)"/>
+            <path class="flow draw" d="M150,140 L100,140 L100,70" marker-end="url(#pa)"/>
+            <defs><marker id="pa" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--ink-2)"/></marker></defs>
+            <!-- nodes -->
+            <g><rect class="node-box" x="18" y="26" width="78" height="36" rx="1"/><text class="node-lbl" x="57" y="42" text-anchor="middle">QUERY</text><text class="node-sub" x="57" y="54" text-anchor="middle">prompt in</text></g>
+            <g><rect class="node-box" x="150" y="22" width="96" height="44" rx="1"/><text class="node-lbl" x="198" y="40" text-anchor="middle">SIM SEARCH</text><text class="node-sub" x="198" y="54" text-anchor="middle">semantic k-NN</text></g>
+            <g><rect class="node-box acc" x="300" y="22" width="96" height="44" rx="1"/><text class="node-lbl" x="348" y="40" text-anchor="middle" fill="var(--accent-soft)">ATTACK DB</text><text class="node-sub" x="348" y="54" text-anchor="middle">proven patterns</text></g>
+            <g><rect class="node-box" x="300" y="120" width="96" height="44" rx="1"/><text class="node-lbl" x="348" y="138" text-anchor="middle">TARGET LLM</text><text class="node-sub" x="348" y="152" text-anchor="middle">under test</text></g>
+            <g><rect class="node-box" x="150" y="120" width="96" height="44" rx="1"/><text class="node-lbl" x="198" y="138" text-anchor="middle">RETRIEVE</text><text class="node-sub" x="198" y="152" text-anchor="middle">best attack</text></g>
+            <!-- callout -->
+            <path class="callout-line draw" d="M348,10 L348,22"/><circle cx="348" cy="9" r="2.5" fill="var(--accent)"/>
+            <text class="callout-txt" x="420" y="13">①</text>
+            <text class="callout-txt" x="360" y="192">RESULT: 80% JAILBREAK ON GPT/GEMINI</text>
+          </svg>
+        </div>
+        <div class="proj-info">
+          <p>A novel approach to adversarial attacks on LLMs — semantic similarity search retrieves proven-successful attack patterns from a curated database, then loops them against the target model.</p>
+          <div class="chips">
+            <span class="chip">LLM Red-teaming</span><span class="chip">NLP</span><span class="chip">Transformers</span>
+          </div>
+          <div class="spacer"></div>
+          <a class="btn" href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener"><span class="k">§</span> READ PAPER</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- PROJECT 2 : CVAR vision pipeline -->
+    <article class="proj">
+      <div class="proj-top">
+        <div>
+          <div class="pn">PART No. ASM-02</div>
+          <h3>CVAR</h3>
+        </div>
+        <div class="meta">
+          MATL: CV / VISION<br>QTY: 1 &nbsp; SCALE 1:1<br>
+          <a href="https://github.com/R-C101/CVAR" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">↗ github/CVAR</a>
+        </div>
+      </div>
+      <div class="proj-body stag">
+        <div class="proj-diagram">
+          <svg viewBox="0 0 520 210" aria-label="CVAR vision pipeline schematic">
+            <path class="flow draw" d="M84,44 L138,44" marker-end="url(#pa2)"/>
+            <path class="flow draw" d="M234,44 L288,44" marker-end="url(#pa2)"/>
+            <path class="flow draw" d="M384,44 L438,44" marker-end="url(#pa2)"/>
+            <path class="flow draw" d="M336,66 L336,112" marker-end="url(#pa2)"/>
+            <path class="flow draw" d="M186,66 L186,112" marker-end="url(#pa2)"/>
+            <defs><marker id="pa2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--ink-2)"/></marker></defs>
+            <g><rect class="node-box" x="14" y="26" width="70" height="36"/><text class="node-lbl" x="49" y="42" text-anchor="middle">VIDEO</text><text class="node-sub" x="49" y="54" text-anchor="middle">frames</text></g>
+            <g><rect class="node-box acc" x="138" y="22" width="96" height="44"/><text class="node-lbl" x="186" y="40" text-anchor="middle" fill="var(--accent-soft)">YOLO</text><text class="node-sub" x="186" y="54" text-anchor="middle">detect obj</text></g>
+            <g><rect class="node-box" x="288" y="22" width="96" height="44"/><text class="node-lbl" x="336" y="40" text-anchor="middle">TRACKING</text><text class="node-sub" x="336" y="54" text-anchor="middle">player/ball</text></g>
+            <g><rect class="node-box" x="438" y="26" width="70" height="36"/><text class="node-lbl" x="473" y="42" text-anchor="middle">STATS</text><text class="node-sub" x="473" y="54" text-anchor="middle">output</text></g>
+            <g><rect class="node-box" x="132" y="112" width="108" height="40"/><text class="node-lbl" x="186" y="129" text-anchor="middle">SPEED EST.</text><text class="node-sub" x="186" y="143" text-anchor="middle">km/h</text></g>
+            <g><rect class="node-box" x="282" y="112" width="108" height="40"/><text class="node-lbl" x="336" y="129" text-anchor="middle">POSSESSION</text><text class="node-sub" x="336" y="143" text-anchor="middle">% + camera mv</text></g>
+            <path class="callout-line draw" d="M186,10 L186,22"/><circle cx="186" cy="9" r="2.5" fill="var(--accent)"/>
+            <text class="callout-txt" x="196" y="13">② PRIMARY DETECTOR</text>
+            <text class="callout-txt" x="132" y="182">REF: REAL-TIME FOOTBALL ANALYSIS</text>
+          </svg>
+        </div>
+        <div class="proj-info">
+          <p>Football analysis system using YOLO and OpenCV for player, referee and ball tracking. Features ball-possession stats, player speed estimation and camera-movement compensation.</p>
+          <div class="chips">
+            <span class="chip">YOLO</span><span class="chip">OpenCV</span><span class="chip">NumPy</span><span class="chip">SuperVision</span>
+          </div>
+          <div class="spacer"></div>
+          <a class="btn" href="https://github.com/R-C101/CVAR" target="_blank" rel="noopener"><span class="k">‹›</span> VIEW SOURCE</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- PROJECT 3 : OKULARY modules -->
+    <article class="proj">
+      <div class="proj-top">
+        <div>
+          <div class="pn">PART No. ASM-03</div>
+          <h3>OKULARY</h3>
+        </div>
+        <div class="meta">
+          MATL: EDU PLATFORM<br>QTY: 1 &nbsp; SCALE 1:1<br>
+          <a href="https://github.com/SEAR-Innovate/OKULARY" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">↗ github/OKULARY</a>
+        </div>
+      </div>
+      <div class="proj-body stag">
+        <div class="proj-diagram">
+          <svg viewBox="0 0 520 210" aria-label="OKULARY module schematic">
+            <path class="flow draw" d="M110,58 L162,90"/>
+            <path class="flow draw" d="M110,105 L162,105"/>
+            <path class="flow draw" d="M110,152 L162,120"/>
+            <path class="flow draw" d="M300,68 L354,68" marker-end="url(#pa3)"/>
+            <path class="flow draw" d="M300,105 L354,105" marker-end="url(#pa3)"/>
+            <path class="flow draw" d="M300,142 L354,142" marker-end="url(#pa3)"/>
+            <defs><marker id="pa3" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--ink-2)"/></marker></defs>
+            <!-- input engines -->
+            <g><rect class="node-box" x="14" y="42" width="96" height="32"/><text class="node-lbl" x="62" y="62" text-anchor="middle">NLP</text></g>
+            <g><rect class="node-box" x="14" y="89" width="96" height="32"/><text class="node-lbl" x="62" y="109" text-anchor="middle">CV</text></g>
+            <g><rect class="node-box" x="14" y="136" width="96" height="32"/><text class="node-lbl" x="62" y="156" text-anchor="middle">TRANSFORMERS</text></g>
+            <!-- core -->
+            <g><rect class="node-box acc" x="162" y="66" width="138" height="78"/><text class="node-lbl" x="231" y="100" text-anchor="middle" fill="var(--accent-soft)">OKULARY CORE</text><text class="node-sub" x="231" y="116" text-anchor="middle">orchestration</text></g>
+            <!-- modules -->
+            <g><rect class="node-box" x="354" y="54" width="120" height="28"/><text class="node-lbl" x="414" y="72" text-anchor="middle">ATTENDANCE</text></g>
+            <g><rect class="node-box" x="354" y="91" width="120" height="28"/><text class="node-lbl" x="414" y="109" text-anchor="middle">GRADING</text></g>
+            <g><rect class="node-box" x="354" y="128" width="120" height="28"/><text class="node-lbl" x="414" y="146" text-anchor="middle">PLAGIARISM</text></g>
+            <path class="callout-line draw" d="M231,54 L231,66"/><circle cx="231" cy="53" r="2.5" fill="var(--accent)"/>
+            <text class="callout-txt" x="241" y="57">③ SHARED CORE</text>
+            <text class="callout-txt" x="14" y="196">FN: TEACHER EFFICIENCY ↑</text>
+          </svg>
+        </div>
+        <div class="proj-info">
+          <p>Educational platform using NLP, Computer Vision and Transformers to automate attendance, assignment grading and plagiarism detection — enhancing teacher efficiency across modules.</p>
+          <div class="chips">
+            <span class="chip">NLP</span><span class="chip">OpenCV</span><span class="chip">Transformers</span>
+          </div>
+          <div class="spacer"></div>
+          <a class="btn" href="https://github.com/SEAR-Innovate/OKULARY" target="_blank" rel="noopener"><span class="k">‹›</span> VIEW SOURCE</a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ RESEARCH / SECTION A-A ============ -->
+  <section id="research">
+    <div class="sec-head fade">
+      <span class="code">SHT 03</span>
+      <h2>Detail — Section A-A</h2>
+      <span class="rule"></span>
+      <span class="sub">Flagship credential · enlarged view</span>
+    </div>
+
+    <div class="section-aa">
+      <span class="aa-flag">◆ SECTION A-A</span>
+      <div class="aa-inner">
+        <div class="aa-detail stag">
+          <svg viewBox="0 0 360 300" aria-label="RECAP detail section drawing">
+            <defs>
+              <marker id="aaArr" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 Z" fill="var(--cyan)"/></marker>
+              <marker id="aaArr2" markerWidth="10" markerHeight="10" refX="2" refY="4" orient="auto"><path d="M2,0 L10,4 L2,8 Z" fill="var(--cyan)"/></marker>
+            </defs>
+            <!-- section hatch outer -->
+            <rect x="70" y="46" width="220" height="200" fill="none" stroke="var(--frame)" stroke-width="1.4"/>
+            <!-- concentric detail: the retrieval loop -->
+            <circle class="draw" cx="180" cy="146" r="86" fill="none" stroke="var(--cyan)" stroke-width="1.3"/>
+            <circle class="draw" cx="180" cy="146" r="58" fill="none" stroke="var(--ink-2)" stroke-width="1"/>
+            <circle class="draw" cx="180" cy="146" r="30" fill="none" stroke="var(--accent)" stroke-width="1.3"/>
+            <circle cx="180" cy="146" r="4" fill="var(--accent)"/>
+            <!-- centre crosshair -->
+            <path class="draw" d="M180,120 L180,172 M154,146 L206,146" stroke="var(--ink-3)" stroke-width="1"/>
+            <!-- radial dimension -->
+            <line class="draw" x1="180" y1="146" x2="266" y2="146" stroke="var(--cyan)" stroke-width="1.1" marker-end="url(#aaArr2)"/>
+            <text x="222" y="140" font-family="Overpass Mono" font-size="11" fill="var(--cyan)">R86.0</text>
+            <text x="188" y="164" font-family="Overpass Mono" font-size="9" fill="var(--accent-soft)">CORE</text>
+            <!-- top dimension across box -->
+            <line class="draw" x1="72" y1="30" x2="288" y2="30" stroke="var(--cyan)" stroke-width="1" marker-start="url(#aaArr)" marker-end="url(#aaArr2)"/>
+            <line class="draw" x1="70" y1="20" x2="70" y2="46" stroke="var(--ink-3)" stroke-width="1"/>
+            <line class="draw" x1="290" y1="20" x2="290" y2="46" stroke="var(--ink-3)" stroke-width="1"/>
+            <text x="180" y="26" text-anchor="middle" font-family="Overpass Mono" font-size="11" fill="var(--cyan)">220.0</text>
+            <!-- leader callout -->
+            <path class="callout-line draw" d="M238,88 L300,60"/><circle cx="238" cy="88" r="2.5" fill="var(--accent)"/>
+            <text class="callout-txt" x="300" y="56" text-anchor="end">SIMILARITY RING</text>
+            <text x="80" y="238" font-family="Overpass Mono" font-size="9" fill="var(--ink-3)">SCALE 5:1 · DETAIL OF ASM-01</text>
+          </svg>
+        </div>
+
+        <div class="aa-text stag">
+          <div class="pn">PUBLISHED CREDENTIAL · REF-R01</div>
+          <h3>RECAP</h3>
+          <div class="paper">arXiv:2601.15331 · PEER-VISIBLE RESEARCH</div>
+          <p><b>The flagship intellectual credential.</b> A novel method for adversarial attacks on large language models: semantic similarity search retrieves proven-successful attack patterns from a curated database and re-applies them to break the target model.</p>
+          <div class="spec-list">
+            <div><span class="k">DOMAIN</span><span class="v">LLM RED-TEAMING</span></div>
+            <div><span class="k">METHOD</span><span class="v">SEMANTIC RETRIEVAL</span></div>
+            <div><span class="k">RESULT</span><span class="v">80% SUCCESS · GPT / GEMINI</span></div>
+            <div><span class="k">STATUS</span><span class="v" style="color:var(--accent)">PUBLISHED · arXiv</span></div>
+          </div>
+          <a class="btn solid" href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener"><span class="k">§</span> OPEN PAPER ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONNECT / MARGIN NOTES ============ -->
+  <section id="connect">
+    <div class="sec-head fade">
+      <span class="code">SHT 04</span>
+      <h2>General Notes</h2>
+      <span class="rule"></span>
+      <span class="sub">Refer for coordination</span>
+    </div>
+
+    <div class="notes">
+      <a class="note stag" href="https://x.com/chughrishit" target="_blank" rel="noopener">
+        <div class="nn"><span>NOTE <b>4.1</b></span><span>X / TWITTER</span></div>
+        <div class="plat">X / Twitter</div>
+        <div class="handle">@rishitchugh</div>
+        <span class="arrow">↗</span>
+      </a>
+      <a class="note stag" href="https://www.linkedin.com/in/rishit-chugh/" target="_blank" rel="noopener">
+        <div class="nn"><span>NOTE <b>4.2</b></span><span>NETWORK</span></div>
+        <div class="plat">LinkedIn</div>
+        <div class="handle">in/rishit-chugh</div>
+        <span class="arrow">↗</span>
+      </a>
+      <a class="note stag" href="https://github.com/R-C101" target="_blank" rel="noopener">
+        <div class="nn"><span>NOTE <b>4.3</b></span><span>SOURCE CTRL</span></div>
+        <div class="plat">GitHub</div>
+        <div class="handle">@R-C101</div>
+        <span class="arrow">↗</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section id="contact">
+    <div class="contact fade">
+      <span class="stamp">FOR APPROVAL</span>
+      <div class="lab">SHT 05 · ISSUE FOR CONTACT</div>
+      <h2>Let's engineer<br>something.</h2>
+      <a class="mail" href="mailto:rishitchugh@gmail.com">rishitchugh@gmail.com</a>
+      <div class="row">
+        <a class="btn solid" href="mailto:rishitchugh@gmail.com"><span class="k">✎</span> SEND MESSAGE</a>
+        <a class="btn" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener"><span class="k">⤓</span> PLOT RESUME</a>
+      </div>
+    </div>
+
+    <footer>
+      <span>© 2026 <b>RISHIT CHUGH</b> · ALL DIMENSIONS IN MM UNLESS NOTED</span>
+      <span>DWG RC-2026-01 · REV C · SHEET 01/01 · DO NOT SCALE FROM DRAWING</span>
+    </footer>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- IntersectionObserver draw-on ---- */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        // stagger children with .stag
+        var stags = e.target.querySelectorAll('.stag');
+        stags.forEach(function(s,i){ s.style.transitionDelay = (0.08*i)+'s'; });
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.16, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('section').forEach(function(s){ io.observe(s); });
+
+  /* also observe individual project/note containers for their own draw-on */
+  var io2 = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io2.unobserve(e.target); } });
+  },{threshold:0.28});
+  document.querySelectorAll('.proj, .section-aa, .notes, .contact, .revtable').forEach(function(el){ io2.observe(el); });
+
+  /* ---- crosshair + coordinate readout ---- */
+  if(!reduce && window.matchMedia('(hover:hover)').matches){
+    var xv=document.getElementById('xv'), xh=document.getElementById('xh');
+    var rx=document.getElementById('rx'), ry=document.getElementById('ry');
+    var raf=null, mx=0, my=0;
+    window.addEventListener('mousemove', function(ev){
+      mx=ev.clientX; my=ev.clientY;
+      if(raf) return;
+      raf=requestAnimationFrame(function(){
+        raf=null;
+        xv.style.left=mx+'px'; xh.style.top=my+'px';
+        // map to a plausible drafting coordinate (A1 = 841 x 594 mm)
+        var vx=(mx/window.innerWidth*841).toFixed(1);
+        var vy=(594-(my/window.innerHeight*594)).toFixed(1);
+        rx.textContent=vx.padStart(5,'0'); ry.textContent=vy.padStart(5,'0');
+      });
+    }, {passive:true});
+  }
+})();
+</script>
+</body>
+</html>

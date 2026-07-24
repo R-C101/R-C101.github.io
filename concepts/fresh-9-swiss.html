@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rishit Chugh — Index / ML Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#eae7df;      /* off-white / bone */
+    --ink:#161514;        /* near-black */
+    --ink-soft:#4a4740;
+    --rule:#161514;
+    --accent:#e2231a;     /* signal red */
+    --gut:24px;           /* grid gutter */
+    --edge:clamp(16px,3.2vw,44px);
+    --hair:1px;
+    font-family:"Helvetica Neue",Helvetica,Archivo,Arial,sans-serif;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Helvetica Neue",Helvetica,Archivo,Arial,sans-serif;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    line-height:1.15;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--accent);color:var(--paper)}
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- shell / grid ---------- */
+  .shell{max-width:1680px;margin:0 auto;padding:0 var(--edge)}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    column-gap:var(--gut);
+  }
+
+  /* faint background column grid to establish "the system" */
+  .grid-overlay{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    max-width:1680px;margin:0 auto;padding:0 var(--edge);
+    display:grid;grid-template-columns:repeat(12,1fr);column-gap:var(--gut);
+    opacity:.05;
+  }
+  .grid-overlay span{border-left:1px solid var(--ink)}
+  .grid-overlay span:last-child{border-right:1px solid var(--ink)}
+  @media(max-width:760px){.grid-overlay{display:none}}
+
+  main{position:relative;z-index:1}
+
+  /* ---------- reveal animation (grid clip wipe) ---------- */
+  .reveal{
+    clip-path:inset(0 100% 0 0);
+    opacity:0;
+    transition:clip-path 1.05s cubic-bezier(.16,1,.3,1),opacity .5s ease;
+    will-change:clip-path;
+  }
+  .reveal.in{clip-path:inset(0 0 0 0);opacity:1}
+  .rise{transform:translateY(18px);opacity:0;transition:transform .9s cubic-bezier(.16,1,.3,1),opacity .7s ease}
+  .rise.in{transform:none;opacity:1}
+  @media(prefers-reduced-motion:reduce){
+    .reveal{clip-path:none;opacity:1;transition:none}
+    .rise{transform:none;opacity:1;transition:none}
+  }
+
+  /* ---------- running header / sticky index ---------- */
+  .runhead{
+    position:sticky;top:0;z-index:40;
+    background:var(--paper);
+    border-bottom:var(--hair) solid var(--rule);
+  }
+  .runhead .shell{
+    display:flex;align-items:stretch;justify-content:space-between;
+    height:46px;
+  }
+  .runhead .mark{
+    display:flex;align-items:center;gap:10px;
+    font-weight:700;font-size:13px;letter-spacing:-0.01em;
+  }
+  .runhead .mark b{background:var(--accent);color:var(--paper);padding:2px 6px 3px;font-weight:800}
+  .runhead nav{display:flex;align-items:stretch}
+  .runhead nav a{
+    display:flex;align-items:center;padding:0 14px;
+    font-size:11px;font-weight:600;letter-spacing:.02em;
+    border-left:var(--hair) solid var(--rule);
+    color:var(--ink-soft);transition:color .2s,background .2s;
+  }
+  .runhead nav a .n{font-variant-numeric:tabular-nums;margin-right:7px;color:var(--ink);opacity:.55}
+  .runhead nav a:hover{background:var(--ink);color:var(--paper)}
+  .runhead nav a:hover .n{color:var(--paper);opacity:1}
+  .runhead nav a:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  @media(max-width:760px){
+    .runhead nav a:not(.live){display:none}
+    .runhead nav a.live{border-left:none;color:var(--ink);font-weight:700}
+  }
+
+  /* ---------- section scaffold ---------- */
+  section{padding:clamp(56px,7vw,120px) 0;border-top:var(--hair) solid var(--rule)}
+  section:first-of-type{border-top:none}
+  .sec-tag{
+    grid-column:1 / -1;
+    display:flex;align-items:baseline;gap:var(--gut);
+    margin-bottom:clamp(28px,4vw,56px);
+  }
+  .sec-tag .idx{
+    font-weight:800;font-size:13px;letter-spacing:.02em;
+    font-variant-numeric:tabular-nums;
+  }
+  .sec-tag .idx .dot{color:var(--accent)}
+  .sec-tag .ttl{
+    font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;
+  }
+  .sec-tag .meta{margin-left:auto;font-size:11px;color:var(--ink-soft);letter-spacing:.02em;text-align:right}
+
+  /* ---------- 00 HERO ---------- */
+  .hero{padding-top:clamp(40px,6vw,88px);padding-bottom:clamp(40px,5vw,80px)}
+  .hero-top{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:clamp(20px,3vw,40px);gap:20px}
+  .hero-top .lead{font-size:13px;font-weight:700;letter-spacing:.02em;max-width:38ch;line-height:1.35}
+  .hero-top .lead span{color:var(--ink-soft);font-weight:400}
+  .hero-top .stamp{text-align:right;font-size:11px;font-weight:600;letter-spacing:.04em;line-height:1.5;white-space:nowrap}
+  .hero-top .stamp .r{color:var(--accent)}
+
+  .namewrap{grid-column:1 / -1;margin-top:clamp(10px,2vw,24px)}
+  .bignom{
+    font-weight:800;
+    font-size:clamp(74px,20.5vw,340px);
+    line-height:.84;
+    letter-spacing:-0.055em;
+    text-transform:uppercase;
+    display:block;
+  }
+  .bignom .l2{display:block;text-indent:clamp(0px,7vw,120px)}
+  .bignom em{font-style:normal;color:var(--accent)}
+
+  .hero-foot{grid-column:1 / -1;display:grid;grid-template-columns:repeat(12,1fr);column-gap:var(--gut);row-gap:16px;margin-top:clamp(26px,3.4vw,52px);border-top:var(--hair) solid var(--rule);padding-top:16px}
+  .hf{font-size:12px;line-height:1.4}
+  .hf .k{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;font-weight:600}
+  .hf .v{font-weight:700}
+  .hf.c1{grid-column:1 / 4}
+  .hf.c2{grid-column:4 / 7}
+  .hf.c3{grid-column:7 / 10}
+  .hf.c4{grid-column:10 / 13;text-align:right}
+  .hf .avail{display:inline-flex;align-items:center;gap:7px}
+  .hf .avail::before{content:"";width:8px;height:8px;background:var(--accent);display:inline-block}
+  @media(max-width:760px){
+    .hf.c1,.hf.c2,.hf.c3,.hf.c4{grid-column:span 6;text-align:left}
+    .hf.c4{grid-column:span 12}
+  }
+
+  /* ---------- 01 EXPERIENCE (table) ---------- */
+  .table{grid-column:1 / -1}
+  .trow{
+    display:grid;
+    grid-template-columns:1fr 3.4fr 3.6fr 3fr;
+    column-gap:var(--gut);
+    align-items:start;
+    padding:clamp(20px,2.4vw,34px) 0;
+    border-top:var(--hair) solid var(--rule);
+    transition:background .25s ease,color .25s ease,padding-left .3s cubic-bezier(.16,1,.3,1);
+  }
+  .trow:last-child{border-bottom:var(--hair) solid var(--rule)}
+  .trow .yr{font-weight:800;font-size:clamp(18px,1.7vw,26px);font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
+  .trow .role{font-weight:700;font-size:clamp(22px,2.4vw,38px);letter-spacing:-0.03em;line-height:1}
+  .trow .role .co{display:block;font-size:12px;font-weight:600;letter-spacing:.01em;color:var(--ink-soft);margin-top:9px}
+  .trow .desc{font-size:13px;line-height:1.45;color:var(--ink-soft);max-width:46ch}
+  .trow .stack{font-size:11px;line-height:1.7;text-align:right}
+  .trow .stack .chip{display:inline-block;border:var(--hair) solid var(--ink);padding:2px 7px;margin:0 0 5px 5px;font-weight:600;letter-spacing:.01em;transition:border-color .25s,color .25s}
+  .trow:hover{background:var(--ink);color:var(--paper);padding-left:clamp(10px,1.2vw,22px)}
+  .trow:hover .role .co,.trow:hover .desc{color:#c9c6bd}
+  .trow:hover .yr{color:var(--accent)}
+  .trow:hover .stack .chip{border-color:#6a675f;color:var(--paper)}
+  @media(max-width:900px){
+    .trow{grid-template-columns:1fr 3fr;row-gap:14px}
+    .trow .desc{grid-column:1 / -1;max-width:none}
+    .trow .stack{grid-column:1 / -1;text-align:left}
+    .trow .stack .chip{margin:0 6px 6px 0}
+    .trow:hover{padding-left:12px}
+  }
+
+  /* ---------- 02 WORK (index entries) ---------- */
+  .work{grid-column:1 / -1}
+  .entry{
+    display:grid;grid-template-columns:auto 1fr auto;column-gap:var(--gut);
+    align-items:end;
+    padding:clamp(26px,3vw,46px) 0;
+    border-top:var(--hair) solid var(--rule);
+    position:relative;
+    transition:background .25s ease,color .25s;
+  }
+  .work .entry:last-child{border-bottom:var(--hair) solid var(--rule)}
+  .entry .enum{font-weight:800;font-size:clamp(20px,2vw,30px);font-variant-numeric:tabular-nums;letter-spacing:-0.02em;line-height:.9;align-self:start;padding-top:6px}
+  .entry .body{max-width:none}
+  .entry .etitle{font-weight:800;font-size:clamp(44px,8.2vw,132px);letter-spacing:-0.05em;line-height:.86;text-transform:uppercase}
+  .entry .edesc{font-size:13px;line-height:1.5;color:var(--ink-soft);max-width:60ch;margin-top:16px}
+  .entry .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .entry .tags span{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border:var(--hair) solid var(--ink)}
+  .entry .go{
+    align-self:start;padding-top:8px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;white-space:nowrap;
+  }
+  .entry .go .arw{font-size:15px;transition:transform .3s cubic-bezier(.16,1,.3,1)}
+  .entry:hover .etitle{color:var(--accent)}
+  .entry:hover .go .arw{transform:translate(4px,-4px)}
+  .entry:focus-within .etitle{color:var(--accent)}
+  @media(max-width:760px){
+    .entry{grid-template-columns:1fr;row-gap:8px}
+    .entry .go{padding-top:2px}
+  }
+
+  /* ---------- 03 RESEARCH (monument) ---------- */
+  .research{background:var(--ink);color:var(--paper)}
+  .research .sec-tag .ttl,.research .sec-tag .idx{color:var(--paper)}
+  .research .sec-tag .meta{color:#9a978f}
+  .research .sec-tag{border-color:#3a3833}
+  .mono-quote{grid-column:1 / -1}
+  .mono-quote .kicker{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:clamp(20px,3vw,40px)}
+  .mono-quote blockquote{
+    font-weight:700;
+    font-size:clamp(30px,5.4vw,88px);
+    line-height:1.02;
+    letter-spacing:-0.035em;
+    max-width:20ch;
+  }
+  .mono-quote blockquote .hl{color:var(--accent)}
+  .mono-quote .credit{
+    display:grid;grid-template-columns:repeat(12,1fr);column-gap:var(--gut);
+    margin-top:clamp(34px,4.5vw,72px);border-top:var(--hair) solid #3a3833;padding-top:18px;
+  }
+  .mono-quote .credit .cc{font-size:11px;line-height:1.5}
+  .mono-quote .credit .cc .k{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#9a978f;margin-bottom:5px;font-weight:600}
+  .mono-quote .credit .cc.a{grid-column:1 / 4}
+  .mono-quote .credit .cc.b{grid-column:4 / 7}
+  .mono-quote .credit .cc.c{grid-column:7 / 13}
+  .mono-quote .credit .cc.c a{font-weight:700;border-bottom:2px solid var(--accent);padding-bottom:2px}
+  @media(max-width:760px){
+    .mono-quote .credit .cc.a,.mono-quote .credit .cc.b,.mono-quote .credit .cc.c{grid-column:span 12;margin-bottom:14px}
+  }
+
+  /* ---------- 04 CONTACT ---------- */
+  .contact{grid-column:1 / -1}
+  .mailto-big{grid-column:1 / -1;display:block;margin-bottom:clamp(30px,4vw,60px)}
+  .mailto-big .say{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:14px}
+  .mailto-big .addr{
+    font-weight:800;font-size:clamp(34px,7.6vw,124px);letter-spacing:-0.045em;line-height:.9;
+    display:inline-block;position:relative;
+  }
+  .mailto-big .addr::after{content:"";position:absolute;left:0;bottom:.06em;width:100%;height:clamp(3px,.5vw,7px);background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+  .mailto-big:hover .addr::after,.mailto-big:focus-visible .addr::after{transform:scaleX(1)}
+
+  .connect{grid-column:1 / -1;display:grid;grid-template-columns:repeat(12,1fr);column-gap:var(--gut)}
+  .clist{grid-column:1 / 9}
+  .crow{
+    display:grid;grid-template-columns:auto 1fr auto auto;column-gap:var(--gut);align-items:baseline;
+    padding:clamp(15px,1.6vw,22px) 0;border-top:var(--hair) solid var(--rule);
+    transition:background .25s,color .25s,padding-left .3s cubic-bezier(.16,1,.3,1);
+  }
+  .clist .crow:last-child{border-bottom:var(--hair) solid var(--rule)}
+  .crow .cn{font-weight:800;font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink-soft)}
+  .crow .plat{font-weight:700;font-size:clamp(19px,2.1vw,30px);letter-spacing:-0.02em}
+  .crow .handle{font-size:12px;color:var(--ink-soft);text-align:right}
+  .crow .arw{font-size:14px;text-align:right;transition:transform .3s cubic-bezier(.16,1,.3,1)}
+  .crow:hover{background:var(--accent);color:var(--paper);padding-left:14px}
+  .crow:hover .cn,.crow:hover .handle{color:var(--paper)}
+  .crow:hover .arw{transform:translate(3px,-3px)}
+  .crow:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+  .aside{grid-column:9 / 13}
+  .aside .resume-cta{
+    display:block;border:var(--hair) solid var(--ink);padding:clamp(18px,2vw,26px);
+    transition:background .25s,color .25s;height:100%;
+  }
+  .aside .resume-cta .rk{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:12px}
+  .aside .resume-cta .rt{font-weight:800;font-size:clamp(24px,3vw,40px);letter-spacing:-0.03em;line-height:.95}
+  .aside .resume-cta .rd{font-size:12px;color:var(--ink-soft);margin-top:12px;display:flex;align-items:center;gap:8px}
+  .aside .resume-cta .rd .arw{transition:transform .3s cubic-bezier(.16,1,.3,1)}
+  .aside .resume-cta:hover{background:var(--ink);color:var(--paper)}
+  .aside .resume-cta:hover .rk,.aside .resume-cta:hover .rd{color:#c9c6bd}
+  .aside .resume-cta:hover .rd .arw{transform:translate(4px,-4px)}
+  @media(max-width:760px){
+    .clist{grid-column:1 / -1}
+    .aside{grid-column:1 / -1;margin-top:24px}
+  }
+
+  /* ---------- footer ---------- */
+  footer{border-top:var(--hair) solid var(--rule);padding:clamp(30px,4vw,54px) 0 clamp(40px,5vw,64px)}
+  .foot-grid{display:grid;grid-template-columns:repeat(12,1fr);column-gap:var(--gut);row-gap:18px;align-items:end}
+  .foot-grid .fc{font-size:11px;line-height:1.5}
+  .foot-grid .fc .k{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px;font-weight:600}
+  .foot-grid .colo{grid-column:1 / 6}
+  .foot-grid .colo .big{font-weight:800;font-size:clamp(28px,4vw,60px);letter-spacing:-0.04em;text-transform:uppercase;line-height:.9}
+  .foot-grid .fa{grid-column:6 / 9}
+  .foot-grid .fb{grid-column:9 / 11}
+  .foot-grid .fc2{grid-column:11 / 13;text-align:right}
+  .foot-grid .fc2 .set{font-weight:800;color:var(--accent);font-size:13px}
+  @media(max-width:760px){
+    .foot-grid .colo,.foot-grid .fa,.foot-grid .fb,.foot-grid .fc2{grid-column:span 6;text-align:left}
+  }
+
+  /* to-top scale marker line under runhead */
+  .ticker{overflow:hidden;border-bottom:var(--hair) solid var(--rule);background:var(--paper)}
+  .ticker .tk{display:flex;gap:0;white-space:nowrap;animation:tick 34s linear infinite}
+  .ticker .tk span{font-size:11px;font-weight:700;letter-spacing:.02em;padding:9px 22px;border-right:var(--hair) solid var(--rule);text-transform:uppercase}
+  .ticker .tk span em{font-style:normal;color:var(--accent)}
+  @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media(prefers-reduced-motion:reduce){.ticker .tk{animation:none}}
+</style>
+</head>
+<body>
+
+<!-- background column grid -->
+<div class="grid-overlay" aria-hidden="true">
+  <span></span><span></span><span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span><span></span><span></span>
+</div>
+
+<!-- sticky running header / index -->
+<header class="runhead">
+  <div class="shell">
+    <a href="#hero" class="mark"><b>RC</b><span>RISHIT CHUGH — INDEX</span></a>
+    <nav aria-label="Section index">
+      <a href="#experience"><span class="n">01</span>EXP</a>
+      <a href="#work"><span class="n">02</span>WORK</a>
+      <a href="#research" class="live"><span class="n">03</span>RESEARCH</a>
+      <a href="#contact"><span class="n">04</span>CONTACT</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ticker rule -->
+<div class="ticker" aria-hidden="true">
+  <div class="tk">
+    <span>ML ENGINEER</span><span><em>REAL-TIME SPORTS ANALYTICS</em></span><span>LLM RESEARCH</span><span>PYTORCH · ONNX · TENSORRT</span><span>RED-TEAMING</span><span>EST. 2026</span>
+    <span>ML ENGINEER</span><span><em>REAL-TIME SPORTS ANALYTICS</em></span><span>LLM RESEARCH</span><span>PYTORCH · ONNX · TENSORRT</span><span>RED-TEAMING</span><span>EST. 2026</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- ============ 00 — HERO ============ -->
+  <section class="hero" id="hero" aria-label="Introduction">
+    <div class="shell grid">
+      <div class="hero-top rise">
+        <div class="lead">00 — INDEX &nbsp;/&nbsp; ML ENGINEER. <span>Building intelligent systems. Real-time sports analytics and LLM research, set in type.</span></div>
+        <div class="stamp">
+          ROLE&nbsp;&nbsp;ML ENGINEER<br>
+          YEAR&nbsp;&nbsp;<span class="r">2026</span><br>
+          LOC&nbsp;&nbsp;&nbsp;IN / REMOTE
+        </div>
+      </div>
+
+      <h1 class="namewrap bignom" aria-label="Rishit Chugh">
+        <span class="reveal" style="transition-delay:.05s">RISHIT</span>
+        <span class="l2 reveal" style="transition-delay:.22s">CHUGH<em>.</em></span>
+      </h1>
+
+      <div class="hero-foot">
+        <div class="hf c1 rise"><span class="k">Discipline</span><span class="v">Machine Learning<br>Engineering</span></div>
+        <div class="hf c2 rise"><span class="k">Focus</span><span class="v">Sports Analytics /<br>LLM Guardrails</span></div>
+        <div class="hf c3 rise"><span class="k">Flagship</span><span class="v">RECAP — arXiv<br>2601.15331</span></div>
+        <div class="hf c4 rise"><span class="k">Status</span><span class="v avail">Open to work</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 — EXPERIENCE ============ -->
+  <section id="experience" aria-labelledby="exp-h">
+    <div class="shell grid">
+      <div class="sec-tag rise">
+        <span class="idx">01<span class="dot">.</span></span>
+        <span class="ttl" id="exp-h">Experience</span>
+        <span class="meta">THREE ROLES · 2024—2025<br>YEAR / ROLE / COMPANY / STACK</span>
+      </div>
+
+      <div class="table">
+        <div class="trow reveal">
+          <div class="yr">2025</div>
+          <div class="role">Data Scientist<span class="co">LIAT.AI</span></div>
+          <div class="desc">Creating real-time sports analytical systems for enjoyment — models built to ship and run at speed.</div>
+          <div class="stack">
+            <span class="chip">PyTorch</span><span class="chip">ONNX</span><span class="chip">TensorRT</span><span class="chip">ElevenLabs</span><span class="chip">Docker</span><span class="chip">Redis</span><span class="chip">Modelling</span>
+          </div>
+        </div>
+
+        <div class="trow reveal">
+          <div class="yr">2024</div>
+          <div class="role">LLM Intern<span class="co">DMI FINANCE PVT LTD</span></div>
+          <div class="desc">Built LLM guardrailing for toxicity, jailbreak detection and PII masking — 30% over Meta's Llama Guard. VLLM for 5× faster inference; RAG + hallucination testing at 80% success vs ChatGPT & Gemini.</div>
+          <div class="stack">
+            <span class="chip">AWS</span><span class="chip">VLLM</span><span class="chip">PyTorch</span><span class="chip">Transformers</span><span class="chip">PEFT</span>
+          </div>
+        </div>
+
+        <div class="trow reveal">
+          <div class="yr">2024</div>
+          <div class="role">AI/ML Intern<span class="co">LILAC MOSAIC</span></div>
+          <div class="desc">FAQ and RAG chatbot with Transformers + Dialogflow — 90% reduction in support inquiries. Image similarity & recommendation with OpenCV, deployed on Firebase and Google Cloud.</div>
+          <div class="stack">
+            <span class="chip">OpenCV</span><span class="chip">Google Cloud</span><span class="chip">Firebase</span><span class="chip">Transformers</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 — WORK ============ -->
+  <section id="work" aria-labelledby="work-h">
+    <div class="shell grid">
+      <div class="sec-tag rise">
+        <span class="idx">02<span class="dot">.</span></span>
+        <span class="ttl" id="work-h">Selected Work</span>
+        <span class="meta">INDEX OF PROJECTS<br>03 ENTRIES</span>
+      </div>
+
+      <div class="work">
+        <a class="entry reveal" href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener">
+          <div class="enum">01</div>
+          <div class="body">
+            <div class="etitle">RECAP</div>
+            <p class="edesc">A novel approach to adversarial attacks on LLMs — semantic similarity search retrieves proven-successful attack patterns from a curated database.</p>
+            <div class="tags"><span>LLM Red-teaming</span><span>NLP</span><span>Transformers</span></div>
+          </div>
+          <div class="go">READ PAPER <span class="arw">↗</span></div>
+        </a>
+
+        <a class="entry reveal" href="https://github.com/R-C101/CVAR" target="_blank" rel="noopener">
+          <div class="enum">02</div>
+          <div class="body">
+            <div class="etitle">CVAR</div>
+            <p class="edesc">Football analysis with YOLO + OpenCV for player, referee and ball tracking. Ball-possession stats, player speed estimation and camera-movement tracking.</p>
+            <div class="tags"><span>YOLO</span><span>OpenCV</span><span>NumPy</span><span>SuperVision</span></div>
+          </div>
+          <div class="go">GITHUB <span class="arw">↗</span></div>
+        </a>
+
+        <a class="entry reveal" href="https://github.com/SEAR-Innovate/OKULARY" target="_blank" rel="noopener">
+          <div class="enum">03</div>
+          <div class="body">
+            <div class="etitle">OKULARY</div>
+            <p class="edesc">Educational platform using NLP, computer vision and Transformers to automate attendance, assignment grading and plagiarism detection — teacher efficiency, enhanced.</p>
+            <div class="tags"><span>NLP</span><span>OpenCV</span><span>Transformers</span></div>
+          </div>
+          <div class="go">GITHUB <span class="arw">↗</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 — RESEARCH (monument) ============ -->
+  <section class="research" id="research" aria-labelledby="res-h">
+    <div class="shell grid">
+      <div class="sec-tag rise">
+        <span class="idx">03<span class="dot">.</span></span>
+        <span class="ttl" id="res-h">Research</span>
+        <span class="meta">PEER-REFERENCED · arXiv<br>FLAGSHIP CREDENTIAL</span>
+      </div>
+
+      <div class="mono-quote">
+        <div class="kicker rise">RECAP / Published Paper</div>
+        <blockquote class="reveal">
+          Retrieval-augmented adversarial patterns that break language models by <span class="hl">remembering what already worked.</span>
+        </blockquote>
+        <div class="credit">
+          <div class="cc a rise"><span class="k">Author</span>Rishit Chugh</div>
+          <div class="cc b rise"><span class="k">Domain</span>LLM Red-teaming / NLP</div>
+          <div class="cc c rise"><span class="k">Reference</span><a href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener">arXiv:2601.15331 ↗</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 — CONTACT ============ -->
+  <section id="contact" aria-labelledby="con-h">
+    <div class="shell grid">
+      <div class="sec-tag rise">
+        <span class="idx">04<span class="dot">.</span></span>
+        <span class="ttl" id="con-h">Contact</span>
+        <span class="meta">CONNECT / RESUME<br>© 2026</span>
+      </div>
+
+      <div class="contact">
+        <a class="mailto-big rise" href="mailto:rishitchugh@gmail.com">
+          <div class="say">Write to me →</div>
+          <span class="addr">rishitchugh@gmail.com</span>
+        </a>
+
+        <div class="connect">
+          <div class="clist">
+            <a class="crow reveal" href="https://x.com/chughrishit" target="_blank" rel="noopener">
+              <span class="cn">A1</span><span class="plat">X / Twitter</span><span class="handle">@rishitchugh</span><span class="arw">↗</span>
+            </a>
+            <a class="crow reveal" href="https://www.linkedin.com/in/rishit-chugh/" target="_blank" rel="noopener">
+              <span class="cn">A2</span><span class="plat">LinkedIn</span><span class="handle">in/rishit-chugh</span><span class="arw">↗</span>
+            </a>
+            <a class="crow reveal" href="https://github.com/R-C101" target="_blank" rel="noopener">
+              <span class="cn">A3</span><span class="plat">GitHub</span><span class="handle">@R-C101</span><span class="arw">↗</span>
+            </a>
+          </div>
+
+          <div class="aside">
+            <a class="resume-cta rise" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener">
+              <div class="rk">Document / PDF</div>
+              <div class="rt">Résumé<br>Full Record</div>
+              <div class="rd">Open the file <span class="arw">↗</span></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer aria-label="Footer">
+  <div class="shell">
+    <div class="foot-grid">
+      <div class="fc colo">
+        <span class="k">Colophon</span>
+        <span class="big">Rishit<br>Chugh</span>
+      </div>
+      <div class="fc fa">
+        <span class="k">Typeface</span>
+        Helvetica Neue / Archivo.<br>Set tight, Swiss grid.
+      </div>
+      <div class="fc fb">
+        <span class="k">Index</span>
+        00 Name<br>01 Experience<br>02 Work<br>03 Research<br>04 Contact
+      </div>
+      <div class="fc fc2">
+        <span class="k">Colour</span>
+        <span class="set">Signal Red</span><br>© 2026 Rishit Chugh
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // grid clip-wipe + rise reveal (letterpress-precise)
+  // Anything in the first viewport reveals on LOAD (the giant name must
+  // dominate immediately); everything below the fold reveals on scroll.
+  (function(){
+    var els = Array.prototype.slice.call(document.querySelectorAll('.reveal, .rise'));
+    if(!('IntersectionObserver' in window)){
+      els.forEach(function(e){e.classList.add('in')});
+      return;
+    }
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+
+    // 1) Reveal above-the-fold elements right away (next frame so the wipe plays).
+    var deferred = [];
+    els.forEach(function(e){
+      var top = e.getBoundingClientRect().top;
+      if(top < vh * 0.92){ deferred.push(e); }
+    });
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        deferred.forEach(function(e){ e.classList.add('in'); });
+      });
+    });
+
+    // 2) Observe the rest for scroll-triggered reveals.
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    },{threshold:0.18, rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(e){
+      if(deferred.indexOf(e) === -1){ io.observe(e); }
+    });
+
+    // Safety net: never let anything stay hidden.
+    window.addEventListener('load', function(){
+      setTimeout(function(){
+        document.querySelectorAll('.reveal:not(.in), .rise:not(.in)').forEach(function(e){
+          if(e.getBoundingClientRect().top < (window.innerHeight||0) * 0.95){ e.classList.add('in'); }
+        });
+      }, 400);
+    });
+  })();
+
+  // sticky index: highlight current section
+  (function(){
+    var links = {};
+    document.querySelectorAll('.runhead nav a').forEach(function(a){
+      links[a.getAttribute('href').slice(1)] = a;
+    });
+    var secs = document.querySelectorAll('section[id]');
+    var so = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          Object.values(links).forEach(function(l){l.classList.remove('live')});
+          var id = en.target.id;
+          if(links[id]) links[id].classList.add('live');
+        }
+      });
+    },{rootMargin:'-45% 0px -50% 0px'});
+    secs.forEach(function(s){so.observe(s)});
+  })();
+
+  // smooth in-page scroll for index links
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var t = document.getElementById(this.getAttribute('href').slice(1));
+      if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
+    });
+  });
+</script>
+</body>
+</html>

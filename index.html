@@ -1,415 +1,94 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rishit Chugh — ML Engineer</title>
-  <meta name="description" content="Portfolio of Rishit Chugh, ML Engineer building intelligent systems.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Rishit Chugh — RishitOS</title>
+  <meta name="description" content="Rishit Chugh, ML Engineer. A portfolio built as a desktop operating system.">
+  <meta name="theme-color" content="#08306b">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Three.js (WebGL shader background) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-
-  <!-- GSAP + ScrollTrigger -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
-
-  <link rel="stylesheet" href="style.css">
-  <!-- Prevent flash of wrong theme -->
-  <script>
-    (function () {
-      var t = localStorage.getItem('rc-theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', t);
-    })();
-  </script>
+  <link rel="stylesheet" href="shared/tokens.css">
+  <link rel="stylesheet" href="os/os.css">
 </head>
-<body>
+<body class="booting">
 
-  <!-- WebGL shader background (fixed behind hero) -->
-  <div id="shader-bg" aria-hidden="true"></div>
-
-  <!-- Grain / noise texture overlay -->
-  <div class="noise" aria-hidden="true"></div>
-
-  <!-- ============ NAVIGATION ============ -->
-  <nav class="nav" id="nav">
-    <a href="#" class="nav-logo">RC<span class="nav-logo-dot">.</span></a>
-    <div class="nav-links">
-      <a href="#experience" class="nav-link">Experience</a>
-      <a href="#projects" class="nav-link">Projects</a>
-      <a href="#research" class="nav-link">Research</a>
-      <a href="#connect" class="nav-link">Connect</a>
-    </div>
-    <label class="bb8-toggle" id="theme-toggle" aria-label="Toggle dark mode">
-      <input class="bb8-toggle__checkbox" type="checkbox" id="theme-checkbox">
-      <div class="bb8-toggle__container">
-        <div class="bb8-toggle__scenery">
-          <div class="bb8-toggle__star"></div>
-          <div class="bb8-toggle__star"></div>
-          <div class="bb8-toggle__star"></div>
-          <div class="bb8-toggle__star"></div>
-          <div class="bb8-toggle__star"></div>
-          <div class="bb8-toggle__star"></div>
-          <div class="bb8-toggle__star"></div>
-          <div class="tatto-1"></div>
-          <div class="tatto-2"></div>
-          <div class="gomrassen"></div>
-          <div class="hermes"></div>
-          <div class="chenini"></div>
-          <div class="bb8-toggle__cloud"></div>
-          <div class="bb8-toggle__cloud"></div>
-          <div class="bb8-toggle__cloud"></div>
-        </div>
-        <div class="bb8">
-          <div class="bb8__head-container">
-            <div class="bb8__antenna"></div>
-            <div class="bb8__antenna"></div>
-            <div class="bb8__head"></div>
-          </div>
-          <div class="bb8__body"></div>
-        </div>
-        <div class="artificial__hidden">
-          <div class="bb8__shadow"></div>
-        </div>
-      </div>
-    </label>
-  </nav>
-
-  <!-- ============ HERO ============ -->
-  <section id="hero" class="section hero">
-    <div class="hero-content">
-      <div class="hero-overline">
-        <span class="hero-overline-line"></span>
-        <span class="hero-overline-text">PORTFOLIO &mdash; 2026</span>
-      </div>
-      <h1 class="hero-name" aria-label="Rishit Chugh">
-        <span class="hero-name-row" data-swap-label="RISHIT"><span class="hero-char-wrap">R</span><span class="hero-char-wrap">I</span><span class="hero-char-wrap">S</span><span class="hero-char-wrap">H</span><span class="hero-char-wrap">I</span><span class="hero-char-wrap">T</span></span>
-        <span class="hero-name-row" data-swap-label="CHUGH"><span class="hero-char-wrap">C</span><span class="hero-char-wrap">H</span><span class="hero-char-wrap">U</span><span class="hero-char-wrap">G</span><span class="hero-char-wrap">H</span></span>
-      </h1>
-      <div class="hero-meta">
-        <p class="hero-role letter-swap-pingpong" data-label="ML Engineer">ML Engineer</p>
-        <p class="typewriter">
-          <span id="typewriter-text"></span><span class="typewriter-cursor">|</span>
-        </p>
+  <!-- Desktop + wallpaper -->
+  <main id="desktop">
+    <!-- Wallpaper: a STATIC wordmark, with a separate orbital animation circling it -->
+    <div id="wall" aria-hidden="true">
+      <div class="wall-cluster">
+        <!-- the animation: an orrery / drafting instrument that turns around the name -->
+        <svg class="wall-orbits" viewBox="-280 -280 560 560" preserveAspectRatio="xMidYMid meet">
+          <g class="ring-field">
+            <circle class="ring" r="120"/>
+            <circle class="ring dash" r="176"/>
+            <circle class="ring" r="230"/>
+            <circle class="ring faint" r="272"/>
+          </g>
+          <g class="orbit o1">
+            <line class="arm" x1="-120" y1="0" x2="120" y2="0"/>
+            <circle class="mote lg" cx="120" cy="0" r="6"/>
+            <circle class="mote" cx="-120" cy="0" r="3.5"/>
+          </g>
+          <g class="orbit o2"><circle class="mote" cx="176" cy="0" r="4.5"/></g>
+          <g class="orbit o3">
+            <circle class="mote lg" cx="230" cy="0" r="6.5"/>
+            <circle class="mote sm" cx="0" cy="230" r="3"/>
+          </g>
+          <g class="orbit o4"><circle class="mote" cx="272" cy="0" r="4"/></g>
+          <!-- central target, echoing the OS mark -->
+          <g class="target">
+            <circle class="ring" r="10"/>
+            <line class="cross" x1="-17" y1="0" x2="17" y2="0"/>
+            <line class="cross" x1="0" y1="-17" x2="0" y2="17"/>
+            <circle class="hub" r="3.4"/>
+          </g>
+        </svg>
+        <!-- the name: static, part of the wallpaper -->
+        <svg class="wall-name" viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="nameGrad" x1="0" y1="0" x2="0.3" y2="1">
+              <stop offset="0" stop-color="#ffb066"/>
+              <stop offset="0.55" stop-color="#f6923c"/>
+              <stop offset="1" stop-color="#e2620f"/>
+            </linearGradient>
+          </defs>
+          <text x="20" y="132">RISHIT</text>
+          <text x="20" y="268">CHUGH</text>
+        </svg>
       </div>
     </div>
-    <div class="scroll-indicator" aria-hidden="true">
-      <span class="scroll-text">SCROLL</span>
-      <div class="scroll-line-track">
-        <div class="scroll-line-fill"></div>
-      </div>
+    <div id="desk-icons"></div>
+    <div id="windows"></div>
+  </main>
+
+  <!-- Menu bar (top) -->
+  <div id="menubar"></div>
+
+  <!-- Dock (bottom) -->
+  <div id="dock"></div>
+
+  <!-- Boot screen -->
+  <div id="boot" aria-hidden="true"></div>
+
+  <!-- Small-screen notice (desktop-first) -->
+  <div id="screen-notice">
+    <div class="sn-mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="8" stroke="#fff" stroke-width="1.7"/>
+        <path d="M12 4.5v15M4.5 12h15" stroke="#fff" stroke-width="1.1" opacity=".55"/>
+        <circle cx="12" cy="12" r="2.3" fill="#f6923c"/>
+      </svg>
     </div>
-  </section>
-
-  <!-- ============ EXPERIENCE (Aceternity-style scroll timeline) ============ -->
-  <section id="experience" class="section section--experience">
-    <div class="section-container">
-      <header class="section-header">
-        <span class="section-num">01</span>
-        <h2 class="section-title">EXPERIENCE</h2>
-        <div class="section-rule"></div>
-      </header>
-    </div>
-
-    <div class="ac-timeline" id="ac-timeline">
-      <div class="ac-timeline-inner">
-
-        <div class="ac-entry">
-          <div class="ac-entry-left">
-            <div class="ac-dot-wrap">
-              <div class="ac-dot-outer"><div class="ac-dot-inner"></div></div>
-            </div>
-            <h3 class="ac-year">2025</h3>
-          </div>
-          <div class="ac-entry-right">
-            <h3 class="ac-year-mobile">2025</h3>
-            <h4 class="ac-role">Data Scientist</h4>
-            <p class="ac-company">Liat.ai</p>
-            <p class="ac-desc">Creating real-time sports analytical systems for enjoyment.</p>
-            <div class="ac-highlights">
-              <span>PyTorch</span>
-              <span>ONNX</span>
-              <span>TensorRT</span>
-              <span>ElevenLabs</span>
-              <span>Docker</span>
-              <span>Redis</span>
-              <span>Modelling</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="ac-entry">
-          <div class="ac-entry-left">
-            <div class="ac-dot-wrap">
-              <div class="ac-dot-outer"><div class="ac-dot-inner"></div></div>
-            </div>
-            <h3 class="ac-year">2024</h3>
-          </div>
-          <div class="ac-entry-right">
-            <h3 class="ac-year-mobile">2024</h3>
-            <h4 class="ac-role">LLM Intern</h4>
-            <p class="ac-company">DMI Finance Pvt Ltd</p>
-            <p class="ac-desc">Developed LLM guardrailing models for toxicity, jailbreak detection, and PII masking — 30% better than Meta's Llama Guard. Implemented VLLM for 5x faster inference. Built RAG and hallucination testing achieving 80% success against ChatGPT and Gemini.</p>
-            <div class="ac-highlights">
-              <span>AWS</span>
-              <span>VLLM</span>
-              <span>PyTorch</span>
-              <span>Transformers</span>
-              <span>PEFT</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="ac-entry">
-          <div class="ac-entry-left">
-            <div class="ac-dot-wrap">
-              <div class="ac-dot-outer"><div class="ac-dot-inner"></div></div>
-            </div>
-            <h3 class="ac-year">2024</h3>
-          </div>
-          <div class="ac-entry-right">
-            <h3 class="ac-year-mobile">2024</h3>
-            <h4 class="ac-role">AI/ML Intern</h4>
-            <p class="ac-company">Lilac Mosaic</p>
-            <p class="ac-desc">Built FAQ and RAG chatbot using Transformers and Dialogflow — 90% reduction in support inquiries. Implemented image similarity and recommendation systems with OpenCV. Deployed on Firebase and Google Cloud.</p>
-            <div class="ac-highlights">
-              <span>OpenCV</span>
-              <span>Google Cloud</span>
-              <span>Firebase</span>
-              <span>Transformers</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Scroll-driven gradient line -->
-      <div class="ac-line-track" aria-hidden="true">
-        <div class="ac-line-bg"></div>
-        <div class="ac-line-fill" id="ac-line-fill"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ PROJECTS ============ -->
-  <section id="projects" class="section">
-    <div class="section-container">
-      <header class="section-header">
-        <span class="section-num">02</span>
-        <h2 class="section-title">PROJECTS</h2>
-        <div class="section-rule"></div>
-      </header>
-
-      <div class="deck-wrapper">
-        <div class="deck" id="project-deck">
-
-          <article class="deck-card" data-index="0">
-            <div class="card-evervault" aria-hidden="true">
-              <div class="card-pattern"></div>
-              <div class="card-gradient"></div>
-            </div>
-            <div class="card-content">
-              <span class="card-num">01</span>
-              <h3 class="card-name">RECAP</h3>
-              <p class="card-desc">A novel approach to adversarial attacks on LLMs using semantic similarity search to retrieve proven-successful attack patterns from a curated database.</p>
-              <div class="card-tags">
-                <span>LLM Red-teaming</span>
-                <span>NLP</span>
-                <span>Transformers</span>
-              </div>
-              <a href="https://arxiv.org/abs/2601.15331" class="card-link" target="_blank" rel="noopener">
-                <span>View Paper</span>
-                <span class="card-link-arrow">↗</span>
-              </a>
-            </div>
-            <div class="card-corner card-corner--tl"></div>
-            <div class="card-corner card-corner--tr"></div>
-            <div class="card-corner card-corner--bl"></div>
-            <div class="card-corner card-corner--br"></div>
-          </article>
-
-          <article class="deck-card" data-index="1">
-            <div class="card-evervault" aria-hidden="true">
-              <div class="card-pattern"></div>
-              <div class="card-gradient"></div>
-            </div>
-            <div class="card-content">
-              <span class="card-num">02</span>
-              <h3 class="card-name">CVAR</h3>
-              <p class="card-desc">Football analysis system using YOLO and OpenCV for player, referee, and ball tracking. Features ball possession stats, player speed estimation, and camera movement tracking.</p>
-              <div class="card-tags">
-                <span>YOLO</span>
-                <span>OpenCV</span>
-                <span>NumPy</span>
-                <span>SuperVision</span>
-              </div>
-              <a href="https://github.com/R-C101/CVAR" class="card-link" target="_blank" rel="noopener">
-                <span>View Project</span>
-                <span class="card-link-arrow">↗</span>
-              </a>
-            </div>
-            <div class="card-corner card-corner--tl"></div>
-            <div class="card-corner card-corner--tr"></div>
-            <div class="card-corner card-corner--bl"></div>
-            <div class="card-corner card-corner--br"></div>
-          </article>
-
-          <article class="deck-card" data-index="2">
-            <div class="card-evervault" aria-hidden="true">
-              <div class="card-pattern"></div>
-              <div class="card-gradient"></div>
-            </div>
-            <div class="card-content">
-              <span class="card-num">03</span>
-              <h3 class="card-name">OKULARY</h3>
-              <p class="card-desc">Educational platform using NLP, Computer Vision, and Transformers to automate attendance, assignment grading, and plagiarism detection — enhancing teacher efficiency.</p>
-              <div class="card-tags">
-                <span>NLP</span>
-                <span>OpenCV</span>
-                <span>Transformers</span>
-              </div>
-              <a href="https://github.com/SEAR-Innovate/OKULARY" class="card-link" target="_blank" rel="noopener">
-                <span>View Project</span>
-                <span class="card-link-arrow">↗</span>
-              </a>
-            </div>
-            <div class="card-corner card-corner--tl"></div>
-            <div class="card-corner card-corner--tr"></div>
-            <div class="card-corner card-corner--bl"></div>
-            <div class="card-corner card-corner--br"></div>
-          </article>
-
-        </div>
-
-        <div class="deck-controls">
-          <div class="deck-counter">
-            <span class="deck-current">1</span>
-            <span class="deck-sep">/</span>
-            <span class="deck-total">3</span>
-          </div>
-          <div class="deck-nav">
-            <button class="deck-btn deck-btn--prev" aria-label="Previous project">←</button>
-            <button class="deck-btn deck-btn--next" aria-label="Next project">→</button>
-          </div>
-          <p class="deck-hint">Drag to dismiss or use arrows</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ RESEARCH (Container Scroll Animation) ============ -->
-  <section id="research" class="section section--research">
-    <div class="section-container">
-      <header class="section-header">
-        <span class="section-num">03</span>
-        <h2 class="section-title">RESEARCH</h2>
-        <div class="section-rule"></div>
-      </header>
-    </div>
-    <div class="scroll-tablet" id="scroll-tablet">
-      <h3 class="scroll-tablet__recap" id="scroll-tablet-header">RECAP</h3>
-      <div class="scroll-tablet__card" id="scroll-tablet-card">
-        <div class="scroll-tablet__bezel">
-          <a href="https://arxiv.org/abs/2601.15331" class="scroll-tablet__screen" target="_blank" rel="noopener">
-            <img src="arxiv-ss.png" alt="RECAP — Research paper on arxiv" draggable="false">
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ CONNECT ============ -->
-  <section id="connect" class="section">
-    <div class="section-container">
-      <header class="section-header">
-        <span class="section-num">04</span>
-        <h2 class="section-title">CONNECT</h2>
-        <div class="section-rule"></div>
-      </header>
-
-      <div class="display-cards" id="display-cards">
-        <a href="https://x.com/chughrishit?s=21" class="display-card display-card--1" target="_blank" rel="noopener noreferrer">
-          <div class="display-card__top">
-            <span class="display-card__icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </span>
-            <p class="display-card__title">X</p>
-          </div>
-          <p class="display-card__desc">Thoughts & conversations</p>
-          <p class="display-card__handle">@rishitchugh</p>
-        </a>
-
-        <a href="https://www.linkedin.com/in/rishit-chugh/" class="display-card display-card--2" target="_blank" rel="noopener noreferrer">
-          <div class="display-card__top">
-            <span class="display-card__icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-            </span>
-            <p class="display-card__title">LinkedIn</p>
-          </div>
-          <p class="display-card__desc">Professional network & updates</p>
-          <p class="display-card__handle">in/rishitchugh</p>
-        </a>
-
-        <a href="https://github.com/R-C101" class="display-card display-card--3" target="_blank" rel="noopener noreferrer">
-          <div class="display-card__top">
-            <span class="display-card__icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-            </span>
-            <p class="display-card__title">GitHub</p>
-          </div>
-          <p class="display-card__desc">Open source projects & code</p>
-          <p class="display-card__handle">@R-C101</p>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ BOTTOM WRAPPER (dotted surface bg) ============ -->
-  <div class="bottom-wrapper" id="bottom-wrapper">
-    <div id="dotted-bg" aria-hidden="true"></div>
-
-    <!-- ============ RESUME ============ -->
-    <section class="section section--resume">
-      <div class="section-container resume-container">
-        <a href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit?usp=sharing&ouid=107367003840117032989&rtpof=true&sd=true" class="hover-btn hover-btn--lg" target="_blank" rel="noopener">
-          <span class="hover-btn__text">See Resume</span>
-          <div class="hover-btn__hover">
-            <span>See Resume</span>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <!-- ============ COLLABORATE ============ -->
-    <section id="collaborate" class="section section--collab">
-      <div class="section-container collab-container">
-        <p class="collab-overline">Got an idea?</p>
-        <h2 class="collab-heading">LET'S BUILD<br>SOMETHING</h2>
-        <a href="mailto:rishitchugh@gmail.com" class="collab-email">rishitchugh@gmail.com</a>
-        <a href="mailto:rishitchugh@gmail.com" class="hover-btn">
-          <span class="hover-btn__text">Start a conversation</span>
-          <div class="hover-btn__hover">
-            <span>Start a conversation</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <!-- ============ FOOTER ============ -->
-    <footer class="footer">
-      <span>© 2026 Rishit Chugh</span>
-      <span class="footer-sep">·</span>
-      <span>Designed & built with intention</span>
-    </footer>
+    <h2>Best on a bigger screen</h2>
+    <p>RishitOS is a windowed desktop — it wants room to breathe. Open it on a laptop or desktop for the full experience. A tailored mobile layout is coming.</p>
+    <button id="sn-enter" type="button">Enter anyway</button>
   </div>
 
-  <script src="main.js" defer></script>
+  <script src="os/os.js"></script>
 </body>
 </html>

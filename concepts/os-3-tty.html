@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rishit@portfolio — tty</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============ TTY — a designer's terminal ============ */
+:root{
+  --outer:#0d0c0f;
+  --win:#16151a;
+  --win2:#1b1a20;
+  --panel:#1e1d24;
+  --line:#2b2a33;
+  --line-soft:#232229;
+  --text:#e9e3d7;      /* soft off-white */
+  --dim:#9a9484;       /* comments / secondary */
+  --dimmer:#6f6a5f;
+  --amber:#e8b45c;     /* primary accent · paths */
+  --amber-soft:#f0cd93;
+  --cyan:#6fd3e0;      /* commands */
+  --green:#8ed97a;     /* success / metrics */
+  --pink:#df8fb8;      /* tags / strings */
+  --violet:#b3a6f0;    /* keywords */
+  --red:#f0776a;
+  --sel:rgba(232,180,92,.24);
+  --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --gutter:clamp(14px,4vw,30px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #211d18 0%, var(--outer) 55%) fixed;
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:15px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:-0.01em;
+}
+::selection{background:var(--sel);color:var(--amber-soft)}
+a{color:var(--cyan);text-decoration:none;text-underline-offset:3px}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+
+/* ---- terminal window shell ---- */
+.wrap{max-width:1060px;margin:0 auto;padding:clamp(18px,4vw,52px) var(--gutter) 0}
+.win{
+  background:var(--win);
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.03) inset,
+    0 40px 80px -30px rgba(0,0,0,.8),
+    0 12px 30px -18px rgba(0,0,0,.6);
+  overflow:hidden;
+  position:relative;
+}
+/* subtle scanline + vignette — kept classy */
+.win::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:6;
+  background:
+    radial-gradient(130% 100% at 50% 0%, transparent 62%, rgba(0,0,0,.28) 100%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 3px, rgba(0,0,0,.045) 3px 4px);
+  mix-blend-mode:multiply;opacity:.55;
+}
+
+/* titlebar */
+.titlebar{
+  display:flex;align-items:center;gap:14px;
+  padding:11px 16px;
+  background:linear-gradient(var(--win2),#171620);
+  border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:8;
+  backdrop-filter:saturate(1.2);
+}
+.dots{display:flex;gap:8px}
+.dot{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 .5px rgba(0,0,0,.4) inset}
+.dot.r{background:#f0776a}.dot.y{background:#e8b45c}.dot.g{background:#8ed97a}
+.tab{
+  display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--dim);
+  padding:4px 12px;border-radius:7px;background:rgba(255,255,255,.03);
+  border:1px solid var(--line-soft);
+}
+.tab .ico{color:var(--amber)}
+.tab b{color:var(--text);font-weight:500}
+.titlebar .spacer{flex:1}
+.tb-meta{font-size:12px;color:var(--dimmer);display:none}
+@media(min-width:720px){.tb-meta{display:block}}
+
+/* terminal body */
+.term{padding:clamp(16px,3vw,34px) clamp(14px,3vw,38px) 40px}
+
+/* prompt line */
+.pl{margin:0;white-space:pre-wrap;word-break:break-word}
+.prompt{color:var(--dim)}
+.usr{color:var(--green)}
+.at{color:var(--dim)}
+.host{color:var(--violet)}
+.path{color:var(--amber)}
+.sym{color:var(--dim)}
+.cmd{color:var(--cyan)}
+.arg{color:var(--amber-soft)}
+.flag{color:var(--pink)}
+.str{color:var(--pink)}
+.kw{color:var(--violet)}
+.ok{color:var(--green)}
+.warn{color:var(--amber)}
+.muted{color:var(--dim)}
+.hash{color:var(--amber)}
+
+/* command block spacing */
+.block{margin:0 0 26px}
+.out{margin:6px 0 0;color:var(--text)}
+.out.pad{padding-left:0}
+
+/* blinking block cursor */
+.cur{
+  display:inline-block;width:.58em;height:1.15em;vertical-align:-.22em;
+  background:var(--amber);margin-left:2px;border-radius:1px;
+  animation:blink 1.05s steps(1,end) infinite;
+}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.cur{animation:none;opacity:.9}}
+
+/* ============ boot sequence ============ */
+.boot{margin:0 0 8px}
+.boot .line{white-space:pre-wrap;min-height:1.65em}
+.reveal{opacity:0;transform:translateY(6px)}
+.js .reveal.in{opacity:1;transform:none;transition:opacity .5s ease,transform .6s cubic-bezier(.16,1,.3,1)}
+/* if no-js or reduced-motion: everything visible */
+html:not(.js) .reveal,.rm .reveal{opacity:1!important;transform:none!important}
+
+/* ============ neofetch splash ============ */
+.neo{
+  display:grid;grid-template-columns:1fr;gap:22px;
+  margin:14px 0 30px;padding:22px clamp(14px,2.5vw,26px);
+  border:1px solid var(--line);border-radius:10px;
+  background:
+    linear-gradient(180deg, rgba(232,180,92,.05), transparent 40%),
+    var(--win2);
+}
+@media(min-width:760px){.neo{grid-template-columns:auto 1fr;gap:34px;align-items:center}}
+.ascii{
+  margin:0;font-size:clamp(9px,2.2vw,13px);line-height:1.08;font-weight:800;
+  color:var(--amber);
+  background:linear-gradient(160deg,var(--amber-soft),var(--amber) 45%,#c98f3e);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 6px rgba(232,180,92,.15));
+  white-space:pre;overflow-x:auto;
+}
+.info{font-size:13.5px;line-height:1.9}
+.info .k{color:var(--cyan);display:inline-block;min-width:96px}
+.info .sepline{color:var(--dim)}
+.info .title{color:var(--green);font-weight:700}
+.info .v{color:var(--text)}
+.swatch{display:flex;gap:6px;margin-top:12px}
+.swatch i{width:20px;height:12px;border-radius:2px;display:block}
+
+/* ============ generic content ============ */
+h2.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.card-list{margin-top:8px}
+.md-h{color:var(--amber-soft);font-weight:700}
+.md-hr{color:var(--dim)}
+.bullet{color:var(--amber)}
+.tag{
+  display:inline-block;font-size:12px;padding:1px 9px;margin:3px 4px 3px 0;
+  border:1px solid var(--line);border-radius:20px;color:var(--pink);
+  background:rgba(223,143,184,.06);white-space:nowrap;letter-spacing:0;
+}
+.tag::before{content:"["}.tag::after{content:"]"}
+.tag b{font-weight:400}
+
+/* git log graph */
+.git{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--win2)}
+.commit{
+  display:grid;grid-template-columns:auto 1fr;gap:0;
+  border-bottom:1px solid var(--line-soft);
+}
+.commit:last-child{border-bottom:0}
+.graph{
+  color:var(--amber);padding:16px 4px 16px 16px;white-space:pre;user-select:none;
+  font-weight:700;position:relative;
+}
+.commit:not(:last-child) .graph::after{
+  content:"";position:absolute;left:calc(16px + .28em);top:44px;bottom:-1px;
+  width:2px;background:linear-gradient(var(--amber),rgba(232,180,92,.25));opacity:.5;
+}
+.cbody{padding:15px 18px 17px 6px}
+.cmeta{font-size:12.5px;color:var(--dim);margin-bottom:2px}
+.cmeta .h{color:var(--amber)}
+.cmeta .ref{color:var(--green);background:rgba(142,217,122,.09);padding:0 6px;border-radius:10px;border:1px solid rgba(142,217,122,.2)}
+.cmeta .ref.b{color:var(--cyan);border-color:rgba(111,211,224,.25);background:rgba(111,211,224,.08)}
+.ctitle{font-size:15.5px;color:var(--text);font-weight:700;margin:3px 0}
+.ctitle .co{color:var(--cyan)}
+.cdesc{color:var(--text);font-size:13.5px;line-height:1.72;margin:8px 0 2px;max-width:66ch}
+.cdesc .m{color:var(--green);font-weight:600}
+.stack{margin-top:9px}
+.stack .lbl{color:var(--dim);font-size:12px;margin-right:6px}
+
+/* project tree */
+.tree{border:1px solid var(--line);border-radius:10px;background:var(--win2);overflow:hidden}
+.proj{
+  display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;
+  padding:16px 18px;border-bottom:1px solid var(--line-soft);
+  transition:background .25s ease;
+}
+.proj:last-child{border-bottom:0}
+.proj:hover{background:rgba(232,180,92,.04)}
+.tw{color:var(--dim);white-space:pre;user-select:none;font-weight:700;padding-top:2px}
+.pname{color:var(--amber);font-weight:700;font-size:15.5px;letter-spacing:0}
+.pname .ext{color:var(--dim);font-weight:400}
+.pdesc{color:var(--text);font-size:13.5px;line-height:1.7;margin:5px 0 8px;max-width:64ch}
+.pdesc .m{color:var(--green)}
+.popen{
+  align-self:center;font-size:12.5px;color:var(--cyan);white-space:nowrap;
+  border:1px solid var(--line);padding:5px 12px;border-radius:7px;
+  background:rgba(111,211,224,.05);transition:.2s;
+}
+.popen:hover{background:rgba(111,211,224,.13);text-decoration:none}
+.popen::before{content:"→ "}
+@media(max-width:560px){.proj{grid-template-columns:auto 1fr}.popen{grid-column:2}}
+
+/* research callout */
+.paper{
+  border:1px solid var(--line);border-top:1px solid rgba(232,180,92,.4);
+  border-radius:8px;background:
+    linear-gradient(120deg,rgba(232,180,92,.06),transparent 60%),var(--win2);
+  padding:20px 22px;
+}
+.paper .doi{font-size:12px;color:var(--dim)}
+.paper h3{margin:6px 0 4px;font-size:19px;color:var(--amber-soft);letter-spacing:-.02em}
+.paper .auth{font-size:13px;color:var(--cyan);margin-bottom:10px}
+.paper .abs{font-size:13.5px;line-height:1.75;color:var(--text);max-width:70ch}
+.paper .abs .kw{color:var(--violet)}
+.paper .cite{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+.badge{
+  font-size:11.5px;color:var(--green);border:1px solid rgba(142,217,122,.25);
+  background:rgba(142,217,122,.07);padding:3px 10px;border-radius:20px;
+}
+
+/* htop / meters — skills */
+.meters{border:1px solid var(--line);border-radius:10px;background:var(--win2);padding:16px 18px}
+.mrow{display:grid;grid-template-columns:120px 1fr auto;gap:10px;align-items:center;padding:3.5px 0;font-size:12.5px}
+@media(max-width:520px){.mrow{grid-template-columns:96px 1fr auto}}
+.mrow .mk{color:var(--cyan)}
+.bar{height:12px;border:1px solid var(--line);border-radius:3px;background:#141319;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;width:var(--w,60%);border-radius:2px 0 0 2px}
+.js .bar i{transform:scaleX(0);transform-origin:left center;transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
+.js .bar.on i{transform:scaleX(1)}
+.mrow .mp{color:var(--dim);font-size:12px;min-width:42px;text-align:right}
+
+/* connect / contact grid */
+.links{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--line);border-radius:10px;background:var(--win2);overflow:hidden}
+@media(min-width:640px){.links{grid-template-columns:1fr 1fr}}
+.lrow{
+  display:flex;align-items:center;gap:12px;padding:15px 18px;
+  border-bottom:1px solid var(--line-soft);transition:background .2s;
+}
+@media(min-width:640px){.lrow:nth-child(odd){border-right:1px solid var(--line-soft)}}
+.lrow:hover{background:rgba(232,180,92,.04)}
+.lrow .g{color:var(--amber);font-weight:700}
+.lrow .lk{color:var(--dim);font-size:12px;min-width:76px}
+.lrow .lv{color:var(--cyan)}
+.lrow .lv:hover{color:var(--amber-soft)}
+
+/* CTA row */
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.cta{
+  display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;
+  padding:11px 18px;border-radius:8px;border:1px solid var(--line);
+  color:var(--text);background:var(--win2);transition:.22s ease;
+}
+.cta:hover{text-decoration:none;transform:translateY(-1px);border-color:var(--amber);color:var(--amber-soft)}
+.cta.pri{background:linear-gradient(var(--amber),#d69f43);color:#1a140a;border-color:#e8b45c;font-weight:700}
+.cta.pri:hover{color:#120d05;box-shadow:0 10px 24px -12px rgba(0,0,0,.7)}
+.cta .k{color:var(--cyan)}
+.cta.pri .k{color:#3a2c12}
+
+/* live input */
+.inputbar{
+  display:flex;align-items:center;gap:9px;margin-top:8px;padding:14px 16px;
+  border:1px solid var(--line);border-radius:10px;background:var(--win);
+  position:relative;
+}
+.inputbar:focus-within{border-color:var(--amber)}
+.inputbar .ps{color:var(--dim);white-space:nowrap;user-select:none;font-size:13.5px}
+.inputbar .ps .usr{color:var(--green)}
+.inputbar .ps .path{color:var(--amber)}
+#cli{
+  flex:1;background:transparent;border:0;color:var(--text);
+  font:inherit;font-size:14.5px;caret-color:var(--amber);letter-spacing:-.01em;
+}
+#cli:focus{outline:none}
+.hint{color:var(--dimmer);font-size:11.5px;margin:8px 2px 0;white-space:pre-wrap}
+.hint b{color:var(--cyan);cursor:pointer;font-weight:500}
+.hint b:hover{color:var(--amber-soft)}
+#cliout{margin:10px 2px 0;font-size:13px;color:var(--dim);min-height:1.6em}
+#cliout .ok{color:var(--green)}
+
+/* footer */
+.foot{
+  margin-top:30px;padding:18px 2px 6px;border-top:1px solid var(--line);
+  color:var(--dim);font-size:12.5px;display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;
+}
+.foot .ok{color:var(--green)}
+.sig{color:var(--dimmer);font-size:11.5px;text-align:center;padding:20px 0 40px}
+
+.section{scroll-margin-top:72px}
+hr.rule{border:0;border-top:1px dashed var(--line);margin:30px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main class="win" role="main">
+    <div class="titlebar">
+      <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="tab"><span class="ico" aria-hidden="true">◈</span> <span>rishit@portfolio:</span><b>~</b></div>
+      <div class="spacer"></div>
+      <div class="tb-meta">zsh · 88×34 · ⌥ tty3</div>
+    </div>
+
+    <div class="term">
+
+      <!-- ============ BOOT ============ -->
+      <div class="boot" id="boot" aria-label="boot sequence">
+        <p class="pl"><span class="prompt"><span class="usr">rishit</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~</span><span class="sym">$</span></span> <span class="type" data-type="./boot.sh --profile ml-engineer"></span></p>
+        <div class="line type-out" data-lines>
+        </div>
+      </div>
+
+      <!-- ============ NEOFETCH SPLASH ============ -->
+      <section class="neo reveal" aria-label="system information">
+        <pre class="ascii" aria-hidden="true">   ██████╗  ██████╗
+   ██╔══██╗██╔════╝
+   ██████╔╝██║
+   ██╔══██╗██║
+   ██║  ██║╚██████╗
+   ╚═╝  ╚═╝ ╚═════╝
+   r i s h i t · c</pre>
+        <div class="info">
+          <div><span class="title">rishit</span><span class="sepline">@</span><span class="title">portfolio</span></div>
+          <div class="sepline">───────────────────────</div>
+          <div><span class="k">host</span><span class="v">Rishit Chugh</span></div>
+          <div><span class="k">role</span><span class="v">ML Engineer</span></div>
+          <div><span class="k">kernel</span><span class="v">PyTorch · Transformers</span></div>
+          <div><span class="k">shell</span><span class="v">real-time sports analytics + LLM research</span></div>
+          <div><span class="k">uptime</span><span class="v">3 yrs · shipping models</span></div>
+          <div><span class="k">era</span><span class="v">2026</span></div>
+          <div><span class="k">packages</span><span class="v">3 roles · 3 projects · 1 paper</span></div>
+          <div><span class="k">status</span><span class="ok">● online — open to work</span></div>
+          <div class="swatch" aria-hidden="true">
+            <i style="background:#f0776a"></i><i style="background:#e8b45c"></i><i style="background:#8ed97a"></i>
+            <i style="background:#6fd3e0"></i><i style="background:#b3a6f0"></i><i style="background:#df8fb8"></i>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ABOUT ============ -->
+      <section class="block reveal section" id="about">
+        <h2 class="sr">About</h2>
+        <p class="pl"><span class="prompt"><span class="usr">rishit</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~</span><span class="sym">$</span></span> <span class="cmd">cat</span> <span class="arg">about.md</span></p>
+        <div class="out">
+          <p style="margin:8px 0"><span class="md-h"># Rishit Chugh — ML Engineer</span></p>
+          <p style="margin:8px 0;max-width:70ch">I build intelligent systems that actually ship. Currently turning
+          live sport into real-time analytics at <span class="warn">Liat.ai</span>; before that I made LLMs safer,
+          faster, and harder to fool. My work runs the stack from
+          <span class="kw">research</span> to <span class="kw">deployment</span> — training models, red-teaming them,
+          and pushing them onto ONNX / TensorRT / vLLM so they hold up under load.</p>
+          <p style="margin:8px 0"><span class="bullet">›</span> <span class="muted">Interests:</span> LLM safety &amp; red-teaming · computer vision · real-time inference · RAG</p>
+          <p style="margin:8px 0"><span class="bullet">›</span> <span class="muted">Philosophy:</span> <span class="str">"I make models that ship."</span></p>
+        </div>
+      </section>
+
+      <hr class="rule reveal">
+
+      <!-- ============ EXPERIENCE ============ -->
+      <section class="block reveal section" id="experience">
+        <h2 class="sr">Experience</h2>
+        <p class="pl"><span class="prompt"><span class="usr">rishit</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~/experience</span><span class="sym">$</span></span> <span class="cmd">git</span> <span class="arg">log</span> <span class="flag">--oneline</span> <span class="flag">--graph</span> <span class="flag">--decorate</span></p>
+        <div class="out git">
+
+          <div class="commit">
+            <div class="graph">* │</div>
+            <div class="cbody">
+              <div class="cmeta"><span class="h">a3f9c1e</span> — <span class="ref b">HEAD → main</span> <span class="ref">origin/liat</span> · <span class="muted">2025 · present</span></div>
+              <div class="ctitle"><span class="co">feat(liat):</span> Data Scientist @ Liat.ai</div>
+              <div class="cdesc">Creating real-time sports analytical systems for enjoyment — building the models
+                that watch the game and narrate it back, live.</div>
+              <div class="stack"><span class="lbl">stack:</span>
+                <span class="tag"><b>PyTorch</b></span><span class="tag"><b>ONNX</b></span><span class="tag"><b>TensorRT</b></span><span class="tag"><b>ElevenLabs</b></span><span class="tag"><b>Docker</b></span><span class="tag"><b>Redis</b></span><span class="tag"><b>Modelling</b></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="commit">
+            <div class="graph">* │</div>
+            <div class="cbody">
+              <div class="cmeta"><span class="h">7b2e0d4</span> · <span class="muted">2024</span></div>
+              <div class="ctitle"><span class="co">feat(safety):</span> LLM Intern @ DMI Finance Pvt Ltd</div>
+              <div class="cdesc">Developed LLM guardrailing models for toxicity, jailbreak detection &amp; PII masking —
+                <span class="m">30% better</span> than Meta's Llama Guard. Shipped vLLM for <span class="m">5× faster</span> inference,
+                and built RAG + hallucination testing reaching <span class="m">80% success</span> against ChatGPT &amp; Gemini.</div>
+              <div class="stack"><span class="lbl">stack:</span>
+                <span class="tag"><b>AWS</b></span><span class="tag"><b>vLLM</b></span><span class="tag"><b>PyTorch</b></span><span class="tag"><b>Transformers</b></span><span class="tag"><b>PEFT</b></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="commit">
+            <div class="graph">* │</div>
+            <div class="cbody">
+              <div class="cmeta"><span class="h">c14a8f0</span> · <span class="muted">2024</span></div>
+              <div class="ctitle"><span class="co">feat(cv):</span> AI/ML Intern @ Lilac Mosaic</div>
+              <div class="cdesc">Built an FAQ + RAG chatbot with Transformers &amp; Dialogflow — <span class="m">90% reduction</span> in support
+                inquiries. Implemented image-similarity &amp; recommendation systems with OpenCV, deployed on
+                Firebase &amp; Google Cloud.</div>
+              <div class="stack"><span class="lbl">stack:</span>
+                <span class="tag"><b>OpenCV</b></span><span class="tag"><b>Google Cloud</b></span><span class="tag"><b>Firebase</b></span><span class="tag"><b>Transformers</b></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <hr class="rule reveal">
+
+      <!-- ============ SKILLS / htop ============ -->
+      <section class="block reveal section" id="skills">
+        <h2 class="sr">Skills</h2>
+        <p class="pl"><span class="prompt"><span class="usr">rishit</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~</span><span class="sym">$</span></span> <span class="cmd">htop</span> <span class="flag">--sort</span> <span class="arg">proficiency</span></p>
+        <div class="out meters" id="meters">
+          <div class="mrow"><span class="mk">PyTorch</span><span class="bar"><i style="--w:95%;background:linear-gradient(90deg,#8ed97a,#c7e88a)"></i></span><span class="mp">95%</span></div>
+          <div class="mrow"><span class="mk">Transformers</span><span class="bar"><i style="--w:92%;background:linear-gradient(90deg,#8ed97a,#c7e88a)"></i></span><span class="mp">92%</span></div>
+          <div class="mrow"><span class="mk">LLM red-team</span><span class="bar"><i style="--w:90%;background:linear-gradient(90deg,#e8b45c,#f0cd93)"></i></span><span class="mp">90%</span></div>
+          <div class="mrow"><span class="mk">Computer Vision</span><span class="bar"><i style="--w:84%;background:linear-gradient(90deg,#6fd3e0,#9be6ef)"></i></span><span class="mp">84%</span></div>
+          <div class="mrow"><span class="mk">vLLM / infer</span><span class="bar"><i style="--w:88%;background:linear-gradient(90deg,#e8b45c,#f0cd93)"></i></span><span class="mp">88%</span></div>
+          <div class="mrow"><span class="mk">ONNX/TensorRT</span><span class="bar"><i style="--w:80%;background:linear-gradient(90deg,#6fd3e0,#9be6ef)"></i></span><span class="mp">80%</span></div>
+          <div class="mrow"><span class="mk">RAG systems</span><span class="bar"><i style="--w:86%;background:linear-gradient(90deg,#b3a6f0,#d0c8f7)"></i></span><span class="mp">86%</span></div>
+          <div class="mrow"><span class="mk">Docker/Redis</span><span class="bar"><i style="--w:78%;background:linear-gradient(90deg,#b3a6f0,#d0c8f7)"></i></span><span class="mp">78%</span></div>
+        </div>
+      </section>
+
+      <hr class="rule reveal">
+
+      <!-- ============ PROJECTS ============ -->
+      <section class="block reveal section" id="projects">
+        <h2 class="sr">Projects</h2>
+        <p class="pl"><span class="prompt"><span class="usr">rishit</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~/projects</span><span class="sym">$</span></span> <span class="cmd">./projects</span> <span class="flag">--list</span> <span class="flag">--tree</span></p>
+        <div class="out tree">
+
+          <div class="proj">
+            <span class="tw">├─</span>
+            <div>
+              <span class="pname">RECAP<span class="ext">/</span></span> <span class="badge" style="margin-left:6px">★ flagship</span>
+              <div class="pdesc">A novel approach to <span class="m">adversarial attacks on LLMs</span> — using semantic similarity
+                search to retrieve proven-successful attack patterns from a curated database.</div>
+              <div><span class="tag">LLM Red-teaming</span><span class="tag">NLP</span><span class="tag">Transformers</span></div>
+            </div>
+            <a class="popen" href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener">read paper</a>
+          </div>
+
+          <div class="proj">
+            <span class="tw">├─</span>
+            <div>
+              <span class="pname">CVAR<span class="ext">/</span></span>
+              <div class="pdesc">Football analysis system using YOLO &amp; OpenCV for player, referee &amp; ball tracking —
+                <span class="m">ball possession stats</span>, player speed estimation and camera-movement tracking.</div>
+              <div><span class="tag">YOLO</span><span class="tag">OpenCV</span><span class="tag">NumPy</span><span class="tag">SuperVision</span></div>
+            </div>
+            <a class="popen" href="https://github.com/R-C101/CVAR" target="_blank" rel="noopener">git clone</a>
+          </div>
+
+          <div class="proj">
+            <span class="tw">└─</span>
+            <div>
+              <span class="pname">OKULARY<span class="ext">/</span></span>
+              <div class="pdesc">Educational platform using NLP, computer vision &amp; Transformers to automate
+                attendance, assignment grading &amp; <span class="m">plagiarism detection</span> — boosting teacher efficiency.</div>
+              <div><span class="tag">NLP</span><span class="tag">OpenCV</span><span class="tag">Transformers</span></div>
+            </div>
+            <a class="popen" href="https://github.com/SEAR-Innovate/OKULARY" target="_blank" rel="noopener">git clone</a>
+          </div>
+
+        </div>
+      </section>
+
+      <hr class="rule reveal">
+
+      <!-- ============ RESEARCH ============ -->
+      <section class="block reveal section" id="research">
+        <h2 class="sr">Research</h2>
+        <p class="pl"><span class="prompt"><span class="usr">rishit</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~</span><span class="sym">$</span></span> <span class="cmd">arxiv</span> <span class="arg">show</span> <span class="flag">RECAP</span></p>
+        <div class="out paper">
+          <div class="doi">arXiv:2601.15331 [cs.CL] · 2026</div>
+          <h3>RECAP — Retrieval-Enhanced Circumvention of Aligned Policies</h3>
+          <div class="auth">Rishit Chugh</div>
+          <p class="abs">We present a <span class="kw">retrieval-augmented</span> framework for adversarial attacks on large
+            language models. Rather than crafting jailbreaks from scratch, RECAP performs semantic
+            similarity search over a curated database of <span class="kw">proven-successful</span> attack patterns,
+            retrieving and adapting the closest prior exploits to new targets — a compact, transferable
+            approach to LLM red-teaming.</p>
+          <div class="cite">
+            <span class="badge">peer-shared on arXiv</span>
+            <span class="badge">LLM safety</span>
+            <span class="badge">semantic retrieval</span>
+            <a class="popen" href="https://arxiv.org/abs/2601.15331" target="_blank" rel="noopener" style="align-self:center">open on arXiv</a>
+          </div>
+        </div>
+      </section>
+
+      <hr class="rule reveal">
+
+      <!-- ============ CONNECT ============ -->
+      <section class="block reveal section" id="connect">
+        <h2 class="sr">Connect</h2>
+        <p class="pl"><span class="prompt"><span class="usr">rishit</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~</span><span class="sym">$</span></span> <span class="cmd">cat</span> <span class="arg">~/.config/social</span></p>
+        <div class="out links">
+          <a class="lrow" href="https://github.com/R-C101" target="_blank" rel="noopener" style="color:inherit">
+            <span class="g" aria-hidden="true">⌥</span><span class="lk">github</span><span class="lv">@R-C101</span>
+          </a>
+          <a class="lrow" href="https://x.com/chughrishit" target="_blank" rel="noopener" style="color:inherit">
+            <span class="g" aria-hidden="true">✕</span><span class="lk">x/twitter</span><span class="lv">@rishitchugh</span>
+          </a>
+          <a class="lrow" href="https://www.linkedin.com/in/rishit-chugh/" target="_blank" rel="noopener" style="color:inherit">
+            <span class="g" aria-hidden="true">in</span><span class="lk">linkedin</span><span class="lv">in/rishit-chugh</span>
+          </a>
+          <a class="lrow" href="mailto:rishitchugh@gmail.com" style="color:inherit">
+            <span class="g" aria-hidden="true">@</span><span class="lk">email</span><span class="lv">rishitchugh@gmail.com</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- ============ CONTACT / CTA ============ -->
+      <section class="block reveal section" id="contact">
+        <p class="pl"><span class="prompt"><span class="usr">rishit</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~</span><span class="sym">$</span></span> <span class="cmd">curl</span> <span class="flag">-X</span> <span class="arg">CONNECT</span> <span class="str">rishit.dev</span></p>
+        <div class="out">
+          <p style="margin:6px 0 2px"><span class="muted">HTTP/2</span> <span class="ok">200 OK</span> — <span class="muted">let's build something. Reply channels open:</span></p>
+          <div class="cta-row">
+            <a class="cta pri" href="mailto:rishitchugh@gmail.com"><span class="k">$</span> mail rishitchugh@gmail.com</a>
+            <a class="cta" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener"><span class="k">$</span> open resume.pdf</a>
+            <a class="cta" href="https://github.com/R-C101" target="_blank" rel="noopener"><span class="k">$</span> gh profile</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ LIVE INPUT ============ -->
+      <section class="block reveal" aria-label="command input">
+        <label class="inputbar" for="cli">
+          <span class="ps"><span class="usr">rishit</span>@portfolio:<span class="path">~</span>$</span>
+          <input id="cli" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="type a command" placeholder="type a command…">
+          <span class="cur" aria-hidden="true"></span>
+        </label>
+        <div id="cliout" role="status" aria-live="polite"></div>
+        <p class="hint">try: <b data-cmd="help">help</b> · <b data-cmd="about">about</b> · <b data-cmd="experience">experience</b> · <b data-cmd="projects">projects</b> · <b data-cmd="research">research</b> · <b data-cmd="contact">contact</b> · <b data-cmd="resume">resume</b> · <b data-cmd="clear">clear</b></p>
+      </section>
+
+      <!-- ============ FOOTER ============ -->
+      <footer class="foot">
+        <span>© 2026 Rishit Chugh — built in a terminal.</span>
+        <span><span class="ok">●</span> session active · <span class="muted">exit code 0</span></span>
+      </footer>
+
+    </div><!-- /term -->
+  </main>
+  <p class="sig">rishit@portfolio · tty · press any key</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement;
+  root.classList.add('js');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(reduce)root.classList.add('rm');
+
+  /* ---------- reveal on scroll ---------- */
+  var reveals=[].slice.call(document.querySelectorAll('.reveal'));
+  if(reduce||!('IntersectionObserver'in window)){
+    reveals.forEach(function(el){el.classList.add('in');});
+  }else{
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    },{threshold:0.12,rootMargin:'0px 0px -8% 0px'});
+    reveals.forEach(function(el){io.observe(el);});
+  }
+
+  /* ---------- meters animate when visible ---------- */
+  var meters=document.getElementById('meters');
+  function fillMeters(){[].slice.call(meters.querySelectorAll('.bar')).forEach(function(b){b.classList.add('on');});}
+  if(meters){
+    if(reduce||!('IntersectionObserver'in window)){fillMeters();}
+    else{
+      var mo=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){fillMeters();mo.disconnect();}});},{threshold:0.3});
+      mo.observe(meters);
+    }
+  }
+
+  /* ---------- BOOT typewriter (signature moment) ---------- */
+  var bootLines=[
+    {t:'  [ '+'✓'+' ] loading kernel  ',c:'ok',tail:'torch 2.x · cuda ready'},
+    {t:'  [ '+'✓'+' ] mounting  ',c:'ok',tail:'~/experience  ~/projects  ~/research'},
+    {t:'  [ '+'✓'+' ] warming inference engine  ',c:'ok',tail:'onnx · tensorrt · vllm'},
+    {t:'  [ '+'✓'+' ] identity verified  ',c:'ok',tail:'Rishit Chugh — ML Engineer'},
+    {t:'  boot complete in 0.42s — welcome.',c:'warn',tail:''}
+  ];
+  var typeEl=document.querySelector('.type');
+  var linesWrap=document.querySelector('[data-lines]');
+
+  function buildLine(o){
+    var d=document.createElement('div');d.className='line';
+    var s='<span class="'+o.c+'">'+o.t+'</span>';
+    if(o.tail)s+='<span class="muted">'+o.tail+'</span>';
+    d.innerHTML=s;return d;
+  }
+
+  function showAllInstant(){
+    if(typeEl)typeEl.textContent='./boot.sh --profile ml-engineer';
+    bootLines.forEach(function(o){linesWrap.appendChild(buildLine(o));});
+  }
+
+  if(reduce||!typeEl){
+    showAllInstant();
+  }else{
+    var full='./boot.sh --profile ml-engineer';
+    var i=0;
+    (function typeCmd(){
+      if(i<=full.length){ typeEl.textContent=full.slice(0,i); i++;
+        setTimeout(typeCmd, 30+Math.random()*40);
+      }else{
+        var li=0;
+        (function printLine(){
+          if(li<bootLines.length){
+            var el=buildLine(bootLines[li]); el.style.opacity=0;
+            linesWrap.appendChild(el);
+            requestAnimationFrame(function(){
+              el.style.transition='opacity .35s ease'; el.style.opacity=1;
+            });
+            li++; setTimeout(printLine,190);
+          }
+        })();
+      }
+    })();
+  }
+
+  /* ---------- live CLI ---------- */
+  var cli=document.getElementById('cli');
+  var out=document.getElementById('cliout');
+  var routes={
+    about:'about', experience:'experience', exp:'experience', work:'experience',
+    projects:'projects', proj:'projects', ls:'projects',
+    research:'research', recap:'research', paper:'research',
+    skills:'skills', htop:'skills', top:'skills',
+    contact:'contact', connect:'connect', social:'connect',
+    resume:'__resume', cv:'__resume', neofetch:'top', whoami:'__whoami'
+  };
+  function respond(raw){
+    var c=(raw||'').trim().toLowerCase();
+    if(!c)return;
+    if(c==='help'){
+      out.innerHTML='<span class="ok">available:</span> about · experience · skills · projects · research · connect · contact · resume · whoami · clear';return;
+    }
+    if(c==='clear'){ out.textContent=''; window.scrollTo({top:0,behavior:reduce?'auto':'smooth'}); return; }
+    if(c==='whoami'){ out.innerHTML='<span class="ok">rishit</span> — ML Engineer · Liat.ai · building models that ship.'; return; }
+    if(c==='__whoami'){ out.innerHTML='<span class="ok">rishit</span> — ML Engineer · Liat.ai · building models that ship.'; return; }
+    var target=routes[c];
+    if(target==='__resume'){ out.innerHTML='<span class="ok">opening</span> resume.pdf…'; window.open('https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit','_blank','noopener'); return; }
+    if(target){
+      var sec=document.getElementById(target);
+      if(sec){ sec.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+        out.innerHTML='<span class="ok">→</span> cd ~/'+target; return; }
+    }
+    out.innerHTML='<span class="warn">zsh: command not found: '+c.replace(/[<>&]/g,'')+'</span> — try <span style="color:var(--cyan)">help</span>';
+  }
+  if(cli){
+    cli.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){ respond(cli.value); cli.value=''; }
+    });
+  }
+  [].slice.call(document.querySelectorAll('.hint b[data-cmd]')).forEach(function(b){
+    b.addEventListener('click',function(){ if(cli)cli.value=b.getAttribute('data-cmd'); respond(b.getAttribute('data-cmd')); });
+  });
+})();
+</script>
+</body>
+</html>
