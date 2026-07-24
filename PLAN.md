@@ -42,6 +42,15 @@ Real recipe system (`data/recipes/`, 56 recipes) reskinned as a **field-notes la
 ## Phase 6 — Contact / Connect app ✅ (shell world) — awaiting review
 Centered Connect card in the shell world: GitHub/X/LinkedIn/email rows with authored SVG glyphs, mailto + résumé CTAs, blueprint-target monogram, "open to work" pill. `apps/contact/index.html`.
 
+## Phase 6.5 — Expansion (this session) ✅
+- ✅ **Wallpaper:** low-poly portrait (`assets/wallpaper/wallpaper.png`) as the desktop background; static **RISHIT · [face] · CHUGH** wordmark (solid orange, flanks the face); a faint rotating drafting reticle as the separate ambient animation. Name sits at z:0, always behind windows.
+- ✅ **Documents → two PDFs outside the OS:** the reader is one hash-driven engine (`apps/documents/index.html#recap` / `#resume`). Two desktop + dock **PDF file icons** (RECAP.pdf, resume.pdf) open it. RECAP content rewritten from the **real paper** (`data/paper.pdf`): correct title, sole author, `arXiv:2601.15331v1`, verbatim abstract, real numbers, "Open original PDF" → `data/paper.pdf`.
+- ✅ **Racing app:** vendored 3rd-party Vite game pre-built to `Racing_Game/dist/`; wired as an app that opens **maximised**. (Physics loads from a public CDN at runtime — allowed; needs network, desktop-only.)
+- ✅ **Virus.exe gimmick:** `os/virus.js` + `os/virus.css` — random malware pop-ups + "Rishit's AntiVirus" yeet button; ignore it 10s → full-screen BSOD → Esc recovers. Desktop-only.
+- ✅ **Phone OS:** `phone/` — minimal phone build; icon grid + dock, one app at a time, full-screen with ✕. Racing/Virus excluded on mobile. Small-screen notice now links to it.
+- ✅ **Standalone routes:** `/about /projects /recipes /documents /resume /racing` — thin full-screen wrappers for direct shareable links.
+- ✅ **Mobile responsiveness:** recipes / about / projects given ≤640 & ≤430 breakpoints; fabricated "80% jailbreak" projects label corrected to real figures.
+
 ## Phase 7 — Polish ⬜
 App-open/close motion, boot polish, window edge cases (empty/error/loading states), optional sound, small-screen "best on desktop" notice, focus management, keyboard shortcuts.
 

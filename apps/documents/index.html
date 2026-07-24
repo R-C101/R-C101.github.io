@@ -42,96 +42,6 @@
 
   /* ============ APP SHELL ============ */
   .app{ height:100%; width:100%; overflow:hidden; }
-  .app[data-view="folder"] .reader{ display:none; }
-  .app[data-view="reader"] .folder{ display:none; }
-
-  /* ===================== FOLDER LANDING ===================== */
-  .folder{
-    height:100%; width:100%;
-    display:flex; flex-direction:column;
-    min-height:0;
-    background:
-      radial-gradient(130% 80% at 50% -10%, #ffffff 0%, var(--paper) 46%);
-  }
-  .folder-bar{
-    flex:0 0 auto;
-    display:flex; align-items:center; gap:.55rem;
-    padding:.55rem clamp(.9rem,3vw,1.4rem);
-    border-bottom:1px solid var(--rule);
-    background:rgba(251,250,247,.92);
-    font-family:"Fira Code", monospace;
-    font-size:11.5px; color:var(--ink-faint); letter-spacing:.01em;
-  }
-  .folder-bar .dot{ color:var(--crimson); font-size:1rem; line-height:1; }
-  .folder-bar .crumb{ color:var(--ink-soft); font-weight:500; }
-  .folder-bar .crumb .sep{ color:var(--ink-faint); padding:0 .3rem; }
-  .folder-bar .spacer{ flex:1 1 auto; }
-  .folder-bar .count{
-    border:1px solid var(--rule); border-radius:2px;
-    padding:.1rem .42rem; background:#fff; white-space:nowrap;
-  }
-
-  .folder-body{
-    flex:1 1 auto; min-height:0; overflow-y:auto;
-    display:flex; flex-direction:column; align-items:center;
-    padding:clamp(1.4rem,5vw,3rem) 1rem 2rem;
-  }
-  .folder-lede{
-    text-align:center; max-width:44ch; margin:0 0 clamp(1.4rem,4vw,2.4rem);
-  }
-  .folder-lede h1{
-    font-size:clamp(1.35rem,3vw,1.8rem); font-weight:600; letter-spacing:-.02em;
-    margin:0 0 .35rem;
-  }
-  .folder-lede p{
-    margin:0; font-size:.92rem; color:var(--ink-soft); line-height:1.5;
-  }
-
-  .files{
-    display:grid;
-    grid-template-columns:repeat(2, minmax(150px, 200px));
-    gap:clamp(1rem,3vw,2rem);
-    justify-content:center;
-    width:100%;
-  }
-  .file{
-    display:flex; flex-direction:column; align-items:center;
-    gap:.7rem;
-    background:transparent; border:1px solid transparent; border-radius:10px;
-    padding:1rem .8rem 1.05rem;
-    cursor:pointer; color:inherit; font-family:inherit;
-    text-align:center;
-    transition:transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s, background .2s, border-color .2s;
-  }
-  .file:hover{
-    transform:translateY(-3px);
-    background:#fff;
-    border-color:var(--rule);
-    box-shadow:0 10px 26px rgba(60,40,20,.12);
-  }
-  .file:focus-visible{ outline:2px solid var(--crimson); outline-offset:3px; }
-  .file:active{ transform:translateY(-1px); }
-
-  .fileicon{
-    width:92px; height:auto; display:block;
-    filter:drop-shadow(0 6px 12px rgba(60,40,20,.16));
-    transition:transform .2s cubic-bezier(.2,.8,.2,1);
-  }
-  .file:hover .fileicon{ transform:scale(1.04) rotate(-1deg); }
-
-  .file .fname{
-    font-family:"Fira Code", monospace;
-    font-size:.86rem; font-weight:500; color:var(--ink);
-    letter-spacing:-.01em; word-break:break-word;
-  }
-  .file .fmeta{
-    font-size:.82rem; color:var(--ink-soft); line-height:1.35;
-  }
-  .file .fmeta .sub{
-    display:block;
-    font-family:"Fira Code", monospace; font-size:.66rem;
-    color:var(--ink-faint); letter-spacing:.02em; margin-top:.18rem;
-  }
 
   /* ===================== READER ===================== */
   .reader{
@@ -142,13 +52,10 @@
     background:
       radial-gradient(120% 60% at 50% -8%, #ffffff 0%, var(--paper) 45%);
   }
-  @keyframes viewIn{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
-  .app[data-view="reader"] .reader{ animation:viewIn .42s cubic-bezier(.16,.84,.3,1); }
-  .app[data-view="folder"] .folder{ animation:viewIn .38s cubic-bezier(.16,.84,.3,1); }
 
   .toolbar{
     flex:0 0 auto;
-    display:flex; align-items:center; gap:.7rem; flex-wrap:wrap;
+    display:flex; align-items:center; gap:.7rem; flex-wrap:nowrap;
     padding:.45rem clamp(.8rem,3vw,1.5rem);
     background:rgba(251,250,247,.92);
     backdrop-filter:saturate(1.1) blur(2px);
@@ -158,19 +65,16 @@
     color:var(--ink-faint);
     z-index:5;
   }
-  .btn-back{
-    display:inline-flex; align-items:center; gap:.35rem;
-    font-family:"Fira Code", monospace; font-size:11.5px; font-weight:500;
-    color:var(--ink-soft); background:#fff;
-    border:1px solid var(--rule); border-radius:3px;
-    padding:.3rem .55rem .3rem .45rem; cursor:pointer;
-    transition:transform .2s cubic-bezier(.2,.8,.2,1), border-color .2s, background .2s;
-    white-space:nowrap;
+  .toolbar .filelabel{
+    display:inline-flex; align-items:center; gap:.45rem;
+    font-family:"Fira Code", monospace; font-size:12.5px; font-weight:500;
+    color:var(--ink); white-space:nowrap;
+    min-width:0;
   }
-  .btn-back:hover{ border-color:var(--crimson); color:var(--crimson); transform:translateX(-1px); }
-  .btn-back:focus-visible{ outline:2px solid var(--crimson); outline-offset:2px; }
-  .btn-back .chev{ font-size:1.05em; line-height:1; }
-  .toolbar .divide{ width:1px; height:1.1em; background:var(--rule); }
+  .toolbar .filelabel .fic{ color:var(--crimson); flex:0 0 auto; display:inline-flex; }
+  .toolbar .filelabel .fic svg{ width:13px; height:16px; display:block; }
+  .toolbar .filelabel .fname{ overflow:hidden; text-overflow:ellipsis; }
+  .toolbar .divide{ width:1px; height:1.1em; background:var(--rule); flex:0 0 auto; }
   .toolbar .brand{ color:var(--crimson); font-weight:600; letter-spacing:.02em; }
   .toolbar .arxid{ color:var(--ink-soft); }
   .toolbar .spacer{ flex:1 1 auto; }
@@ -187,11 +91,12 @@
     font-family:"Fira Code", monospace; font-size:11.5px; font-weight:500;
     text-decoration:none;
     color:#fff; background:var(--crimson);
-    padding:.32rem .65rem; border-radius:3px;
+    padding:.36rem .65rem; border-radius:3px;
     border:1px solid #6f1414;
     box-shadow:0 1px 2px rgba(60,20,20,.25);
     transition:transform .22s cubic-bezier(.2,.8,.2,1), background .2s;
-    white-space:nowrap;
+    white-space:nowrap; flex:0 0 auto;
+    min-height:32px;
   }
   .btn-open:hover{ background:#6f1414; transform:translateY(-1px); }
   .btn-open:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
@@ -216,6 +121,8 @@
   /* ---------- doc visibility ---------- */
   .doc{ display:none; }
   .doc.active{ display:block; }
+  @keyframes viewIn{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
+  .doc.active{ animation:viewIn .42s cubic-bezier(.16,.84,.3,1); }
 
   /* ---------- title block ---------- */
   .titleblock{ text-align:center; margin:.4rem 0 1.9rem; }
@@ -316,6 +223,7 @@
     transition:background .2s, border-color .2s;
   }
   a.ref:hover, a.exlink:hover{ background:var(--crimson-bg); border-color:var(--crimson); }
+  a.ref:focus-visible, a.exlink:focus-visible{ outline:2px solid var(--crimson); outline-offset:2px; border-radius:2px; }
 
   .texttt{
     font-family:"Fira Code", monospace; font-size:.8em;
@@ -414,117 +322,42 @@
   .reveal.in{ animation:rise .7s cubic-bezier(.16,.84,.3,1) forwards; }
   @media (prefers-reduced-motion: reduce){
     .reveal{ opacity:1 !important; animation:none !important; transform:none !important; }
-    .app[data-view="reader"] .reader,
-    .app[data-view="folder"] .folder,
-    .file, .fileicon{ animation:none !important; }
+    .doc.active{ animation:none !important; }
   }
   ::selection{ background:var(--crimson-bg); }
 
   /* ============ responsive ============ */
   @media (max-width:640px){
     body{ font-size:16px; }
-    .folder-body{ padding:clamp(1.2rem,6vw,2rem) .9rem 2rem; }
-    .files{
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:1rem; max-width:420px;
-    }
-    .file{ padding:.9rem .5rem 1rem; }
-    .fileicon{ width:78px; }
     .sheet{ padding-left:1.05rem; padding-right:1.05rem; }
     .abstract, .keywords{ max-width:100%; }
     .toolbar .arxid{ display:none; }
   }
   @media (max-width:430px){
-    .files{ grid-template-columns:1fr; max-width:280px; gap:.6rem; }
-    .file{
-      flex-direction:row; align-items:center; gap:.9rem;
-      text-align:left; padding:.7rem .8rem; min-height:64px;
-      border-color:var(--rule); background:#fff;
-    }
-    .fileicon{ width:46px; flex:0 0 auto; }
-    .file .fname{ font-size:.9rem; }
-    .file .ftext{ display:flex; flex-direction:column; gap:.15rem; }
-    .folder-lede h1{ font-size:1.3rem; }
-    .btn-back{ padding:.34rem .6rem; }
+    .toolbar{ gap:.5rem; }
     .btn-open span.olabel{ display:none; }
-    .btn-open{ padding:.34rem .5rem; }
+    .btn-open{ padding:.4rem .55rem; }
+    table.skills{ font-size:.8rem; }
   }
 </style>
 </head>
 <body>
-<div class="app" id="app" data-view="folder">
-
-  <!-- ===================== FOLDER LANDING ===================== -->
-  <section class="folder" id="folder" aria-label="Documents folder">
-    <div class="folder-bar">
-      <span class="dot" aria-hidden="true">&#9635;</span>
-      <span class="crumb">Documents<span class="sep">&rsaquo;</span>Files</span>
-      <span class="spacer"></span>
-      <span class="count">2 items</span>
-    </div>
-
-    <div class="folder-body">
-      <div class="folder-lede">
-        <h1>Documents</h1>
-        <p>Two files. Open a PDF to read it in the preprint viewer.</p>
-      </div>
-
-      <div class="files" role="list">
-
-        <button class="file" role="listitem" data-doc="paper"
-                aria-label="Open RECAP.pdf — RECAP research preprint, 8 pages">
-          <svg class="fileicon" viewBox="0 0 80 100" aria-hidden="true" focusable="false">
-            <path d="M12 3 h40 l20 20 v70 a4 4 0 0 1-4 4 H16 a4 4 0 0 1-4-4 V7 a4 4 0 0 1 4-4z"
-                  fill="#ffffff" stroke="#c9c2b4" stroke-width="1.4"/>
-            <path d="M52 3 v16 a4 4 0 0 0 4 4 h16" fill="#f0ede4" stroke="#c9c2b4" stroke-width="1.4"/>
-            <line x1="20" y1="34" x2="58" y2="34" stroke="#e2ddd0" stroke-width="2.6" stroke-linecap="round"/>
-            <line x1="20" y1="42" x2="58" y2="42" stroke="#e2ddd0" stroke-width="2.6" stroke-linecap="round"/>
-            <line x1="20" y1="50" x2="46" y2="50" stroke="#e2ddd0" stroke-width="2.6" stroke-linecap="round"/>
-            <rect x="10" y="62" width="42" height="20" rx="3" fill="#8a1a1a"/>
-            <text x="31" y="76.5" text-anchor="middle" font-family="'Fira Code',monospace"
-                  font-size="12.5" font-weight="600" fill="#ffffff" letter-spacing="1">PDF</text>
-          </svg>
-          <span class="ftext">
-            <span class="fname">RECAP.pdf</span>
-            <span class="fmeta">8&nbsp;pp &middot; arXiv preprint<span class="sub">141 KB &middot; 20 Jan 2026</span></span>
-          </span>
-        </button>
-
-        <button class="file" role="listitem" data-doc="cv"
-                aria-label="Open resume.pdf — Rishit Chugh curriculum vitae, 1 page">
-          <svg class="fileicon" viewBox="0 0 80 100" aria-hidden="true" focusable="false">
-            <path d="M12 3 h40 l20 20 v70 a4 4 0 0 1-4 4 H16 a4 4 0 0 1-4-4 V7 a4 4 0 0 1 4-4z"
-                  fill="#ffffff" stroke="#c9c2b4" stroke-width="1.4"/>
-            <path d="M52 3 v16 a4 4 0 0 0 4 4 h16" fill="#f0ede4" stroke="#c9c2b4" stroke-width="1.4"/>
-            <rect x="20" y="32" width="20" height="4" rx="2" fill="#8a1a1a" opacity="0.85"/>
-            <line x1="20" y1="42" x2="58" y2="42" stroke="#e2ddd0" stroke-width="2.6" stroke-linecap="round"/>
-            <line x1="20" y1="49" x2="58" y2="49" stroke="#e2ddd0" stroke-width="2.6" stroke-linecap="round"/>
-            <line x1="20" y1="56" x2="50" y2="56" stroke="#e2ddd0" stroke-width="2.6" stroke-linecap="round"/>
-            <rect x="10" y="62" width="42" height="20" rx="3" fill="#8a1a1a"/>
-            <text x="31" y="76.5" text-anchor="middle" font-family="'Fira Code',monospace"
-                  font-size="12.5" font-weight="600" fill="#ffffff" letter-spacing="1">PDF</text>
-          </svg>
-          <span class="ftext">
-            <span class="fname">resume.pdf</span>
-            <span class="fmeta">1&nbsp;p &middot; Curriculum Vit&aelig;<span class="sub">PDF &middot; 2026</span></span>
-          </span>
-        </button>
-
-      </div>
-    </div>
-  </section>
+<div class="app" id="app">
 
   <!-- ===================== READER ===================== -->
   <div class="reader" id="reader">
 
-    <!-- toolbar (changes with the active doc) -->
+    <!-- top bar: shows the current file + open-original link -->
     <div class="toolbar" id="toolbar">
-      <button class="btn-back" id="btn-back" type="button" aria-label="Back to Documents folder">
-        <span class="chev" aria-hidden="true">&lsaquo;</span> Documents
-      </button>
+      <span class="filelabel">
+        <span class="fic" aria-hidden="true">
+          <svg viewBox="0 0 24 30" fill="none"><path d="M3 1h13l5 5v22a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" fill="#fff" stroke="currentColor" stroke-width="1.6"/><path d="M16 1v4a1 1 0 0 0 1 1h4" stroke="currentColor" stroke-width="1.6"/></svg>
+        </span>
+        <span class="fname" id="tb-file">RECAP.pdf</span>
+      </span>
       <span class="divide" aria-hidden="true"></span>
-      <span class="brand" id="tb-brand">arXiv</span>
-      <span class="arxid hide-sm" id="tb-id">:2601.15331v1</span>
+      <span class="brand hide-sm" id="tb-brand">arXiv</span>
+      <span class="arxid" id="tb-id">:2601.15331v1</span>
       <span class="pill hide-sm" id="tb-class">cs.CL</span>
       <span class="spacer"></span>
       <span class="pill hide-sm" id="tb-tag">Preprint &middot; 2026</span>
@@ -536,8 +369,8 @@
 
     <div class="scroll" id="scroll">
 
-      <!-- ============ DOCUMENT 1: RECAP PAPER ============ -->
-      <article class="doc active" id="doc-paper" role="document" aria-label="RECAP preprint">
+      <!-- ============ DOCUMENT: RECAP PAPER (#recap) ============ -->
+      <article class="doc active" id="doc-recap" role="document" aria-label="RECAP preprint">
         <div class="sheet">
 
           <header class="titleblock reveal">
@@ -603,7 +436,7 @@
                 <div class="frame">
                   <img src="../../assets/paper/arxiv-ss.png" alt="Screenshot of the RECAP paper's first page on arXiv, showing title, author, and abstract.">
                 </div>
-                <figcaption><span class="fnum">Figure&nbsp;1:</span> RECAP, page 1 as rendered on arXiv (<span class="texttt">arXiv:2601.15331</span>). Input prompts are encoded, matched against a pre-compiled database of successful adversarial prompts, and the retrieved suffix is appended before the query is sent to the target LLM.</figcaption>
+                <figcaption><span class="fnum">Figure&nbsp;1:</span> The RECAP inference pipeline (page 1 as rendered on arXiv, <span class="texttt">arXiv:2601.15331</span>). Input prompts are encoded, matched against a pre-compiled database of successful adversarial prompts, and the retrieved suffix is appended before the query is sent to the target LLM.</figcaption>
               </figure>
             </section>
 
@@ -625,7 +458,7 @@
                   </tbody>
                 </table>
               </div>
-              <p class="body noindent">RECAP reached an ASR of 0.33 &mdash; close to GCG&rsquo;s 0.59, PEZ&rsquo;s 0.39, and GBDA&rsquo;s 0.35 &mdash; while being markedly faster. Full GCG training took roughly 3 hours per batch versus about 7 minutes for GBDA and only 4 minutes for RECAP, an inference-time saving of around 45% over the fastest baselines. The slightly lower ASR is attributed to the limited size of the retrieval database, expected to improve along a logistic curve as coverage grows.</p>
+              <p class="body noindent">RECAP reached an ASR of 0.33 &mdash; close to GCG&rsquo;s 0.59, PEZ&rsquo;s 0.39, and GBDA&rsquo;s 0.35 &mdash; while being markedly faster. Full GCG training took roughly 3 hours per batch versus about 7 minutes for GBDA and only 4 minutes for RECAP, cutting inference time by around 45% versus the fastest baselines. The slightly lower ASR is attributed to the limited size of the retrieval database, expected to improve along a logistic curve as coverage grows.</p>
 
               <h3 class="subhead">A. Attack on Black-Box Models</h3>
               <p class="body noindent">Because RECAP needs no logits or raw outputs, it can be run on hosted, black-box LLMs where other methods cannot. Tested through the Gemini API with harm filters disabled, ASR ranged from 4% to 10% &mdash; modest, but notable because competing algorithms simply cannot run there. Gemini&rsquo;s separate input prompt-guard, and its far larger parameter count versus the 7B models used elsewhere, likely explain the lower rate.</p>
@@ -661,8 +494,8 @@
         </div>
       </article>
 
-      <!-- ============ DOCUMENT 2: RÉSUMÉ ============ -->
-      <article class="doc" id="doc-cv" role="document" aria-label="Résumé" hidden>
+      <!-- ============ DOCUMENT: RÉSUMÉ (#resume) ============ -->
+      <article class="doc" id="doc-resume" role="document" aria-label="Résumé">
         <div class="sheet">
 
           <header class="titleblock reveal">
@@ -688,6 +521,11 @@
             <p><span class="lead">Machine learning engineer focused on research-grade methods that ship.</span> Three years of applied work spanning real-time sports analytics, large-language-model safety and red-teaming, and retrieval-augmented systems — with deployed pipelines, published research, and a bias toward latency-critical, production-ready ML.</p>
           </section>
           <p class="keywords reveal"><b>Focus:</b> deep learning &middot; LLM safety &middot; computer vision &middot; RAG &middot; latency-critical inference</p>
+
+          <div class="forthcoming reveal" style="font-style:normal;">
+            <span class="ic" aria-hidden="true">&#9635;</span>
+            <span><strong>View résumé:</strong>&nbsp; the complete, up-to-date document with detailed dates, metrics, and education is maintained live &mdash; <a class="exlink" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener">open on Google&nbsp;Docs&nbsp;&#8599;</a>.</span>
+          </div>
 
           <main>
             <section class="sec reveal">
@@ -763,8 +601,8 @@
               <p class="body noindent">This is a preprint-styled summary. The complete, up-to-date résumé — with detailed dates, metrics, and education — is maintained as a live document.</p>
               <div class="forthcoming" style="font-style:normal;">
                 <span class="ic" aria-hidden="true">&#9635;</span>
-                <span><strong>Open full résumé:</strong>&nbsp;
-                  <a class="exlink" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener">Google&nbsp;Docs&nbsp;(latest)</a>
+                <span><strong>View résumé:</strong>&nbsp;
+                  <a class="exlink" href="https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit" target="_blank" rel="noopener">Google&nbsp;Docs&nbsp;(latest)&nbsp;&#8599;</a>
                 </span>
               </div>
             </section>
@@ -786,31 +624,30 @@
   "use strict";
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var app = document.getElementById('app');
   var scroll = document.getElementById('scroll');
 
   var docs = {
-    paper: {
-      panel: document.getElementById('doc-paper'),
+    recap: {
+      panel: document.getElementById('doc-recap'),
+      file: 'RECAP.pdf', title: 'RECAP.pdf — Preprint Reader',
       brand: 'arXiv', id: ':2601.15331v1', cls: 'cs.CL', tag: 'Preprint · 2026',
       href: '../../data/paper.pdf', btn: 'Open original PDF'
     },
-    cv: {
-      panel: document.getElementById('doc-cv'),
+    resume: {
+      panel: document.getElementById('doc-resume'),
+      file: 'resume.pdf', title: 'resume.pdf — Preprint Reader',
       brand: 'doc', id: 'résumé / CV', cls: 'PDF', tag: 'Rishit Chugh · 2026',
-      href: 'https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit', btn: 'Open full résumé'
+      href: 'https://docs.google.com/document/d/1a0imuYTlivn4lub8MxcYmARPLnv1Yl5G/edit', btn: 'View résumé'
     }
   };
 
-  var tbBrand = document.getElementById('tb-brand'),
+  var tbFile = document.getElementById('tb-file'),
+      tbBrand = document.getElementById('tb-brand'),
       tbId = document.getElementById('tb-id'),
       tbCls = document.getElementById('tb-class'),
       tbTag = document.getElementById('tb-tag'),
       tbBtn = document.getElementById('tb-btn'),
       tbBtnLabel = document.getElementById('tb-btn-label');
-
-  var files = [].slice.call(document.querySelectorAll('.file'));
-  var backBtn = document.getElementById('btn-back');
 
   function runReveal(panel){
     var reveals = [].slice.call(panel.querySelectorAll('.reveal'));
@@ -827,45 +664,35 @@
     setTimeout(function(){ reveals.slice(0,4).forEach(function(r){ r.classList.add('in'); }); }, 40);
   }
 
-  function openDoc(key){
+  // Map the URL hash to a document key. Default → recap.
+  function keyFromHash(){
+    var h = (location.hash || '').replace('#', '').toLowerCase().trim();
+    if(h === 'resume' || h === 'cv' || h === 'résumé') return 'resume';
+    if(h === 'recap' || h === 'paper') return 'recap';
+    return 'recap';
+  }
+
+  function render(){
+    var key = keyFromHash();
     var d = docs[key];
-    if(!d) return;
     Object.keys(docs).forEach(function(k){
       var on = k === key;
       docs[k].panel.classList.toggle('active', on);
-      docs[k].panel.hidden = !on;
     });
+    tbFile.textContent = d.file;
     tbBrand.textContent = d.brand;
     tbId.textContent = d.id;
     tbCls.textContent = d.cls;
     tbTag.textContent = d.tag;
     tbBtn.href = d.href;
     tbBtnLabel.textContent = d.btn;
-    app.setAttribute('data-view', 'reader');
+    try { document.title = d.title; } catch(e){}
     scroll.scrollTop = 0;
     runReveal(d.panel);
-    // move focus to the back control for keyboard users
-    backBtn.focus({preventScroll:true});
   }
 
-  function showFolder(){
-    app.setAttribute('data-view', 'folder');
-    var active = document.querySelector('.file[data-doc="' + (lastKey || 'paper') + '"]');
-    if(active) active.focus({preventScroll:true});
-  }
-
-  var lastKey = null;
-  files.forEach(function(f){
-    f.addEventListener('click', function(){ lastKey = f.dataset.doc; openDoc(f.dataset.doc); });
-  });
-  backBtn.addEventListener('click', showFolder);
-
-  // Escape returns to the folder from the reader
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && app.getAttribute('data-view') === 'reader'){
-      showFolder();
-    }
-  });
+  window.addEventListener('hashchange', render);
+  render();
 })();
 </script>
 </body>

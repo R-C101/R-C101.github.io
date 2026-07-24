@@ -156,6 +156,11 @@ a{color:var(--pen-blue);text-decoration:none;}
 }
 .reset:hover{background:rgba(192,54,42,.08);transform:rotate(0);}
 
+/* desktop: the four selects + reset flow inline in the bar; the mobile drawer
+   chrome (toggle, drawer head/done, scrim) is hidden until ≤640px kicks in */
+.filter-fields{display:contents;}
+.m-filter-toggle,.drawer-head,.drawer-done,.drawer-scrim{display:none;}
+
 /* --- results scroller --- */
 .scroller{
   flex:1 1 auto;overflow-y:auto;overflow-x:hidden;
@@ -464,14 +469,95 @@ a{color:var(--pen-blue);text-decoration:none;}
   border-bottom:1.5px solid rgba(39,75,134,.4);padding-bottom:1px;
 }
 
-/* small screens */
-@media (max-width:480px){
+/* ============================================================
+   PHONE — filters collapse into a slide-in drawer so the recipe
+   grid owns the screen (≤640px → 2-up, ≤430px → 1-up)
+   ============================================================ */
+@media (max-width:640px){
   .masthead{padding:12px 16px 10px;}
-  .controls{padding:10px 16px;}
+
+  /* controls become a slim, sticky bar: [ search ] [ Filters ] */
+  .controls{
+    position:sticky;top:0;z-index:6;
+    flex-wrap:nowrap;gap:10px;padding:10px 16px;
+  }
+  .search{flex:1 1 auto;min-width:0;max-width:none;}
+  .search input{font-size:16px;padding:10px 32px 10px 9px;}
+
+  .m-filter-toggle{
+    display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;position:relative;
+    font-family:"Kalam",cursive;font-weight:700;font-size:.9rem;color:var(--pen-blue);
+    background:rgba(255,253,247,.85);border:1.5px solid var(--pen-blue);border-radius:4px;
+    padding:8px 13px;min-height:44px;cursor:pointer;
+  }
+  .m-filter-toggle svg{width:16px;height:16px;stroke:var(--pen-blue);}
+  .m-filter-badge{
+    display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 4px;
+    border-radius:9px;background:var(--red);color:#fff;
+    font-family:"Courier Prime",monospace;font-weight:700;font-size:.66rem;line-height:1;
+  }
+  .m-filter-badge[hidden]{display:none;}
+
+  /* the drawer itself — off-canvas from the right */
+  .filter-fields{
+    display:flex;flex-direction:column;gap:13px;align-items:stretch;
+    position:fixed;top:0;right:0;bottom:0;z-index:60;
+    width:min(84vw,330px);
+    padding:18px 18px calc(20px + env(safe-area-inset-bottom));
+    background-color:var(--paper-card);
+    background-image:
+      linear-gradient(rgba(96,132,150,.10) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(96,132,150,.10) 1px,transparent 1px);
+    background-size:22px 22px;
+    box-shadow:-16px 0 44px -20px rgba(60,45,20,.7);
+    transform:translateX(100%);
+    transition:transform .32s cubic-bezier(.16,1,.3,1);
+    overflow-y:auto;
+  }
+  .filter-fields.open{transform:translateX(0);}
+
+  .drawer-head{
+    display:flex;align-items:center;justify-content:space-between;
+    font-family:"Courier Prime",monospace;font-weight:700;font-size:1.05rem;color:var(--ink);
+    padding-bottom:10px;border-bottom:2px solid var(--ink);
+  }
+  .drawer-close{
+    width:34px;height:34px;border:1.5px solid rgba(120,105,70,.5);border-radius:50%;
+    background:rgba(255,253,247,.85);color:var(--ink);font-size:.95rem;cursor:pointer;
+    display:grid;place-items:center;
+  }
+  .field{width:100%;}
+  .field label{font-size:.72rem;}
+  .field select{width:100%;font-size:16px;padding:11px 30px 11px 10px;min-height:46px;}
+  .reset{width:100%;min-height:46px;align-self:stretch;transform:none;font-size:.92rem;}
+  .drawer-done{
+    display:block;width:100%;min-height:48px;margin-top:auto;cursor:pointer;
+    font-family:"Courier Prime",monospace;font-weight:700;font-size:.92rem;letter-spacing:.02em;
+    color:var(--paper-card);background:var(--pen-blue);border:none;border-radius:4px;
+    box-shadow:2px 3px 0 rgba(39,75,134,.25);
+  }
+  .drawer-scrim{
+    display:block;position:fixed;inset:0;z-index:55;
+    background:rgba(30,22,8,.42);
+  }
+  .drawer-scrim[hidden]{display:none;}
+
+  /* card grid: two-up polaroids, now with the vertical room to breathe */
   .scroller{padding:16px 16px 34px;}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 16px;}
-  .d-inner{padding:20px 18px 60px;}
-  .d-inner::before{left:8px;}
+  .grid{grid-template-columns:repeat(2,1fr);gap:26px 14px;max-width:none;}
+  .card .r-title{font-size:.92rem;}
+
+  @media (prefers-reduced-motion:reduce){.filter-fields{transition:none;}}
+}
+@media (max-width:430px){
+  .masthead{padding:11px 14px 9px;}
+  .controls{padding:9px 14px;}
+  .scroller{padding:15px 14px 32px;}
+  .grid{grid-template-columns:1fr;gap:22px;}
+  .d-inner{padding:16px 14px 54px;}
+  .d-inner::before{left:6px;}
+  .d-stats{grid-template-columns:repeat(2,1fr);}
+  .d-stat:nth-child(2n){border-right:none;}
 }
 </style>
 </head>
@@ -496,14 +582,25 @@ a{color:var(--pen-blue);text-decoration:none;}
       <input id="q" type="search" placeholder="search dishes, tags, chef…" autocomplete="off" />
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
     </div>
-    <div class="field"><label for="f-diet">Diet</label>
-      <select id="f-diet"><option value="">all</option><option value="veg">veg</option><option value="non-veg">non-veg</option></select>
+    <!-- mobile-only: opens the filter drawer -->
+    <button class="m-filter-toggle" id="mFilterToggle" type="button" aria-expanded="false" aria-controls="filterFields">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/></svg>
+      <span>Filters</span><span class="m-filter-badge" id="mFilterBadge" hidden></span>
+    </button>
+    <!-- on desktop this flows inline (display:contents); on mobile it's a drawer -->
+    <div class="filter-fields" id="filterFields">
+      <div class="drawer-head"><span>Filters</span><button class="drawer-close" id="drawerClose" type="button" aria-label="Close filters">✕</button></div>
+      <div class="field"><label for="f-diet">Diet</label>
+        <select id="f-diet"><option value="">all</option><option value="veg">veg</option><option value="non-veg">non-veg</option></select>
+      </div>
+      <div class="field"><label for="f-course">Course</label><select id="f-course"><option value="">all</option></select></div>
+      <div class="field"><label for="f-cuisine">Cuisine</label><select id="f-cuisine"><option value="">all</option></select></div>
+      <div class="field"><label for="f-chef">Chef</label><select id="f-chef"><option value="">all</option></select></div>
+      <button class="reset" id="reset" type="button">clear ✕</button>
+      <button class="drawer-done" id="drawerDone" type="button">Show recipes</button>
     </div>
-    <div class="field"><label for="f-course">Course</label><select id="f-course"><option value="">all</option></select></div>
-    <div class="field"><label for="f-cuisine">Cuisine</label><select id="f-cuisine"><option value="">all</option></select></div>
-    <div class="field"><label for="f-chef">Chef</label><select id="f-chef"><option value="">all</option></select></div>
-    <button class="reset" id="reset" type="button">clear ✕</button>
   </div>
+  <div class="drawer-scrim" id="drawerScrim" hidden></div>
 
   <!-- ===== RESULTS ===== -->
   <div class="scroller" id="scroller">
@@ -690,6 +787,7 @@ a{color:var(--pen-blue);text-decoration:none;}
   /* ---------- render grid ---------- */
   function render(){
     var list=recipes.filter(matches);
+    updateFilterBadge();
     clearState();
     if(list.length===0){
       grid.innerHTML='';
@@ -844,16 +942,42 @@ a{color:var(--pen-blue);text-decoration:none;}
     if(m && bySlug[m[1]] && detail.hidden){ openDetail(m[1]); }
   }
 
+  /* ---------- mobile filter drawer ---------- */
+  var filterFields=document.getElementById('filterFields');
+  var mToggle=document.getElementById('mFilterToggle');
+  var mBadge=document.getElementById('mFilterBadge');
+  var scrim=document.getElementById('drawerScrim');
+  function drawerOpen(){ return filterFields.classList.contains('open'); }
+  function openDrawer(){
+    filterFields.classList.add('open'); scrim.hidden=false;
+    mToggle.setAttribute('aria-expanded','true');
+  }
+  function closeDrawer(){
+    filterFields.classList.remove('open'); scrim.hidden=true;
+    mToggle.setAttribute('aria-expanded','false');
+  }
+  mToggle.addEventListener('click', function(){ drawerOpen()?closeDrawer():openDrawer(); });
+  scrim.addEventListener('click', closeDrawer);
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.getElementById('drawerDone').addEventListener('click', closeDrawer);
+  function updateFilterBadge(){
+    var n=['diet','course','cuisine','chef'].reduce(function(a,k){return a+(filters[k]?1:0);},0);
+    if(n>0){ mBadge.textContent=n; mBadge.hidden=false; }
+    else { mBadge.hidden=true; }
+  }
+
   /* ---------- events ---------- */
   grid.addEventListener('click', function(e){
-    var b=e.target.closest('.card'); if(b) openDetail(b.getAttribute('data-slug'));
+    var b=e.target.closest('.card'); if(b){ closeDrawer(); openDetail(b.getAttribute('data-slug')); }
   });
   document.getElementById('back').addEventListener('click', closeDetail);
   detail.addEventListener('click', function(e){
     var bk=e.target.closest('[data-back]'); if(bk){ e.preventDefault(); closeDetail(); }
   });
   document.addEventListener('keydown', function(e){
-    if(e.key==='Escape' && !detail.hidden) closeDetail();
+    if(e.key!=='Escape') return;
+    if(!detail.hidden){ closeDetail(); }
+    else if(drawerOpen()){ closeDrawer(); }
   });
 
   var qEl=document.getElementById('q');

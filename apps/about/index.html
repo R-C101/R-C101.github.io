@@ -333,6 +333,29 @@ a:hover{text-decoration:underline}
   .cmdbtn{width:auto;flex:0 0 auto;padding:6px 12px;border-color:var(--line);white-space:nowrap}
   .cmdbtn .d{display:none}
 }
+
+/* ============================================================
+   PHONE — full-screen standalone (transcript + cheat-strip stacked)
+   ============================================================ */
+@media(max-width:640px){
+  body{font-size:14px}
+  /* command chips stay tappable (≥44px) */
+  .cmds{padding:8px 12px}
+  .cmdbtn{min-height:44px;display:inline-flex;align-items:center}
+  /* 16px input avoids iOS focus-zoom; keep it reachable */
+  #cli{font-size:16px}
+  .neo{padding:14px 14px;gap:14px}
+  /* long content columns wrap rather than force width */
+  .para,.cdesc,.pdesc,.paper .abs{max-width:none}
+}
+@media(max-width:430px){
+  .topbar{padding:7px 12px;gap:8px}
+  .transcript{padding:14px 14px 12px}
+  .inputwrap{padding:10px 14px 12px}
+  .cta{width:100%;justify-content:center}
+  .cta-row{gap:8px}
+  .neo{padding:13px 13px}
+}
 </style>
 </head>
 <body>

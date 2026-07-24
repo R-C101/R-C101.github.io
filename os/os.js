@@ -21,15 +21,24 @@
   /* App registry                                                           */
   /* ---------------------------------------------------------------------- */
   const APPS = [
-    { id: 'about',     name: 'About',       w: 780, h: 540, phase: 'Terminal' },
-    { id: 'projects',  name: 'Projects',    w: 760, h: 540, phase: 'Blueprint' },
-    { id: 'documents', name: 'Documents',   w: 760, h: 600, phase: 'Preprint' },
-    { id: 'recipes',   name: 'Recipe Book', w: 900, h: 600, phase: 'Field notes' },
+    { id: 'about',    name: 'About',       w: 780,  h: 540 },
+    { id: 'projects', name: 'Projects',    w: 760,  h: 540 },
+    { id: 'recap',    name: 'RECAP.pdf',   w: 820,  h: 620, src: 'apps/documents/index.html#recap',  icon: 'pdf' },
+    { id: 'resume',   name: 'resume.pdf',  w: 720,  h: 620, src: 'apps/documents/index.html#resume', icon: 'pdf' },
+    { id: 'recipes',  name: 'Recipe Book', w: 900,  h: 600 },
+    { id: 'racing',   name: 'Racing',      w: 1024, h: 680, src: 'Racing_Game/dist/index.html', icon: 'racing', openMax: true },
   ];
   const APP = Object.fromEntries(APPS.map(a => [a.id, a]));
-  const DESK_ICONS = ['documents', 'recipes', 'about'];
+  /* the dock holds the "real" apps; the PDFs + game + virus live on the desktop */
+  const DOCK_APPS = ['about', 'projects', 'recipes'];
+  /* desktop icons: the two mock PDFs, the recipe book, the game, the virus gimmick */
+  const DESK_ICONS = ['recap', 'resume', 'recipes', 'racing', 'virus'];
   /* apps whose interior is a self-contained doc loaded in an iframe */
-  const FRAMED = new Set(['about', 'projects', 'documents', 'recipes']);
+  const FRAMED = new Set(['about', 'projects', 'recap', 'resume', 'recipes', 'racing']);
+  /* desktop actions — not windows; each fires a one-off behaviour */
+  const ACTIONS = {
+    virus: { id: 'virus', name: 'Virus.exe', run: () => window.RishitVirus && window.RishitVirus.start() },
+  };
   /* dock quick-links — each opens its destination directly (no window) */
   const LINKS = [
     { id: 'github',   name: 'GitHub · @R-C101',           href: 'https://github.com/R-C101' },
@@ -45,7 +54,11 @@
     about:     'linear-gradient(160deg,#22334d,#111b2e)',
     projects:  'linear-gradient(160deg,#0d4bab,#08306b)',
     documents: 'linear-gradient(160deg,#ffffff,#eef2f8)',
+    recap:     'linear-gradient(160deg,#ffffff,#eef2f8)',
+    resume:    'linear-gradient(160deg,#ffffff,#eef2f8)',
     recipes:   'linear-gradient(160deg,#f2913f,#df611a)',
+    racing:    'linear-gradient(160deg,#2a2f3a,#12151c)',
+    virus:     'linear-gradient(160deg,#e5484d,#7a1220)',
     github:    'linear-gradient(160deg,#3b444f,#1b2027)',
     x:         'linear-gradient(160deg,#34353b,#0a0a0c)',
     linkedin:  'linear-gradient(160deg,#2f80e8,#0a66c2)',
@@ -54,6 +67,8 @@
   };
   function glyph(id, s) {
     const open = `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">`;
+    const alias = { recap: 'pdf', resume: 'pdf' };
+    if (alias[id]) id = alias[id];
     switch (id) {
       case 'about':
         // terminal mark, so it reads as "click to open a terminal"
@@ -76,6 +91,12 @@
         return `${open}<rect x="3.4" y="6" width="17.2" height="12" rx="2.2" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M4.2 7.2 12 13l7.8-5.8" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18.4" cy="6.4" r="2.7" fill="#f26b1d" stroke="#fff" stroke-width="1"/></svg>`;
       case 'terminal':
         return `${open}<path d="M5 8l4 4-4 4" stroke="#4fd6ff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16h7" stroke="#f6923c" stroke-width="1.9" stroke-linecap="round"/></svg>`;
+      case 'pdf':
+        return `${open}<path d="M6.4 3.2h7L18 7.6V20.8H6.4Z" fill="#fff" stroke="#c0341d" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.4 3.2v4.4H18" fill="none" stroke="#c0341d" stroke-width="1.3" stroke-linejoin="round"/><rect x="4.9" y="12.6" width="11.6" height="5.7" rx="1.1" fill="#d5341d"/><path d="M7 15.4v-1.2h.7a.55.55 0 0 1 0 1.1H7m0 .1v1M9.5 14.2v2.2h.55a1 1 0 0 0 0-2.2H9.5m3-.0v2.2m0-1.1h1.2m-1.2-1.1h1.35" stroke="#fff" stroke-width=".62" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      case 'racing':
+        return `${open}<path d="M6 3.4v17.2" stroke="#f2913f" stroke-width="1.7" stroke-linecap="round"/><g fill="#e6ebf3"><rect x="7.6" y="5" width="2.45" height="1.8"/><rect x="12.5" y="5" width="2.45" height="1.8"/><rect x="10.05" y="6.8" width="2.45" height="1.8"/><rect x="14.95" y="6.8" width="2.15" height="1.8"/><rect x="7.6" y="8.6" width="2.45" height="1.8"/><rect x="12.5" y="8.6" width="2.45" height="1.8"/><rect x="10.05" y="10.4" width="2.45" height="1.8"/><rect x="14.95" y="10.4" width="2.15" height="1.8"/></g><g fill="#f2913f"><rect x="10.05" y="5" width="2.45" height="1.8"/><rect x="14.95" y="5" width="2.15" height="1.8"/><rect x="7.6" y="6.8" width="2.45" height="1.8"/><rect x="12.5" y="6.8" width="2.45" height="1.8"/><rect x="10.05" y="8.6" width="2.45" height="1.8"/><rect x="14.95" y="8.6" width="2.15" height="1.8"/><rect x="7.6" y="10.4" width="2.45" height="1.8"/><rect x="12.5" y="10.4" width="2.45" height="1.8"/></g></svg>`;
+      case 'virus':
+        return `${open}<circle cx="12" cy="12" r="4.6" fill="#fff"/><g stroke="#fff" stroke-width="1.5" stroke-linecap="round"><path d="M12 3.4v3.1M12 17.5v3.1M3.4 12h3.1M17.5 12h3.1M5.9 5.9l2.2 2.2M15.9 15.9l2.2 2.2M18.1 5.9l-2.2 2.2M8.1 15.9l-2.2 2.2"/></g><g fill="#e5484d"><circle cx="10.5" cy="11" r="1"/><circle cx="13.4" cy="13.3" r="1"/></g></svg>`;
       case 'mark':
         return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#fff" stroke-width="1.7"/><path d="M12 4.5v15M4.5 12h15" stroke="#fff" stroke-width="1.1" opacity=".55"/><circle cx="12" cy="12" r="2.3" fill="#f6923c"/></svg>`;
       default: return '';
@@ -120,7 +141,7 @@
   const dockEls = {};
   function buildDock() {
     const dock = $('#dock');
-    APPS.forEach(a => {
+    DOCK_APPS.map(id => APP[id]).forEach(a => {
       const item = el('button', 'dock-item');
       item.type = 'button';
       item.setAttribute('aria-label', a.name);
@@ -151,19 +172,20 @@
   function buildDeskIcons() {
     const host = $('#desk-icons');
     DESK_ICONS.forEach(id => {
-      const a = APP[id];
+      const meta = APP[id] || ACTIONS[id];
+      const open = () => (ACTIONS[id] ? ACTIONS[id].run() : openApp(id));
       const icon = el('div', 'desk-icon');
       icon.tabIndex = 0;
       icon.innerHTML =
         `<span class="di-glyph" style="background:${TILES[id]}">${glyph(id, 26)}</span>` +
-        `<span class="di-label">${a.name}</span>`;
+        `<span class="di-label">${meta.name}</span>`;
       icon.addEventListener('click', e => {
         e.stopPropagation();
         document.querySelectorAll('.desk-icon.sel').forEach(n => n.classList.remove('sel'));
         icon.classList.add('sel');
       });
-      icon.addEventListener('dblclick', () => openApp(id));
-      icon.addEventListener('keydown', e => { if (e.key === 'Enter') openApp(id); });
+      icon.addEventListener('dblclick', open);
+      icon.addEventListener('keydown', e => { if (e.key === 'Enter') open(); });
       host.append(icon);
     });
     $('#desktop').addEventListener('pointerdown', e => {
@@ -197,7 +219,7 @@
     if (FRAMED.has(id)) {
       return `<div class="win-body framed loading">
         <div class="frame-spin"><i></i></div>
-        <iframe class="app-frame" title="${APP[id].name}" src="apps/${id}/index.html"></iframe>
+        <iframe class="app-frame" title="${APP[id].name}" src="${APP[id].src || 'apps/' + id + '/index.html'}"></iframe>
         <div class="frame-shield"></div>
       </div>`;
     }
@@ -219,11 +241,19 @@
     const a = APP[id];
     const node = el('div', 'win');
     node.dataset.app = id;
-    const w = Math.min(a.w, innerWidth - 40);
-    const h = Math.min(a.h, innerHeight - MENUBAR_H - 110);
+    let w = Math.min(a.w, innerWidth - 40);
+    let h = Math.min(a.h, innerHeight - MENUBAR_H - 110);
     const n = wins.size;
-    const x = clamp(Math.round((innerWidth - w) / 2) + n * 26 - 40, 12, innerWidth - w - 12);
-    const y = clamp(MENUBAR_H + 46 + n * 24, MENUBAR_H + 12, innerHeight - 160);
+    let x = clamp(Math.round((innerWidth - w) / 2) + n * 26 - 40, 12, innerWidth - w - 12);
+    let y = clamp(MENUBAR_H + 46 + n * 24, MENUBAR_H + 12, innerHeight - 160);
+    /* apps that want to launch maximised (e.g. the game) fill the workspace,
+       and remember a sensible restore rectangle for the green button */
+    let startMax = false, restoreGeom = null;
+    if (a.openMax) {
+      restoreGeom = { x: clamp(Math.round((innerWidth - w) / 2), 12, innerWidth - w - 12), y: MENUBAR_H + 46, w, h };
+      const ws = workspace();
+      x = ws.x; y = ws.y; w = ws.w; h = ws.h; startMax = true;
+    }
 
     node.innerHTML =
       `<div class="win-bar">
@@ -238,6 +268,7 @@
        <span class="win-rz e"></span><span class="win-rz s"></span><span class="win-rz se"></span>`;
 
     win = { id, el: node, x, y, w, h, min: false, max: false, prev: null };
+    if (startMax) { win.max = true; win.prev = restoreGeom; node.classList.add('is-max'); }
     wins.set(id, win);
     $('#windows').append(node);
     place(win);
@@ -408,9 +439,10 @@
   /* ---------------------------------------------------------------------- */
   const BOOT = [
     ['RishitOS 2.0 — blueprint build', 'dim'],
-    ['mounting /apps ............. about · experience · projects', 'ok'],
-    ['loading /documents ......... RECAP · résumé', 'ok'],
-    ['indexing /recipes .......... 55 entries', 'ok'],
+    ['mounting /apps ............. about · projects · recipes', 'ok'],
+    ['loading /documents ......... RECAP.pdf · resume.pdf', 'ok'],
+    ['indexing /recipes .......... 56 entries', 'ok'],
+    ['loading /games ............. racing · virus.exe', 'ok'],
     ['starting window server .....', 'ok'],
     ['calibrating dock ...........', 'ok'],
     ['ready.', 'dim'],
@@ -482,17 +514,36 @@
   /* ---------------------------------------------------------------------- */
   /* Boot                                                                   */
   /* ---------------------------------------------------------------------- */
-  function init() {
+  /* On a phone-sized screen we don't gate with a warning: we flash a brief
+     "best on desktop" splash and hand off to the tailored mobile OS. A quiet
+     link lets the determined desktop-seeker stay. */
+  function mobileHandoff() {
+    document.body.classList.remove('booting');
+    $('#boot')?.remove();               // no boot on mobile — clear the cover
+    const notice = $('#screen-notice');
+    notice?.setAttribute('aria-hidden', 'false');
+    let cancelled = false;
+    const t = setTimeout(() => { if (!cancelled) location.replace('phone/index.html'); },
+      REDUCED ? 900 : 1600);
+    $('#sn-desktop')?.addEventListener('click', e => {
+      e.preventDefault();
+      cancelled = true; clearTimeout(t);
+      document.body.classList.remove('small');
+      notice?.setAttribute('aria-hidden', 'true');
+      startDesktop();
+    });
+  }
+  function startDesktop() {
     buildMenubar();
     buildDock();
     buildDeskIcons();
-    checkSize();
     addEventListener('resize', checkSize);
-    $('#sn-enter')?.addEventListener('click', () => {
-      document.body.classList.remove('small');
-      if (!wins.size) openApp('about');
-    });
     buildBoot();
+  }
+  function init() {
+    checkSize();
+    if (document.body.classList.contains('small')) { mobileHandoff(); return; }
+    startDesktop();
   }
   if (document.readyState === 'loading') addEventListener('DOMContentLoaded', init);
   else init();

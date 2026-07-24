@@ -278,6 +278,31 @@
     .draw{stroke-dashoffset:0 !important;animation:none !important}
     .fade,.nodeg{opacity:1 !important;transform:none !important;animation:none !important}
   }
+
+  /* ============================================================
+     PHONE — full-screen standalone (rail=strip, schematic scrolls)
+     ============================================================ */
+  @media(max-width:640px){
+    .plate{padding:16px 15px 20px}
+    .plate-head h2{font-size:clamp(1.7rem,9vw,2.4rem)}
+    /* schematic kept legible: horizontal scroll inside its own box */
+    .diagram{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:20px 16px 14px}
+    .diagram svg{min-width:440px}
+    .info{padding:18px 16px}
+    /* spec rows: give the value room, still no page overflow */
+    .spec div{gap:10px}
+    /* sheet-index chips stay tappable */
+    .plate-btn{min-height:44px}
+    .btn{min-height:44px}
+  }
+  @media(max-width:430px){
+    .topbar .brand{padding:8px 11px;font-size:10px}
+    .plate{padding:14px 13px 18px}
+    .plate-head{gap:10px}
+    .plate-head h2{font-size:clamp(1.6rem,10vw,2.1rem)}
+    .diagram svg{min-width:400px}
+    .plate-foot{font-size:8.5px;gap:8px}
+  }
 </style>
 </head>
 <body>
@@ -380,7 +405,7 @@
               <!-- callout -->
               <path class="callout-line draw" style="--len:16" d="M374,50 L374,62"/><circle cx="374" cy="49" r="2.5" fill="var(--accent)"/>
               <text class="callout-txt" x="374" y="44" text-anchor="middle">① CURATED</text>
-              <text class="callout-txt" x="156" y="234">RESULT — 80% JAILBREAK · GPT / GEMINI</text>
+              <text class="callout-txt" x="156" y="234">RESULT — ≈45× FASTER / BATCH · ASR 0.33 vs GCG 0.59</text>
             </svg>
           </div>
 
@@ -389,7 +414,7 @@
             <div class="spec fade d3">
               <div><span class="k">DOMAIN</span><span class="v">LLM RED-TEAMING</span></div>
               <div><span class="k">METHOD</span><span class="v">SEMANTIC RETRIEVAL</span></div>
-              <div><span class="k">RESULT</span><span class="v">80% · GPT / GEMINI</span></div>
+              <div><span class="k">RESULT</span><span class="v">≈45× FASTER · 0.33 ASR</span></div>
               <div><span class="k">STATUS</span><span class="v acc">PUBLISHED · arXiv</span></div>
             </div>
             <div class="chips fade d3">

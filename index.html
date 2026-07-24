@@ -13,53 +13,18 @@
 
   <link rel="stylesheet" href="shared/tokens.css">
   <link rel="stylesheet" href="os/os.css">
+  <link rel="stylesheet" href="os/virus.css">
 </head>
 <body class="booting">
 
   <!-- Desktop + wallpaper -->
   <main id="desktop">
-    <!-- Wallpaper: a STATIC wordmark, with a separate orbital animation circling it -->
+    <!-- Wallpaper: the low-poly portrait (in CSS) with the name flanking it — RISHIT · [face] · CHUGH.
+         Each letter rides a gentle, always-visible wave (staggered left→right); the word breathes a glow. -->
     <div id="wall" aria-hidden="true">
-      <div class="wall-cluster">
-        <!-- the animation: an orrery / drafting instrument that turns around the name -->
-        <svg class="wall-orbits" viewBox="-280 -280 560 560" preserveAspectRatio="xMidYMid meet">
-          <g class="ring-field">
-            <circle class="ring" r="120"/>
-            <circle class="ring dash" r="176"/>
-            <circle class="ring" r="230"/>
-            <circle class="ring faint" r="272"/>
-          </g>
-          <g class="orbit o1">
-            <line class="arm" x1="-120" y1="0" x2="120" y2="0"/>
-            <circle class="mote lg" cx="120" cy="0" r="6"/>
-            <circle class="mote" cx="-120" cy="0" r="3.5"/>
-          </g>
-          <g class="orbit o2"><circle class="mote" cx="176" cy="0" r="4.5"/></g>
-          <g class="orbit o3">
-            <circle class="mote lg" cx="230" cy="0" r="6.5"/>
-            <circle class="mote sm" cx="0" cy="230" r="3"/>
-          </g>
-          <g class="orbit o4"><circle class="mote" cx="272" cy="0" r="4"/></g>
-          <!-- central target, echoing the OS mark -->
-          <g class="target">
-            <circle class="ring" r="10"/>
-            <line class="cross" x1="-17" y1="0" x2="17" y2="0"/>
-            <line class="cross" x1="0" y1="-17" x2="0" y2="17"/>
-            <circle class="hub" r="3.4"/>
-          </g>
-        </svg>
-        <!-- the name: static, part of the wallpaper -->
-        <svg class="wall-name" viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <linearGradient id="nameGrad" x1="0" y1="0" x2="0.3" y2="1">
-              <stop offset="0" stop-color="#ffb066"/>
-              <stop offset="0.55" stop-color="#f6923c"/>
-              <stop offset="1" stop-color="#e2620f"/>
-            </linearGradient>
-          </defs>
-          <text x="20" y="132">RISHIT</text>
-          <text x="20" y="268">CHUGH</text>
-        </svg>
+      <div class="wall-name">
+        <span class="wm wm-l"><span class="l" style="--d:0s">R</span><span class="l" style="--d:.08s">I</span><span class="l" style="--d:.16s">S</span><span class="l" style="--d:.24s">H</span><span class="l" style="--d:.32s">I</span><span class="l" style="--d:.40s">T</span></span>
+        <span class="wm wm-r"><span class="l" style="--d:.48s">C</span><span class="l" style="--d:.56s">H</span><span class="l" style="--d:.64s">U</span><span class="l" style="--d:.72s">G</span><span class="l" style="--d:.80s">H</span></span>
       </div>
     </div>
     <div id="desk-icons"></div>
@@ -75,8 +40,8 @@
   <!-- Boot screen -->
   <div id="boot" aria-hidden="true"></div>
 
-  <!-- Small-screen notice (desktop-first) -->
-  <div id="screen-notice">
+  <!-- Small-screen splash: brief note, then hands off to the mobile OS -->
+  <div id="screen-notice" aria-hidden="true">
     <div class="sn-mark">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="12" r="8" stroke="#fff" stroke-width="1.7"/>
@@ -84,11 +49,13 @@
         <circle cx="12" cy="12" r="2.3" fill="#f6923c"/>
       </svg>
     </div>
-    <h2>Best on a bigger screen</h2>
-    <p>RishitOS is a windowed desktop — it wants room to breathe. Open it on a laptop or desktop for the full experience. A tailored mobile layout is coming.</p>
-    <button id="sn-enter" type="button">Enter anyway</button>
+    <h2>Best viewed on desktop</h2>
+    <p>RishitOS is a windowed desktop. Opening the tailored mobile view&hellip;</p>
+    <div class="sn-spin" aria-hidden="true"></div>
+    <a class="sn-desktop" href="#" id="sn-desktop">Continue to the desktop version&nbsp;&rarr;</a>
   </div>
 
+  <script src="os/virus.js"></script>
   <script src="os/os.js"></script>
 </body>
 </html>

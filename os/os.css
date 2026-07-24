@@ -27,17 +27,17 @@ button { font: inherit; color: inherit; }
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background:
-    radial-gradient(120% 95% at 82% 8%,  rgba(255,255,255,.15), transparent 46%),
-    radial-gradient(100% 92% at 4% 100%, rgba(242,107,29,.22), transparent 56%),
-    radial-gradient(64% 60% at 38% 52%,  rgba(246,146,60,.09), transparent 62%),
-    linear-gradient(158deg, #1c5ec9 0%, #0e429a 46%, #061d49 100%);
+  /* the wallpaper is the low-poly portrait; deep-blue is the fallback ground */
+  background: #08306b url("../assets/wallpaper/wallpaper.png") center top / cover no-repeat;
 }
-/* soft vignette for depth — no grid here (the blueprint grid lives inside the apps) */
+/* scrims: keep the menubar + dock legible over the photo, gentle corner vignette —
+   deliberately light so the portrait stays crisp */
 #desktop::after {
   content: "";
   position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(125% 120% at 50% 44%, transparent 54%, rgba(4,12,30,.38) 100%);
+  background:
+    linear-gradient(180deg, rgba(4,12,30,.30) 0%, transparent 13%, transparent 80%, rgba(4,12,30,.34) 100%),
+    radial-gradient(132% 122% at 50% 40%, transparent 60%, rgba(4,12,30,.34) 100%);
 }
 
 /* ---------------------------------------------------------------------------
@@ -48,40 +48,40 @@ button { font: inherit; color: inherit; }
   position: absolute; inset: 0; z-index: 0; overflow: hidden;
   pointer-events: none;
 }
-.wall-cluster {
-  position: absolute; left: clamp(-40px, 1vw, 40px); top: 50%;
-  transform: translateY(-52%);
-  width: min(82vw, 900px); height: 560px;
-}
-.wall-cluster svg { position: absolute; left: 50%; top: 50%; display: block; overflow: visible; }
-
-/* --- the name: static, part of the wallpaper --- */
+/* --- the name: a static wallpaper wordmark flanking the portrait: RISHIT · face · CHUGH.
+   It is ALWAYS fully opaque — the life comes from a gentle per-letter wave plus a slow
+   glow "breath", so something is always happening but the name never blinks out. --- */
 .wall-name {
-  width: min(80vw, 760px); transform: translate(-50%, -50%);
-  filter: drop-shadow(0 12px 26px rgba(5,16,38,.5));
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(16px, 4.5vw, 96px);
 }
-.wall-name text {
-  font-family: var(--font-mono); font-size: 128px; font-weight: 800;
-  letter-spacing: -.05em; fill: url(#nameGrad);
+.wm {
+  font-family: var(--font-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-weight: 800; letter-spacing: -.05em; line-height: .8;
+  font-size: clamp(38px, 8.6vw, 150px);
+  color: #f7952f;
+  display: inline-flex;
+  animation: wm-glow 5.6s ease-in-out infinite;
 }
-
-/* --- the animation: an orrery/instrument turning around the name --- */
-.wall-orbits { width: 560px; height: 560px; transform: translate(-50%, -50%); }
-.wall-orbits .ring { fill: none; stroke: rgba(214,229,255,.22); stroke-width: 1.2; }
-.wall-orbits .ring.dash  { stroke: rgba(214,229,255,.32); stroke-dasharray: 3 9; }
-.wall-orbits .ring.faint { stroke: rgba(214,229,255,.13); }
-.wall-orbits .arm   { stroke: rgba(246,146,60,.36); stroke-width: 1.3; }
-.wall-orbits .cross { stroke: rgba(210,226,255,.30); stroke-width: 1; }
-.wall-orbits .hub   { fill: #f26b1d; }
-.wall-orbits .mote  { fill: #f6923c; filter: drop-shadow(0 0 6px rgba(246,146,60,.65)); }
-.wall-orbits .mote.lg { fill: #ffb066; }
-.wall-orbits .mote.sm { fill: rgba(214,228,255,.72); filter: none; }
-.wall-orbits .orbit { transform-box: view-box; transform-origin: 50% 50%; }
-.wall-orbits .o1 { animation: orbit 30s linear infinite; }
-.wall-orbits .o2 { animation: orbit 20s linear infinite reverse; }
-.wall-orbits .o3 { animation: orbit 46s linear infinite; }
-.wall-orbits .o4 { animation: orbit 26s linear infinite reverse; }
-@keyframes orbit { to { transform: rotate(360deg); } }
+.wm-r { text-align: right; }
+.wm .l {
+  display: inline-block;
+  text-shadow: 0 10px 28px rgba(4,12,30,.6), 0 1px 0 rgba(0,0,0,.28);
+  animation: wm-wave 3.8s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+  will-change: transform;
+}
+/* small vertical wave — starts and ends at 0, so it loops seamlessly (never clunky) */
+@keyframes wm-wave {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-.07em); }
+}
+/* warm glow that swells and recedes — text stays solid, only the halo breathes */
+@keyframes wm-glow {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(247,149,47,0)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(247,149,47,.5)); }
+}
 
 /* boot-in reveal for the chrome */
 #menubar, #dock, #desk-icons { transition: opacity .5s var(--ease-out), transform .5s var(--ease-out); }
@@ -131,7 +131,7 @@ body.booting #desk-icons { opacity: 0; transform: translateY(6px); }
    =========================================================================== */
 #desk-icons {
   position: fixed; top: calc(var(--menubar-h) + 14px); right: 14px;
-  display: flex; flex-direction: column; gap: 6px; z-index: 200;
+  display: flex; flex-direction: column; gap: 6px; z-index: 5;
 }
 .desk-icon {
   width: 90px; padding: 8px 4px 6px; border: 1px solid transparent; border-radius: 10px;
@@ -154,7 +154,7 @@ body.booting #desk-icons { opacity: 0; transform: translateY(6px); }
 /* ===========================================================================
    Windows
    =========================================================================== */
-#windows { position: fixed; inset: 0; pointer-events: none; }
+#windows { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
 .win {
   position: fixed; top: 0; left: 0;
   min-width: 320px; min-height: 200px;
@@ -341,10 +341,18 @@ body.booting #desk-icons { opacity: 0; transform: translateY(6px); }
 #screen-notice .sn-mark { width: 62px; height: 62px; }
 #screen-notice h2 { margin: 4px 0 0; font-size: 22px; letter-spacing: -.02em; }
 #screen-notice p { margin: 0; max-width: 30ch; line-height: 1.55; color: #c6d8f5; font-size: 14px; }
-#screen-notice button {
-  margin-top: 6px; padding: 10px 20px; border: 1px solid rgba(255,255,255,.4); border-radius: 999px;
-  background: rgba(255,255,255,.14); color: #fff; font-weight: 600; cursor: pointer;
+#screen-notice .sn-spin {
+  width: 30px; height: 30px; margin-top: 4px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.22); border-top-color: #f2913f;
+  animation: sn-spin .8s linear infinite;
 }
+@keyframes sn-spin { to { transform: rotate(360deg); } }
+#screen-notice .sn-desktop {
+  margin-top: 8px; color: #bcd2f5; font-size: 13px; letter-spacing: .01em;
+  text-decoration: underline; text-underline-offset: 3px; opacity: .82;
+}
+#screen-notice .sn-desktop:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { #screen-notice .sn-spin { animation: none; } }
 body.small #screen-notice { display: flex; }
 
 /* ===========================================================================
@@ -354,6 +362,6 @@ body.small #screen-notice { display: flex; }
   #menubar, #dock, #desk-icons, #boot, .dock-item, .tl svg, .app-frame { transition: none !important; }
   .win.maximizing { transition: none !important; }
   #boot .caret, .frame-spin i { animation: none !important; }
-  /* wallpaper orbits rest in place (static diagram) */
-  .wall-orbits .orbit { animation: none !important; }
+  /* the wallpaper name rests fully visible — no wave, no glow breath */
+  .wm, .wm .l { animation: none !important; }
 }
